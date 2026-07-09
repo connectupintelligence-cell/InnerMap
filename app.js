@@ -996,6 +996,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     provider: "email"
                 });
                 
+                if (authMode === "login") {
+                    state.saveSubscription({
+                        plan: "yearly",
+                        active: true,
+                        date: new Date().toLocaleDateString('pt-BR')
+                    });
+                }
+                
                 if (btnAuthSubmit) {
                     btnAuthSubmit.disabled = false;
                     btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
