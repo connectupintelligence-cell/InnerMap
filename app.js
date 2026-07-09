@@ -36,7 +36,7 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
 // ==========================================================================
 // Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
 // Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
-const INFINITEPAY_TAG = ""; // Ex: "wavequantum"
+const INFINITEPAY_TAG = "connectup"; // Ex: "wavequantum"
 const INFINITEPAY_LINK_MONTHLY = ""; // Opcional: Link estático mensal (R$ 49,90)
 const INFINITEPAY_LINK_YEARLY = ""; // Opcional: Link estático anual (R$ 478,80)
 
