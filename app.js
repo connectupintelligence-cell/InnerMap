@@ -595,9 +595,6 @@ class AppStateManager {
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
         }
-        if (!user && supabaseClient) {
-            supabaseClient.auth.signOut();
-        }
     }
 
     loadSubscription() {
@@ -1309,8 +1306,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnLogout) {
-        btnLogout.addEventListener("click", (e) => {
+        btnLogout.addEventListener("click", async (e) => {
             e.preventDefault();
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (err) {
+                    console.error("Erro ao sair do Supabase:", err);
+                }
+            }
             state.saveUser(null);
             state.saveSubscription(null);
             
