@@ -1,7 +1,26 @@
 /**
  * InnerMap - Motor de Reorganização Informacional
- * Core Logic, State Management & RAG Simulator
+ * Core Logic, State Management & Supabase Backend Integration
  */
+
+// ==========================================================================
+// CONFIGURAÇÃO DO SUPABASE (BANCO DE DADOS & AUTH REMOTO)
+// ==========================================================================
+// Insira as chaves do seu projeto do Supabase aqui para ativar o login real com Google
+// e sincronização das reorganizações na nuvem de forma 100% gratuita e sem servidor.
+// Caso fiquem vazias, o aplicativo entrará em modo de simulação local automática.
+const SUPABASE_URL = ""; 
+const SUPABASE_ANON_KEY = "";
+
+let supabase = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("Supabase Client inicializado com sucesso!");
+    } catch (err) {
+        console.error("Erro de inicialização do Supabase:", err);
+    }
+}
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
@@ -521,6 +540,10 @@ class AppStateManager {
         this.timerInterval = null;
         this.isHereditary = false;
         this.factDetail = "";
+        
+        // Autenticação e Assinatura persistidas
+        this.currentUser = this.loadUser();
+        this.subscription = this.loadSubscription();
     }
 
     loadHistory() {
@@ -532,7 +555,96 @@ class AppStateManager {
         localStorage.setItem("innermap_history", JSON.stringify(this.history));
     }
 
-    addReorganization(phrase, result, rating) {
+    loadUser() {
+        const stored = localStorage.getItem("innermap_user");
+        return stored ? JSON.parse(stored) : null;
+    }
+
+    saveUser(user) {
+        this.currentUser = user;
+        if (user) {
+            localStorage.setItem("innermap_user", JSON.stringify(user));
+        } else {
+            localStorage.removeItem("innermap_user");
+            if (supabase) {
+                supabase.auth.signOut();
+            }
+        }
+    }
+
+    loadSubscription() {
+        const stored = localStorage.getItem("innermap_subscription");
+        return stored ? JSON.parse(stored) : null;
+    }
+
+    async saveSubscription(sub) {
+        this.subscription = sub;
+        if (sub) {
+            localStorage.setItem("innermap_subscription", JSON.stringify(sub));
+            // Sincronizar com o banco do Supabase se o usuário estiver logado
+            if (supabase && this.currentUser) {
+                try {
+                    await supabase.from("subscriptions").upsert({
+                        user_id: this.currentUser.id || this.currentUser.email,
+                        plan: sub.plan,
+                        active: sub.active,
+                        date: sub.date
+                    });
+                } catch (err) {
+                    console.error("Erro ao sincronizar assinatura no Supabase:", err);
+                }
+            }
+        } else {
+            localStorage.removeItem("innermap_subscription");
+        }
+    }
+
+    async loadDataFromSupabase() {
+        if (!supabase || !this.currentUser) return;
+        
+        try {
+            // 1. Buscar Assinatura Remota
+            const { data: subData, error: subErr } = await supabase
+                .from("subscriptions")
+                .select("*")
+                .eq("user_id", this.currentUser.id || this.currentUser.email)
+                .maybeSingle();
+
+            if (!subErr && subData) {
+                this.subscription = {
+                    plan: subData.plan,
+                    active: subData.active,
+                    date: subData.date
+                };
+                localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+            }
+
+            // 2. Buscar Histórico de Reorganizações Remoto
+            const { data: histData, error: histErr } = await supabase
+                .from("reorganizations")
+                .select("*")
+                .eq("user_id", this.currentUser.id || this.currentUser.email)
+                .order("id", { ascending: false });
+
+            if (!histErr && histData) {
+                this.history = histData.map(d => ({
+                    id: d.id,
+                    date: d.date,
+                    phrase: d.phrase,
+                    category: d.category,
+                    categoryEmoji: d.categoryEmoji,
+                    title: d.title,
+                    rating: d.rating,
+                    data: d.data
+                }));
+                this.saveHistory();
+            }
+        } catch (err) {
+            console.error("Erro na carga do Supabase:", err);
+        }
+    }
+
+    async addReorganization(phrase, result, rating) {
         const entry = {
             id: Date.now().toString(),
             date: new Date().toLocaleDateString('pt-BR'),
@@ -546,6 +658,24 @@ class AppStateManager {
         };
         this.history.unshift(entry);
         this.saveHistory();
+
+        if (supabase && this.currentUser) {
+            try {
+                await supabase.from("reorganizations").insert({
+                    id: entry.id,
+                    user_id: this.currentUser.id || this.currentUser.email,
+                    date: entry.date,
+                    phrase: entry.phrase,
+                    category: entry.category,
+                    categoryEmoji: entry.categoryEmoji,
+                    title: entry.title,
+                    rating: entry.rating,
+                    data: entry.data
+                });
+            } catch (err) {
+                console.error("Erro ao salvar reorganização no Supabase:", err);
+            }
+        }
     }
 
     getStats() {
@@ -644,60 +774,66 @@ document.addEventListener("DOMContentLoaded", () => {
     // Lógica Centralizada de Tabs
     function switchTab(activeNav, activeSection) {
         [navApp, navLib, navNav].forEach(el => el && el.classList.remove("active"));
-        [sectionApp, sectionLib, sectionRag].forEach(el => el.style.display = "none");
+        [sectionApp, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
         
-        activeNav.classList.add("active");
-        activeSection.style.display = "block";
+        if (activeNav) activeNav.classList.add("active");
+        if (activeSection) activeSection.style.display = "block";
     }
 
-    navApp.addEventListener("click", (e) => {
-        e.preventDefault();
-        switchTab(navApp, sectionApp);
-        if (!state.currentUser) {
-            showScreen("auth");
-        } else if (!state.subscription) {
-            showScreen("paywall");
-        } else if (state.currentStep === 0) {
-            showScreen("step1");
-        }
-    });
+    if (navApp) {
+        navApp.addEventListener("click", (e) => {
+            e.preventDefault();
+            switchTab(navApp, sectionApp);
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else if (state.currentStep === 0) {
+                showScreen("step1");
+            }
+        });
+    }
 
-    navLib.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!state.currentUser) {
-            showToast("Acesse sua conta para ver suas Reorganizações.");
-            switchTab(navApp, sectionApp);
-            showScreen("auth");
-            return;
-        }
-        if (!state.subscription) {
-            showToast("Assine um plano para ver suas Reorganizações.");
-            switchTab(navApp, sectionApp);
-            showScreen("paywall");
-            return;
-        }
-        switchTab(navLib, sectionLib);
-        renderLibrary();
-        renderStats();
-    });
+    if (navLib) {
+        navLib.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver suas Reorganizações.");
+                switchTab(navApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription) {
+                showToast("Assine um plano para ver suas Reorganizações.");
+                switchTab(navApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(navLib, sectionLib);
+            renderLibrary();
+            renderStats();
+        });
+    }
 
-    navNav.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!state.currentUser) {
-            showToast("Acesse sua conta para rodar o simulador RAG.");
-            switchTab(navApp, sectionApp);
-            showScreen("auth");
-            return;
-        }
-        if (!state.subscription) {
-            showToast("Assine um plano para rodar o simulador RAG.");
-            switchTab(navApp, sectionApp);
-            showScreen("paywall");
-            return;
-        }
-        switchTab(navNav, sectionRag);
-        renderVectorList();
-    });
+    if (navNav) {
+        navNav.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para rodar o simulador RAG.");
+                switchTab(navApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription) {
+                showToast("Assine um plano para rodar o simulador RAG.");
+                switchTab(navApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(navNav, sectionRag);
+            renderVectorList();
+        });
+    }
 
     // Lógica de Navegação e Transição dos Sub-Passos da Tela 1
     function switchSubStep(hideEl, showEl) {
@@ -978,7 +1114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (authForm) {
-        authForm.addEventListener("submit", (e) => {
+        authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = authEmailInput.value.trim();
             const pwd = authPasswordInput.value.trim();
@@ -990,72 +1126,148 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnAuthSubmit.innerHTML = `<span class="spinner"></span> ${authMode === 'login' ? 'Entrando' : 'Cadastrando'}...`;
             }
 
-            setTimeout(() => {
-                state.saveUser({
-                    email: email,
-                    provider: "email"
-                });
-                
-                if (authMode === "login") {
-                    state.saveSubscription({
-                        plan: "yearly",
-                        active: true,
-                        date: new Date().toLocaleDateString('pt-BR')
+            if (supabase) {
+                try {
+                    if (authMode === "register") {
+                        const { data, error } = await supabase.auth.signUp({
+                            email: email,
+                            password: pwd
+                        });
+                        
+                        if (error) throw error;
+                        
+                        // Salvar usuário
+                        state.saveUser({
+                            email: email,
+                            provider: "email",
+                            id: data.user.id
+                        });
+                        
+                        showToast("Cadastro realizado com sucesso! Verifique seu e-mail.");
+                        showScreen("paywall");
+                    } else {
+                        const { data, error } = await supabase.auth.signInWithPassword({
+                            email: email,
+                            password: pwd
+                        });
+                        
+                        if (error) throw error;
+                        
+                        state.saveUser({
+                            email: data.user.email,
+                            provider: "email",
+                            id: data.user.id
+                        });
+                        
+                        await state.loadDataFromSupabase();
+                        
+                        showToast("Logado com sucesso!");
+                        showScreen(state.subscription ? "step1" : "paywall");
+                    }
+                } catch (err) {
+                    alert("Erro na autenticação: " + err.message);
+                } finally {
+                    if (btnAuthSubmit) {
+                        btnAuthSubmit.disabled = false;
+                        btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
+                    }
+                    authEmailInput.value = "";
+                    authPasswordInput.value = "";
+                    updateUserUI();
+                }
+            } else {
+                // Simulação local
+                setTimeout(() => {
+                    state.saveUser({
+                        email: email,
+                        provider: "email"
                     });
-                }
-                
-                if (btnAuthSubmit) {
-                    btnAuthSubmit.disabled = false;
-                    btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
-                }
-                
-                authEmailInput.value = "";
-                authPasswordInput.value = "";
-                
-                updateUserUI();
-                
-                if (state.subscription) {
-                    showScreen("step1");
-                    showToast("Logado com sucesso!");
-                } else {
-                    showScreen("paywall");
-                    showToast("Conta criada! Selecione o seu plano de acesso.");
-                }
-            }, 1200);
+                    
+                    if (authMode === "login") {
+                        state.saveSubscription({
+                            plan: "yearly",
+                            active: true,
+                            date: new Date().toLocaleDateString('pt-BR')
+                        });
+                    }
+                    
+                    if (btnAuthSubmit) {
+                        btnAuthSubmit.disabled = false;
+                        btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
+                    }
+                    
+                    authEmailInput.value = "";
+                    authPasswordInput.value = "";
+                    
+                    updateUserUI();
+                    
+                    if (state.subscription) {
+                        showScreen("step1");
+                        showToast("Logado com sucesso! (Simulador)");
+                    } else {
+                        showScreen("paywall");
+                        showToast("Conta criada! Selecione o seu plano de acesso. (Simulador)");
+                    }
+                }, 1200);
+            }
         });
     }
 
     if (btnAuthGoogle) {
-        btnAuthGoogle.addEventListener("click", () => {
+        btnAuthGoogle.addEventListener("click", async () => {
             btnAuthGoogle.disabled = true;
             btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
 
-            setTimeout(() => {
-                state.saveUser({
-                    email: "visitante.google@gmail.com",
-                    provider: "google"
-                });
-                
-                btnAuthGoogle.disabled = false;
-                btnAuthGoogle.innerHTML = `
-                    <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-                    </svg> Entrar com o Google
-                `;
-
-                updateUserUI();
-                
-                if (state.subscription) {
-                    showScreen("step1");
-                    showToast("Conectado com o Google!");
-                } else {
-                    showScreen("paywall");
-                    showToast("Google conectado! Selecione o seu plano de acesso.");
+            if (supabase) {
+                try {
+                    const { error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin + window.location.pathname
+                        }
+                    });
+                    if (error) throw error;
+                } catch (err) {
+                    alert("Erro ao conectar com o Google: " + err.message);
+                    btnAuthGoogle.disabled = false;
+                    btnAuthGoogle.innerHTML = `
+                        <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                        </svg> Entrar com o Google
+                    `;
                 }
-            }, 1200);
+            } else {
+                // Simulação local
+                setTimeout(() => {
+                    state.saveUser({
+                        email: "visitante.google@gmail.com",
+                        provider: "google"
+                    });
+                    
+                    btnAuthGoogle.disabled = false;
+                    btnAuthGoogle.innerHTML = `
+                        <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                        </svg> Entrar com o Google
+                    `;
+
+                    updateUserUI();
+                    
+                    if (state.subscription) {
+                        showScreen("step1");
+                        showToast("Conectado com o Google! (Simulador)");
+                    } else {
+                        showScreen("paywall");
+                        showToast("Google conectado! Selecione o seu plano de acesso. (Simulador)");
+                    }
+                }, 1200);
+            }
         });
     }
 
@@ -1285,6 +1497,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================================================
 
     function renderVectorList() {
+        if (!ragVectorList) return;
         ragVectorList.innerHTML = "";
         const history = state.history;
 
@@ -1319,80 +1532,83 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    btnSimulateRag.addEventListener("click", () => {
-        const query = ragInputPhrase.value.trim();
-        if (!query) {
-            alert("Por favor, digite uma frase para simular o RAG.");
-            return;
-        }
+    if (btnSimulateRag) {
+        btnSimulateRag.addEventListener("click", () => {
+            const query = ragInputPhrase ? ragInputPhrase.value.trim() : "";
+            if (!query) {
+                alert("Por favor, digite uma frase para simular o RAG.");
+                return;
+            }
 
-        btnSimulateRag.disabled = true;
-        btnSimulateRag.innerHTML = '<span class="spinner"></span> Executando RAG...';
-        ragConsoleLogs.innerHTML = `<p class="console-log-line color-cyan">// Inicializando pipeline RAG para: "${query}"...</p>`;
-
-        setTimeout(() => {
-            // Passo 1: Geração de Embedding
-            const queryEmbedding = generateMockEmbedding(query);
-            const firstValues = queryEmbedding.slice(0, 4).join(", ");
-            
-            appendConsoleLog(`[PASSO 1] Gerando Vector Embedding via OpenAI API (text-embedding-3-small)...`);
-            appendConsoleLog(`Vector gerado com sucesso! Dimensão: 1536.`, "color-green");
-            appendConsoleLog(`Vetor do usuário: [${firstValues}, ...]`, "color-grey");
+            btnSimulateRag.disabled = true;
+            btnSimulateRag.innerHTML = '<span class="spinner"></span> Executando RAG...';
+            if (ragConsoleLogs) {
+                ragConsoleLogs.innerHTML = `<p class="console-log-line color-cyan">// Inicializando pipeline RAG para: "${query}"...</p>`;
+            }
 
             setTimeout(() => {
-                // Passo 2: Busca Vetorial Cosseno no pgvector
-                appendConsoleLog(`[PASSO 2] Consultando banco de dados PostgreSQL usando operador de distância cosseno (<=>) no pgvector...`);
+                // Passo 1: Geração de Embedding
+                const queryEmbedding = generateMockEmbedding(query);
+                const firstValues = queryEmbedding.slice(0, 4).join(", ");
                 
-                const history = state.history;
-                const matches = [];
-
-                history.forEach(item => {
-                    if (!item.embedding) {
-                        item.embedding = generateMockEmbedding(item.phrase);
-                    }
-                    const similarity = cosineSimilarity(queryEmbedding, item.embedding);
-                    matches.push({
-                        phrase: item.phrase,
-                        rating: item.rating,
-                        category: item.category,
-                        similarity: similarity
-                    });
-                });
-
-                // Ordenar por similaridade decrescente
-                matches.sort((a, b) => b.similarity - a.similarity);
-
-                // Filtrar por limite semântico (threshold de 0.60 para simulação)
-                const threshold = 0.60;
-                const relevantMatches = matches.filter(m => m.similarity >= threshold).slice(0, 2);
-
-                if (matches.length === 0) {
-                    appendConsoleLog(`Varredura completa. Tabela journal_entries está vazia. Nenhum contexto histórico recuperado.`, "color-yellow");
-                } else {
-                    appendConsoleLog(`Similaridades calculadas com sucesso no banco de dados:`);
-                    matches.slice(0, 3).forEach(m => {
-                        const isSelected = m.similarity >= threshold ? "SELECIONADO (>= 0.60)" : "IGNORADO (< 0.60)";
-                        const color = m.similarity >= threshold ? "color-green" : "color-grey";
-                        appendConsoleLog(`  - "${m.phrase.substring(0, 30)}..." | Similaridade Cosseno: ${m.similarity.toFixed(4)} | Status: ${isSelected}`, color);
-                    });
-                }
+                appendConsoleLog(`[PASSO 1] Gerando Vector Embedding via OpenAI API (text-embedding-3-small)...`);
+                appendConsoleLog(`Vector gerado com sucesso! Dimensão: 1536.`, "color-green");
+                appendConsoleLog(`Vetor do usuário: [${firstValues}, ...]`, "color-grey");
 
                 setTimeout(() => {
-                    // Passo 3: Injeção de Contexto & Montagem do Prompt
-                    appendConsoleLog(`[PASSO 3] Sintetizando prompt contextualizado com Memória Inteligente para o LLM...`);
+                    // Passo 2: Busca Vetorial Cosseno no pgvector
+                    appendConsoleLog(`[PASSO 2] Consultando banco de dados PostgreSQL usando operador de distância cosseno (<=>) no pgvector...`);
                     
-                    let contextBlock = "";
-                    if (relevantMatches.length > 0) {
-                        contextBlock = `--- MEMÓRIA INTELIGENTE (Histórico relevante recuperado) ---\n`;
-                        relevantMatches.forEach((m, idx) => {
-                            contextBlock += `- Registro antigo ${idx+1}: '${m.phrase}' | Feedback emocional pós-prática: ${m.rating}\n`;
+                    const history = state.history;
+                    const matches = [];
+
+                    history.forEach(item => {
+                        if (!item.embedding) {
+                            item.embedding = generateMockEmbedding(item.phrase);
+                        }
+                        const similarity = cosineSimilarity(queryEmbedding, item.embedding);
+                        matches.push({
+                            phrase: item.phrase,
+                            rating: item.rating,
+                            category: item.category,
+                            similarity: similarity
                         });
-                        contextBlock += `---------------------------------------------------------\n`;
+                    });
+
+                    // Ordenar por similaridade decrescente
+                    matches.sort((a, b) => b.similarity - a.similarity);
+
+                    // Filtrar por limite semântico (threshold de 0.60 para simulação)
+                    const threshold = 0.60;
+                    const relevantMatches = matches.filter(m => m.similarity >= threshold).slice(0, 2);
+
+                    if (matches.length === 0) {
+                        appendConsoleLog(`Varredura completa. Tabela journal_entries está vazia. Nenhum contexto histórico recuperado.`, "color-yellow");
                     } else {
-                        contextBlock = `(Nenhum histórico semanticamente relevante foi injetado para economizar tokens)\n`;
+                        appendConsoleLog(`Similaridades calculadas com sucesso no banco de dados:`);
+                        matches.slice(0, 3).forEach(m => {
+                            const isSelected = m.similarity >= threshold ? "SELECIONADO (>= 0.60)" : "IGNORADO (< 0.60)";
+                            const color = m.similarity >= threshold ? "color-green" : "color-grey";
+                            appendConsoleLog(`  - "${m.phrase.substring(0, 30)}..." | Similaridade Cosseno: ${m.similarity.toFixed(4)} | Status: ${isSelected}`, color);
+                        });
                     }
 
-                    const promptPreview = `
+                    setTimeout(() => {
+                        // Passo 3: Injeção de Contexto & Montagem do Prompt
+                        appendConsoleLog(`[PASSO 3] Sintetizando prompt contextualizado com Memória Inteligente para o LLM...`);
+                        
+                        let contextBlock = "";
+                        if (relevantMatches.length > 0) {
+                            contextBlock = `--- MEMÓRIA INTELIGENTE (Histórico relevante recuperado) ---\n`;
+                            relevantMatches.forEach((m, idx) => {
+                                contextBlock += `- Registro antigo ${idx+1}: '${m.phrase}' | Feedback emocional pós-prática: ${m.rating}\n`;
+                            });
+                            contextBlock += `---------------------------------------------------------\n`;
+                        } else {
+                            contextBlock = `(Nenhum histórico semanticamente relevante foi injetado para economizar tokens)\n`;
+                        }
+
+                        const promptPreview = `
 [SYSTEM PROMPT]
 Você é o InnerMap, assistente especializado em reorganizar padrões internos...
 
@@ -1401,42 +1617,43 @@ ${contextBlock}
 [USER QUERY]
 Pergunta atual: "${query}"
 `;
-                    appendConsoleLog(`Prompt construído com sucesso:`);
-                    const pre = document.createElement("pre");
-                    pre.className = "console-code-block";
-                    pre.innerText = promptPreview;
-                    ragConsoleLogs.appendChild(pre);
+                        appendConsoleLog(`Prompt construído com sucesso:`);
+                        const pre = document.createElement("pre");
+                        pre.className = "console-code-block";
+                        pre.innerText = promptPreview;
+                        if (ragConsoleLogs) ragConsoleLogs.appendChild(pre);
 
-                    setTimeout(() => {
-                        // Passo 4: Retorno LLM
-                        appendConsoleLog(`[PASSO 4] Enviando prompt para a API do LLM (${rag_pipeline_chat_model()})...`);
-                        
-                        const result = ReorganizationEngine.analyzeInput(query);
-                        
-                        appendConsoleLog(`Resposta gerada pela IA com sucesso!`, "color-green");
-                        
-                        const responseBlock = document.createElement("div");
-                        responseBlock.style.background = "rgba(102, 252, 241, 0.04)";
-                        responseBlock.style.border = "1px solid var(--color-primary-glow)";
-                        responseBlock.style.borderRadius = "8px";
-                        responseBlock.style.padding = "1rem";
-                        responseBlock.style.marginTop = "0.75rem";
-                        responseBlock.innerHTML = `
-                            <strong>Ajuste:</strong> ${result.ajuste}<br><br>
-                            <strong>Liberação:</strong> <span style="font-family: monospace;">${result.declaracao}</span>
-                        `;
-                        ragConsoleLogs.appendChild(responseBlock);
-                        
-                        appendConsoleLog(`[COMPLETO] Registro atualizado salvo com sucesso na tabela journal_entries do PostgreSQL.`, "color-green");
-                        
-                        btnSimulateRag.disabled = false;
-                        btnSimulateRag.innerHTML = 'Simular Fluxo RAG →';
-                        renderVectorList();
+                        setTimeout(() => {
+                            // Passo 4: Retorno LLM
+                            appendConsoleLog(`[PASSO 4] Enviando prompt para a API do LLM (${rag_pipeline_chat_model()})...`);
+                            
+                            const result = ReorganizationEngine.analyzeInput(query);
+                            
+                            appendConsoleLog(`Resposta gerada pela IA com sucesso!`, "color-green");
+                            
+                            const responseBlock = document.createElement("div");
+                            responseBlock.style.background = "rgba(102, 252, 241, 0.04)";
+                            responseBlock.style.border = "1px solid var(--color-primary-glow)";
+                            responseBlock.style.borderRadius = "8px";
+                            responseBlock.style.padding = "1rem";
+                            responseBlock.style.marginTop = "0.75rem";
+                            responseBlock.innerHTML = `
+                                <strong>Ajuste:</strong> ${result.ajuste}<br><br>
+                                <strong>Liberação:</strong> <span style="font-family: monospace;">${result.declaracao}</span>
+                            `;
+                            if (ragConsoleLogs) ragConsoleLogs.appendChild(responseBlock);
+                            
+                            appendConsoleLog(`[COMPLETO] Registro atualizado salvo com sucesso na tabela journal_entries do PostgreSQL.`, "color-green");
+                            
+                            btnSimulateRag.disabled = false;
+                            btnSimulateRag.innerHTML = 'Simular Fluxo RAG →';
+                            renderVectorList();
+                        }, 1500);
                     }, 1500);
-                }, 1500);
-            }, 1200);
-        }, 1000);
-    });
+                }, 1200);
+            }, 1000);
+        });
+    }
 
     function appendConsoleLog(message, className = "") {
         const p = document.createElement("p");
@@ -1470,12 +1687,45 @@ Pergunta atual: "${query}"
     }
 
     // Inicialização da Tela no Load
-    updateUserUI();
-    if (!state.currentUser) {
-        showScreen("auth");
-    } else if (!state.subscription) {
-        showScreen("paywall");
+    if (supabase) {
+        // Observador de estado de autenticação real (Supabase)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session && session.user) {
+                state.saveUser({
+                    email: session.user.email,
+                    provider: session.user.app_metadata.provider || "email",
+                    id: session.user.id
+                });
+                await state.loadDataFromSupabase();
+                updateUserUI();
+                renderLibrary();
+                renderStats();
+                
+                // Redirecionar dependendo da assinatura sincronizada
+                if (state.subscription) {
+                    showScreen("step1");
+                } else {
+                    showScreen("paywall");
+                }
+            } else {
+                state.saveUser(null);
+                state.saveSubscription(null);
+                state.history = [];
+                updateUserUI();
+                renderLibrary();
+                renderStats();
+                showScreen("auth");
+            }
+        });
     } else {
-        showScreen("step1");
+        // Fallback local se Supabase não configurado
+        updateUserUI();
+        if (!state.currentUser) {
+            showScreen("auth");
+        } else if (!state.subscription) {
+            showScreen("paywall");
+        } else {
+            showScreen("step1");
+        }
     }
 });

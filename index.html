@@ -44,7 +44,6 @@
             <ul class="nav-links">
                 <li><a href="#" id="nav-app" class="nav-link active">Início & App</a></li>
                 <li><a href="#" id="nav-lib" class="nav-link">Minhas Reorganizações</a></li>
-                <li><a href="#" id="nav-rag" class="nav-link">Simulador RAG</a></li>
             </ul>
             
             <div class="user-nav-container" id="user-nav-container" style="display: none; align-items: center; gap: 0.75rem;">
@@ -463,62 +462,7 @@
 
         </section>
 
-        <!-- ========================================== -->
-        <!-- Tab 3: RAG Simulator Workspace             -->
-        <!-- ========================================== -->
-        <section id="rag-workspace" class="library-section" style="display: none;">
-            <div class="library-layout">
-                <!-- Left Column: RAG Console & Logs -->
-                <div class="library-main">
-                    <h2 class="step-title">Simulador de Memória Inteligente (RAG)</h2>
-                    <p class="step-subtitle">Veja como o sistema recupera memórias antigas via pgvector para injeção de contexto.</p>
-                    
-                    <div class="app-container" style="max-width: 100%; margin-bottom: 2rem; padding: 2rem;">
-                        <h3 class="stats-section-title" style="color: var(--color-primary); margin-bottom: 1rem;">1. Testar Entrada Semântica</h3>
-                        <div class="input-group" style="margin-bottom: 1.5rem;">
-                            <textarea id="rag-input-phrase" class="textarea-quantum" style="height: 80px;" placeholder="Digite algo relacionado às suas reorganizações (Ex: 'voltei a sentir medo de cobrar' ou 'estou exausto')..."></textarea>
-                        </div>
-                        <button id="btn-simulate-rag" class="btn btn-primary">Simular Fluxo RAG →</button>
-                    </div>
 
-                    <!-- Live RAG Terminal Console -->
-                    <div class="rag-console-card">
-                        <div class="console-header">
-                            <span class="console-dot dot-red"></span>
-                            <span class="console-dot dot-yellow"></span>
-                            <span class="console-dot dot-green"></span>
-                            <span class="console-title">LOGS DE EXECUÇÃO DO PIPELINE RAG (BACKEND)</span>
-                        </div>
-                        <div id="rag-console-logs" class="console-body">
-                            <p class="console-placeholder">// Aguardando simulação... Digite uma frase acima e clique em "Simular Fluxo RAG".</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Database Inspector -->
-                <aside class="library-sidebar">
-                    <h3 class="sidebar-title">Banco Vetorial & Relacional</h3>
-                    
-                    <div class="stats-categories" style="margin-bottom: 2rem;">
-                        <h4 class="stats-section-title">Parâmetros do pgvector</h4>
-                        <div class="stat-box" style="text-align: left; padding: 1rem; margin-bottom: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--color-border);">
-                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Extensão:</strong> vector (Ativa)</p>
-                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Dimensão:</strong> 1536 (OpenAI)</p>
-                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Métrica:</strong> Distância de Cosseno</p>
-                            <p style="font-size: 0.85rem;"><strong>Índice:</strong> HNSW (Hnsw_vector_cosine_ops)</p>
-                        </div>
-                    </div>
-
-                    <div class="stats-categories">
-                        <h4 class="stats-section-title">Registros Vetoriais (pgvector)</h4>
-                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1rem;">Visualização dos embeddings salvos na tabela <code>journal_entries</code>:</p>
-                        <ul id="rag-vector-list" class="stats-category-list" style="max-height: 350px; overflow-y: auto; gap: 0.75rem;">
-                            <li class="empty-stats">Nenhum vetor salvo ainda. Crie reorganizações na aba Início.</li>
-                        </ul>
-                    </div>
-                </aside>
-            </div>
-        </section>
 
     </main>
 
@@ -537,6 +481,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
 </body>
 </html>
