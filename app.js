@@ -31,6 +31,14 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
         console.error("Erro de inicialização do Supabase:", err);
     }
 }
+// ==========================================================================
+// CONFIGURAÇÃO DO INFINITEPAY (GATEWAY DE PAGAMENTOS)
+// ==========================================================================
+// Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
+// Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
+const INFINITEPAY_TAG = ""; // Ex: "wavequantum"
+const INFINITEPAY_LINK_MONTHLY = ""; // Opcional: Link estático mensal (R$ 49,90)
+const INFINITEPAY_LINK_YEARLY = ""; // Opcional: Link estático anual (R$ 478,80)
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
@@ -1337,13 +1345,72 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let activeSelectedPlan = "yearly";
 
+    async function startCheckout(plan) {
+        activeSelectedPlan = plan;
+        const price = plan === "yearly" ? 47880 : 4990;
+        const description = plan === "yearly" ? "InnerMap - Plano Anual" : "InnerMap - Plano Mensal";
+        
+        if (INFINITEPAY_TAG) {
+            const btn = document.querySelector(`.btn-select-plan[data-plan="${plan}"]`);
+            const originalText = btn ? btn.innerText : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span> Redirecionando...`;
+            }
+            
+            try {
+                const response = await fetch("https://api.checkout.infinitepay.io/links", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        handle: INFINITEPAY_TAG,
+                        redirect_url: `${window.location.origin}${window.location.pathname}?payment=success&plan=${plan}`,
+                        items: [
+                            {
+                                description: description,
+                                price: price,
+                                quantity: 1
+                            }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Erro na API da InfinitePay");
+                
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                    return;
+                }
+            } catch (err) {
+                console.warn("Falha ao gerar link dinâmico da InfinitePay, tentando link estático ou simulação:", err);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+        }
+        
+        // Fallback para link estático
+        const staticLink = plan === "yearly" ? INFINITEPAY_LINK_YEARLY : INFINITEPAY_LINK_MONTHLY;
+        if (staticLink) {
+            window.location.href = staticLink;
+            return;
+        }
+        
+        // Se nenhuma configuração da InfinitePay estiver ativa, usa a simulação local anterior
+        if (checkoutPlanName) {
+            checkoutPlanName.innerText = plan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
+        }
+        if (checkoutModal) checkoutModal.style.display = "flex";
+    }
+
     document.querySelectorAll(".btn-select-plan").forEach(btn => {
         btn.addEventListener("click", () => {
-            activeSelectedPlan = btn.dataset.plan;
-            if (checkoutPlanName) {
-                checkoutPlanName.innerText = activeSelectedPlan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
-            }
-            if (checkoutModal) checkoutModal.style.display = "flex";
+            startCheckout(btn.dataset.plan);
         });
     });
 
@@ -1796,5 +1863,23 @@ Pergunta atual: "${query}"
         } else {
             showScreen("step1");
         }
+    }
+
+    // Verificar retorno de pagamento da InfinitePay na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("payment") === "success") {
+        const plan = urlParams.get("plan");
+        // Limpar parâmetros da URL para evitar recargas ativando repetidamente
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        state.saveSubscription({
+            plan: plan,
+            active: true,
+            date: new Date().toLocaleDateString('pt-BR')
+        }).then(() => {
+            updateUserUI();
+            showToast(`Assinatura do Plano ${plan === "yearly" ? "Anual" : "Mensal"} ativada com sucesso! Obrigado!`);
+            showScreen("step1");
+        });
     }
 });
