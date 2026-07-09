@@ -566,55 +566,82 @@ class AppStateManager {
     }
 
     loadHistory() {
-        const stored = localStorage.getItem("innermap_history");
-        return stored ? JSON.parse(stored) : [];
+        try {
+            const stored = localStorage.getItem("innermap_history");
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            console.warn("Erro ao ler historico no localStorage:", e);
+            return [];
+        }
     }
 
     saveHistory() {
-        localStorage.setItem("innermap_history", JSON.stringify(this.history));
+        try {
+            localStorage.setItem("innermap_history", JSON.stringify(this.history));
+        } catch (e) {
+            console.warn("Erro ao salvar historico no localStorage:", e);
+        }
     }
 
     loadUser() {
-        const stored = localStorage.getItem("innermap_user");
-        return stored ? JSON.parse(stored) : null;
+        try {
+            const stored = localStorage.getItem("innermap_user");
+            return stored ? JSON.parse(stored) : null;
+        } catch (e) {
+            console.warn("Erro ao ler usuario no localStorage:", e);
+            return null;
+        }
     }
 
     saveUser(user) {
         this.currentUser = user;
-        if (user) {
-            localStorage.setItem("innermap_user", JSON.stringify(user));
-        } else {
-            localStorage.removeItem("innermap_user");
-            if (supabase) {
-                supabase.auth.signOut();
+        try {
+            if (user) {
+                localStorage.setItem("innermap_user", JSON.stringify(user));
+            } else {
+                localStorage.removeItem("innermap_user");
             }
+        } catch (e) {
+            console.warn("Erro ao salvar usuario no localStorage:", e);
+        }
+        if (!user && supabase) {
+            supabase.auth.signOut();
         }
     }
 
     loadSubscription() {
-        const stored = localStorage.getItem("innermap_subscription");
-        return stored ? JSON.parse(stored) : null;
+        try {
+            const stored = localStorage.getItem("innermap_subscription");
+            return stored ? JSON.parse(stored) : null;
+        } catch (e) {
+            console.warn("Erro ao ler assinatura no localStorage:", e);
+            return null;
+        }
     }
 
     async saveSubscription(sub) {
         this.subscription = sub;
-        if (sub) {
-            localStorage.setItem("innermap_subscription", JSON.stringify(sub));
-            // Sincronizar com o banco do Supabase se o usuário estiver logado
-            if (supabase && this.currentUser) {
-                try {
-                    await supabase.from("subscriptions").upsert({
-                        user_id: this.currentUser.id || this.currentUser.email,
-                        plan: sub.plan,
-                        active: sub.active,
-                        date: sub.date
-                    });
-                } catch (err) {
-                    console.error("Erro ao sincronizar assinatura no Supabase:", err);
-                }
+        try {
+            if (sub) {
+                localStorage.setItem("innermap_subscription", JSON.stringify(sub));
+            } else {
+                localStorage.removeItem("innermap_subscription");
             }
-        } else {
-            localStorage.removeItem("innermap_subscription");
+        } catch (e) {
+            console.warn("Erro ao salvar assinatura no localStorage:", e);
+        }
+        // Sincronizar com o banco do Supabase se o usuário estiver logado
+        if (sub && supabase && this.currentUser) {
+            try {
+                await supabase.from("subscriptions").upsert({
+                    user_id: this.currentUser.id || this.currentUser.email,
+                    plan: sub.plan,
+                    active: sub.active,
+                    date: sub.date
+                });
+            } catch (err) {
+                console.error("Erro ao sincronizar assinatura no Supabase:", err);
+            }
         }
     }
 
