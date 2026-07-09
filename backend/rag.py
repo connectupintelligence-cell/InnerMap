@@ -212,8 +212,8 @@ class RAGPipeline:
             for s in matched:
                 mfi_text += f"Alma, {s} que senti {formatted_fact} acabou!\n"
             mfi_text += f"Alma, todos os sentimentos que senti {formatted_fact} acabaram!\n"
-            mfi_text += f"ESPÍRITO, todas as informações negativas que recebi {formatted_fact} acabou!\n"
-            mfi_text += f"ESPÍRITO, todas as informações negativas que gerei {formatted_fact} acabou!\n\n"
+            mfi_text += f"Espírito, todas as informações negativas que recebi {formatted_fact} acabou!\n"
+            mfi_text += f"Espírito, todas as informações negativas que gerei {formatted_fact} acabou!\n\n"
         
         # MRI
         mri_text = ""

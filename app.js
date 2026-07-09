@@ -13,7 +13,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "Você pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidão.",
         movimento: "Desenvolver uma expansão sustentável, delegando com confiança e acolhendo novas oportunidades.",
         objetivo: "Crescer de forma leve, segura e alinhada.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de que crescer é arriscado ou perigoso que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao encarar novas responsabilidades e crescimento nos negócios acabaram!\nAlma, todos os sentimentos que senti em relação ao medo de crescer acabaram!\nESPÍRITO, todas as informações negativas que recebi sobre crescer acabou!\nESPÍRITO, todas as informações negativas que gerei sobre crescer acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de que crescer é arriscado ou perigoso que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao encarar novas responsabilidades e crescimento nos negócios acabaram!\nAlma, todos os sentimentos que senti em relação ao medo de crescer acabaram!\nEspírito, todas as informações negativas que recebi sobre crescer acabou!\nEspírito, todas as informações negativas que gerei sobre crescer acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho acolher a expansão com segurança, leveza e consistência.\nAlma, eu já construo crescimento seguro e delego tarefas com total tranquilidade e merecimento.",
         pergunta: "Qual o menor passo de crescimento que você pode dar hoje que não assuste sua percepção racional?",
         microacao: "Escrever uma meta de crescimento para o próximo mês e listar duas tarefas que você pode delegar ou simplificar."
@@ -26,7 +26,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A percepção de que seu valor pessoal depende exclusivamente do seu nível de produtividade diária.",
         movimento: "Reconhecer que a pausa é essencial para a criatividade e a sustentabilidade de suas realizações.",
         objetivo: "Descansar sem culpa e com paz interna profunda.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e crenças de que preciso trabalhar em esforço extremo para ter valor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nESPÍRITO, todas as informações negativas que recebi sobre descansar acabou!\nESPÍRITO, todas as informações negativas que gerei sobre descansar acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e crenças de que preciso trabalhar em esforço extremo para ter valor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nEspírito, todas as informações negativas que recebi sobre descansar acabou!\nEspírito, todas as informações negativas que gerei sobre descansar acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho silenciar minha mente e restabelecer minha energia vital.\nAlma, eu já descanso com tranquilidade e paz, reconhecendo que a pausa potencializa minha prosperidade.",
         pergunta: "O que você estaria evitando encarar se decidisse silenciar e descansar agora?",
         microacao: "Bloquear 30 minutos na sua agenda hoje para fazer algo puramente por lazer, sem fins produtivos."
@@ -39,7 +39,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A associação da venda e da cobrança a importunar os outros, medo da rejeição ou sensação sutil de não merecimento.",
         movimento: "Enxergar a venda como uma troca justa de valor, onde você apoia genuinamente a resolução de uma necessidade real.",
         objetivo: "Fluidez, valorização e segurança na entrega de suas soluções.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preços ou vender acabaram!\nAlma, rejeição que senti quando clientes disseram não acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nESPÍRITO, todas as informações negativas que recebi sobre vendas acabou!\nESPÍRITO, todas as informações negativas que gerei sobre vendas acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preços ou vender acabaram!\nAlma, rejeição que senti quando clientes disseram não acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nEspírito, todas as informações negativas que recebi sobre vendas acabou!\nEspírito, todas as informações negativas que gerei sobre vendas acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho ver a venda como uma troca justa de valor e auxílio mútuo.\nAlma, eu já recebo dinheiro com fluidez, merecimento e autoconfiança plena em minha entrega.",
         pergunta: "Se o seu produto ou serviço pudesse transformar positivamente a vida de alguém hoje, você ainda teria vergonha de oferecê-lo?",
         microacao: "Enviar uma mensagem para um cliente antigo perguntando como ele está ou fazer uma oferta direta para um potencial cliente."
@@ -52,7 +52,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "O receio do fracasso ou da perda de controle organizando suas decisões sob um viés de paralisação e autoproteção.",
         movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptação.",
         objetivo: "Decisão consciente, resiliência e clareza profissional.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de falência e quebra nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisões de negócios acabaram!\nAlma, frustração que senti com resultados insatisfatórios acabaram!\nAlma, todos os sentimentos de insegurança e medo de falhar nos negócios acabaram!\nESPÍRITO, todas as informações negativas que recebi nos negócios acabou!\nESPÍRITO, todas as informações negativas que gerei nos negócios acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de falência e quebra nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisões de negócios acabaram!\nAlma, frustração que senti com resultados insatisfatórios acabaram!\nAlma, todos os sentimentos de insegurança e medo de falhar nos negócios acabaram!\nEspírito, todas as informações negativas que recebi nos negócios acabou!\nEspírito, todas as informações negativas que gerei nos negócios acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho focar em soluções estratégicas, aprendizado constante e resiliência.\nAlma, eu já decido com clareza profissional, guiando meus negócios rumo à solidez e prosperidade.",
         pergunta: "Qual decisão importante você está adiando ou evitando por medo do que pode acontecer depois?",
         microacao: "Tomar hoje uma decisão simples que você vem adiando nos últimos 7 dias."
@@ -65,7 +65,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A busca externa pela validação, segurança e afeto que você sente faltar em sua própria organização interna.",
         movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua própria base de segurança afetiva.",
         objetivo: "Autonomia afetiva, amor-próprio e conexões saudáveis.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de dependência afetiva e medo da solidão que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carência que senti pela falta de atenção ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carência e solidão acabaram!\nESPÍRITO, todas as informações negativas que recebi em minhas relações acabou!\nESPÍRITO, todas as informações negativas que gerei em minhas relações acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de dependência afetiva e medo da solidão que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carência que senti pela falta de atenção ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carência e solidão acabaram!\nEspírito, todas as informações negativas que recebi em minhas relações acabou!\nEspírito, todas as informações negativas que gerei em minhas relações acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho nutrir meu amor-próprio e encontrar estabilidade dentro de mim.\nAlma, eu já me sinto pleno(a) e seguro(a), me relacionando com liberdade e maturidade emocional.",
         pergunta: "Que tipo de atenção ou validação você está esperando dos outros que você mesmo(a) não está se dando?",
         microacao: "Escrever uma pequena lista com 3 qualidades reais suas ou preparar um momento especial de autocuidado hoje."
@@ -78,7 +78,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A necessidade de aprovação externa atuando como um filtro limitador da sua expressão e do seu potencial autêntico.",
         movimento: "Acolher sua verdade interna e compreender que a percepção do outro reflete a realidade dele, não o seu valor real.",
         objetivo: "Liberdade de expressão e segurança pessoal profunda.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de autoanulação e vergonha de me expor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de desaprovação e críticas dos outros que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao falar em público ou me expor acabaram!\nAlma, rejeição que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nESPÍRITO, todas as informações negativas que recebi da opinião pública acabou!\nESPÍRITO, todas as informações negativas que gerei sobre me expressar acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de autoanulação e vergonha de me expor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de desaprovação e críticas dos outros que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao falar em público ou me expor acabaram!\nAlma, rejeição que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nEspírito, todas as informações negativas que recebi da opinião pública acabou!\nEspírito, todas as informações negativas que gerei sobre me expressar acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho expressar minha verdade interna com liberdade e segurança.\nAlma, eu já me exponho com autovalorização e reconheço o real valor de minha própria voz.",
         pergunta: "O que você começaria a criar ou fazer hoje mesmo se soubesse que não seria criticado ou julgado?",
         microacao: "Expressar uma opinião autêntica ou compartilhar um pensamento pessoal com alguém de confiança."
@@ -91,7 +91,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "Assumir responsabilidades e demandas que não são suas como uma forma inconsciente de buscar utilidade ou aceitação.",
         movimento: "Estabelecer limites claros e saudáveis, preservando seu estado interno e sua energia para o que é essencial.",
         objetivo: "Equilíbrio emocional, leveza e clareza de prioridades pessoais.",
-        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer não que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaço e pressão que senti por excesso de responsabilidades acabaram!\nAlma, invasão que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nESPÍRITO, todas as informações negativas que recebi por carregar pesos alheios acabou!\nESPÍRITO, todas as informações negativas que gerei no excesso de tarefas acabou!",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer não que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaço e pressão que senti por excesso de responsabilidades acabaram!\nAlma, invasão que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nEspírito, todas as informações negativas que recebi por carregar pesos alheios acabou!\nEspírito, todas as informações negativas que gerei no excesso de tarefas acabou!",
         fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho respeitar os limites do meu corpo e priorizar meu bem-estar.\nAlma, eu já estabeleço limites saudáveis e gerencio minhas responsabilidades com total leveza.",
         pergunta: "De quem é a responsabilidade que você está carregando hoje além da sua própria?",
         microacao: "Dizer um 'não' gentil, mas firme, a uma tarefa secundária que não seja de sua real responsabilidade."
@@ -292,8 +292,8 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
             mfi += `Alma, ${s} que senti ${formattedFact} acabou!\n`;
         });
         mfi += `Alma, todos os sentimentos que senti ${formattedFact} acabaram!\n`;
-        mfi += `ESPÍRITO, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
-        mfi += `ESPÍRITO, todas as informações negativas que gerei ${formattedFact} acabou!`;
+        mfi += `Espírito, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
+        mfi += `Espírito, todas as informações negativas que gerei ${formattedFact} acabou!`;
         parts.push(mfi);
     }
 
@@ -478,11 +478,11 @@ class ReorganizationEngine {
         // Formatar MFI
         let mfiText = `2 - Movimento Factual Informacional - MFI\n`;
         matchedSentiments.forEach(s => {
-            mfiText += `Alma, ${s} que senti na "${cleanConcept.toLowerCase()}" acabaram!\n`;
+            mfiText += `Alma, ${s} que senti na "${cleanConcept.toLowerCase()}" acabou!\n`;
         });
         mfiText += `Alma, todos os sentimentos que senti na "${cleanConcept.toLowerCase()}" acabaram!\n`;
-        mfiText += `ESPÍRITO, todas as informações negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mfiText += `ESPÍRITO, todas as informações negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
+        mfiText += `Espírito, todas as informações negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mfiText += `Espírito, todas as informações negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
 
         const finalDeclaracao = `${msiText}\n${mfiText}`;
 
@@ -657,7 +657,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showScreen("auth");
         } else if (!state.subscription) {
             showScreen("paywall");
-        } else {
+        } else if (state.currentStep === 0) {
             showScreen("step1");
         }
     });
