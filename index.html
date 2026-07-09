@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>InnerMap — Entenda seus padrões. Transforme suas escolhas.</title>
+    <meta name="description" content="Organize seu estado interno com a Abordagem Informacional. Identifique registros e padrões limitantes, atualize padrões internos e integre com ações práticas.">
+    <meta name="keywords" content="innermap, abordagem informacional, desenvolvimento humano, autoconhecimento, prosperidade, saúde emocional, medos, registros emocionais, padrões limitantes">
+    <meta name="author" content="InnerMap">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Quantum Energy Field Background -->
+    <div class="quantum-bg">
+        <div class="quantum-blob blob-1"></div>
+        <div class="quantum-blob blob-2"></div>
+        <div class="quantum-blob blob-3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="header-nav">
+        <div class="logo-container">
+            <!-- Quantum Wave Logo (Animated via CSS) -->
+            <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="wave-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#66FCF1" />
+                        <stop offset="100%" stop-color="#8A2BE2" />
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#wave-grad)" stroke-width="2" stroke-dasharray="10 5" opacity="0.3"/>
+                <path d="M 30 50 C 40 30, 45 30, 50 50 C 55 70, 60 70, 70 50" fill="none" stroke="url(#wave-grad)" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="8" fill="url(#wave-grad)"/>
+            </svg>
+            <span class="logo-text">InnerMap</span>
+        </div>
+        
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" id="nav-app" class="nav-link active">Início & App</a></li>
+                <li><a href="#" id="nav-lib" class="nav-link">Minhas Reorganizações</a></li>
+                <li><a href="#" id="nav-rag" class="nav-link">Simulador RAG</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+
+        <!-- ========================================== -->
+        <!-- Tab 1: App Workspace & Landing Page        -->
+        <!-- ========================================== -->
+        <section id="app-workspace" class="app-section">
+            
+            <!-- Landing Hero Section -->
+            <div class="hero-section">
+                <span class="hero-badge">Abordagem Informacional</span>
+                <h1 class="hero-title">Entenda seus Padrões.<br>Transforme suas Escolhas.</h1>
+                <p class="hero-subtitle">
+                    Toda mudança começa pela forma como a realidade é organizada internamente. Identifique registros emocionais limitantes e atualize seus padrões de forma consciente.
+                </p>
+                <div class="hero-actions">
+                    <a href="#reorganizer-tool" class="btn btn-primary">Iniciar Reorganização</a>
+                    <a href="#como-funciona" class="btn btn-outline">Como funciona?</a>
+                </div>
+            </div>
+
+            <!-- Interactive App Card (The Reorganizer Wizard) -->
+            <div id="reorganizer-tool" class="app-container">
+                
+                <!-- STEP 1: Entrada -->
+                <div id="screen-step1" class="app-screen active">
+                    <!-- Sub-screen 1A: Objetivo Principal -->
+                    <div id="sub-step-1a" class="sub-screen-container active">
+                        <h2 class="step-title">O que você quer reorganizar hoje?</h2>
+                        <p class="step-subtitle">Escreva uma frase que represente um conflito, medo ou padrão limitante atual.</p>
+                        
+                        <div class="input-group">
+                            <label for="input-phrase" class="label-text">✍️ Digite seu objetivo ou padrão limitante</label>
+                            <textarea id="input-phrase" class="textarea-quantum" placeholder="Ex: Sinto dificuldade para cobrar pelo meu trabalho ou vender..."></textarea>
+                        </div>
+                        
+                        <button id="btn-sub-next1" class="btn btn-primary btn-block">Próximo Passo →</button>
+                    </div>
+
+                    <!-- Sub-screen 1B: Pergunta Familiar -->
+                    <div id="sub-step-1b" class="sub-screen-container" style="display: none;">
+                        <h2 class="step-title">Padrão Familiar (MSI)</h2>
+                        <p class="step-subtitle">Precisamos identificar se esta informação possui influência hereditária.</p>
+                        
+                        <div class="input-group" style="text-align: center; margin: 2rem 0;">
+                            <p class="label-text" style="font-size: 1.1rem; margin-bottom: 1.5rem; line-height: 1.5;">Isso já aconteceu na sua família? (Com seus pais, avós ou outros antepassados?)</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                                <button id="btn-family-yes" class="btn btn-secondary" style="flex: 1; max-width: 150px; padding: 0.75rem;">Sim</button>
+                                <button id="btn-family-no" class="btn btn-secondary" style="flex: 1; max-width: 150px; padding: 0.75rem;">Não</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: flex-start; margin-top: 2rem;">
+                            <button id="btn-family-back" class="btn btn-text">← Voltar</button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-screen 1C: Fato Marcante -->
+                    <div id="sub-step-1c" class="sub-screen-container" style="display: none;">
+                        <h2 class="step-title">Fato Marcante (MFI)</h2>
+                        <p class="step-subtitle">Precisamos identificar se há um registro factual recente ou antigo que desencadeia essa dor.</p>
+                        
+                        <div class="input-group">
+                            <label for="input-fact-detail" class="label-text">✍️ Houve algum fato específico que mais está doendo? Se sim, descreva brevemente abaixo.</label>
+                            <textarea id="input-fact-detail" class="textarea-quantum" placeholder="Ex: Ontem tive uma briga com meu marido ontem sobre as finanças da casa..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button id="btn-fact-back" class="btn btn-secondary" style="flex: 1;">← Voltar</button>
+                            <button id="btn-generate" class="btn btn-primary" style="flex: 2;">Gerar Ajustes Informacionais →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Leitura Informacional (Consciência) -->
+                <div id="screen-step2" class="app-screen">
+                    <h2 class="step-title">Leitura Informacional</h2>
+                    <p class="step-subtitle">A consciência do padrão é o primeiro passo para a sua reorganização.</p>
+                    
+                    <div class="response-block">
+                        <h3 class="response-label">🔍 Ajuste observado</h3>
+                        <p id="output-ajuste" class="response-text">Carregando leitura do padrão informacional...</p>
+                    </div>
+
+                    <div class="response-block-accent">
+                        <h3 class="response-label">💡 Movimento sugerido</h3>
+                        <p id="output-movimento" class="response-text">Carregando movimento sugerido...</p>
+                    </div>
+
+                    <button id="btn-to-step3" class="btn btn-primary btn-block">Ver Prática de Reorganização →</button>
+                </div>
+
+                <!-- STEP 3: Ajustes Informacionais (Comandos) -->
+                <div id="screen-step3" class="app-screen">
+                    <h2 class="step-title">AJUSTES INFORMACIONAIS</h2>
+                    <p class="step-subtitle">Prática guiada de escolha consciente para reorganizar o seu estado interno.</p>
+                    
+                    <div id="output-category">
+                        <!-- Category badge inserted here -->
+                    </div>
+
+                    <div class="hqi-flow-container">
+                        <div class="hqi-item">
+                            <span class="hqi-item-title">Objetivo do Processo</span>
+                            <p id="output-objetivo" style="font-size: 1.1rem; font-weight: 500;"></p>
+                        </div>
+                        
+                        <div class="hqi-item">
+                            <span class="hqi-item-title">Liberação de Registros</span>
+                            <p id="output-declaracao" class="hqi-text-box"></p>
+                        </div>
+
+                        <div class="hqi-item">
+                            <span class="hqi-item-title">Atualização Interna</span>
+                            <p id="output-fortalecimento" class="hqi-text-box-fortify"></p>
+                        </div>
+
+                        <div class="hqi-item">
+                            <span class="hqi-item-title">Ação e Integração</span>
+                            <p id="output-microacao" class="action-card"></p>
+                        </div>
+                    </div>
+
+                    <!-- Timer elements for active reading -->
+                    <div class="timer-container">
+                        <div id="timer-progress" class="timer-bar"></div>
+                    </div>
+
+                    <button id="btn-to-step4" class="btn btn-primary btn-block" disabled>Realize a prática com atenção... (10s)</button>
+                </div>
+
+                <!-- STEP 4: Registro & Acompanhamento -->
+                <div id="screen-step4" class="app-screen">
+                    <h2 class="step-title">Registro & Integração</h2>
+                    <p class="step-subtitle">Como você se sente após a realização da prática e atualização dos padrões?</p>
+                    
+                    <div class="ratings-grid">
+                        <div class="rating-option" data-value="Igual">Igual</div>
+                        <div class="rating-option selected" data-value="Mais leve">Mais leve</div>
+                        <div class="rating-option" data-value="Mais claro">Mais claro</div>
+                        <div class="rating-option" data-value="Mais confiante">Mais confiante</div>
+                        <div class="rating-option" data-value="Outro">Outro</div>
+                    </div>
+
+                    <!-- Hidden input for custom rating -->
+                    <div class="rating-custom-box">
+                        <input type="text" id="rating-custom-input" class="rating-custom-input-field" placeholder="Escreva como você se sente em uma palavra..." style="display: none;">
+                    </div>
+
+                    <button id="btn-finish" class="btn btn-primary btn-block">Salvar e Finalizar Reorganização →</button>
+                </div>
+
+            </div>
+
+            <!-- Landing Informative: Como Funciona -->
+            <div id="como-funciona" class="info-section">
+                <div class="section-header">
+                    <h2>Nosso Diferencial</h2>
+                    <p>Apoiamos um ciclo contínuo de percepção, escolha consciente e ação prática.</p>
+                </div>
+                
+                <div class="workflow-grid">
+                    <!-- Step 1 Info -->
+                    <div class="workflow-card">
+                        <div class="workflow-num">01</div>
+                        <h3 class="workflow-title">Entrada</h3>
+                        <p>Escreva livremente ou escolha um registro ou padrão limitante recorrente em sua vida.</p>
+                    </div>
+
+                    <!-- Step 2 Info -->
+                    <div class="workflow-card">
+                        <div class="workflow-num">02</div>
+                        <h3 class="workflow-title">Consciência</h3>
+                        <p>Identifique qual a raiz e ajuste necessário por trás do padrão observado.</p>
+                    </div>
+
+                    <!-- Step 3 Info -->
+                    <div class="workflow-card">
+                        <div class="workflow-num">03</div>
+                        <h3 class="workflow-title">Práticas Guiadas</h3>
+                        <p>Realize as escolhas de atualização de padrões e receba uma microação de validação.</p>
+                    </div>
+
+                    <!-- Step 4 Info -->
+                    <div class="workflow-card">
+                        <div class="workflow-num">04</div>
+                        <h3 class="workflow-title">Acompanhamento</h3>
+                        <p>Registre seus sentimentos pós-reorganização e arquive na sua biblioteca.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Landing Informative: A Abordagem Informacional -->
+            <div class="info-section">
+                <div class="section-header">
+                    <h2>O que é a Abordagem Informacional?</h2>
+                    <p>Uma plataforma dedicada ao desenvolvimento humano por meio da organização das informações emocionais, cognitivas e comportamentais que moldam a nossa experiência de vida.</p>
+                </div>
+                <div style="background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 20px; padding: 3rem; backdrop-filter: blur(12px); max-width: 900px; margin: 0 auto; text-align: center;">
+                    <p style="font-size: 1.15rem; line-height: 1.8; margin-bottom: 2rem; color: var(--color-text-main);">
+                        "Seu mundo interno é formado por informações acumuladas ao longo da vida. Algumas fortalecem sua capacidade de agir. Outras continuam influenciando decisões, emoções e relacionamentos sem que você perceba. Quando a informação muda de lugar dentro de você, novas possibilidades começam a aparecer."
+                    </p>
+                    <a href="#reorganizer-tool" class="btn btn-primary">Iniciar Minha Jornada</a>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- Tab 2: Library Workspace                   -->
+        <!-- ========================================== -->
+        <section id="library-workspace" class="library-section" style="display: none;">
+            
+            <div class="library-layout">
+                
+                <!-- Main Library Contents -->
+                <div class="library-main">
+                    <h2 class="step-title">Minhas Reorganizações</h2>
+                    <p class="step-subtitle" style="margin-bottom: 1rem;">Seu acervo particular de expansão e ajustes conscientes.</p>
+                    
+                    <!-- Empty State -->
+                    <div id="empty-library" class="library-empty">
+                        <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Sua biblioteca ainda está vazia.</p>
+                        <a href="#" id="btn-back-to-app" class="btn btn-primary" onclick="document.getElementById('nav-app').click();">Criar Primeira Reorganização</a>
+                    </div>
+                    
+                    <!-- History container -->
+                    <div id="library-container">
+                        <!-- Loaded dynamically via app.js -->
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard Sidebar -->
+                <aside class="library-sidebar">
+                    <h3 class="sidebar-title">Painel de Evolução</h3>
+                    
+                    <div class="dashboard-stats-grid">
+                        <div class="stat-box">
+                            <div id="stat-total" class="stat-num">0</div>
+                            <div class="stat-label">Total Realizado</div>
+                        </div>
+                        <div class="stat-box">
+                            <div id="stat-lighter" class="stat-num">0%</div>
+                            <div class="stat-label">Mais Leve / Claro</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-categories">
+                        <h4 class="stats-section-title">Temas Trabalhados</h4>
+                        <ul id="stats-category-list" class="stats-category-list">
+                            <!-- Loaded dynamically via app.js -->
+                        </ul>
+                    </div>
+                </aside>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- Tab 3: RAG Simulator Workspace             -->
+        <!-- ========================================== -->
+        <section id="rag-workspace" class="library-section" style="display: none;">
+            <div class="library-layout">
+                <!-- Left Column: RAG Console & Logs -->
+                <div class="library-main">
+                    <h2 class="step-title">Simulador de Memória Inteligente (RAG)</h2>
+                    <p class="step-subtitle">Veja como o sistema recupera memórias antigas via pgvector para injeção de contexto.</p>
+                    
+                    <div class="app-container" style="max-width: 100%; margin-bottom: 2rem; padding: 2rem;">
+                        <h3 class="stats-section-title" style="color: var(--color-primary); margin-bottom: 1rem;">1. Testar Entrada Semântica</h3>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <textarea id="rag-input-phrase" class="textarea-quantum" style="height: 80px;" placeholder="Digite algo relacionado às suas reorganizações (Ex: 'voltei a sentir medo de cobrar' ou 'estou exausto')..."></textarea>
+                        </div>
+                        <button id="btn-simulate-rag" class="btn btn-primary">Simular Fluxo RAG →</button>
+                    </div>
+
+                    <!-- Live RAG Terminal Console -->
+                    <div class="rag-console-card">
+                        <div class="console-header">
+                            <span class="console-dot dot-red"></span>
+                            <span class="console-dot dot-yellow"></span>
+                            <span class="console-dot dot-green"></span>
+                            <span class="console-title">LOGS DE EXECUÇÃO DO PIPELINE RAG (BACKEND)</span>
+                        </div>
+                        <div id="rag-console-logs" class="console-body">
+                            <p class="console-placeholder">// Aguardando simulação... Digite uma frase acima e clique em "Simular Fluxo RAG".</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Database Inspector -->
+                <aside class="library-sidebar">
+                    <h3 class="sidebar-title">Banco Vetorial & Relacional</h3>
+                    
+                    <div class="stats-categories" style="margin-bottom: 2rem;">
+                        <h4 class="stats-section-title">Parâmetros do pgvector</h4>
+                        <div class="stat-box" style="text-align: left; padding: 1rem; margin-bottom: 0.5rem; background: rgba(255,255,255,0.01); border: 1px solid var(--color-border);">
+                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Extensão:</strong> vector (Ativa)</p>
+                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Dimensão:</strong> 1536 (OpenAI)</p>
+                            <p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Métrica:</strong> Distância de Cosseno</p>
+                            <p style="font-size: 0.85rem;"><strong>Índice:</strong> HNSW (Hnsw_vector_cosine_ops)</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-categories">
+                        <h4 class="stats-section-title">Registros Vetoriais (pgvector)</h4>
+                        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1rem;">Visualização dos embeddings salvos na tabela <code>journal_entries</code>:</p>
+                        <ul id="rag-vector-list" class="stats-category-list" style="max-height: 350px; overflow-y: auto; gap: 0.75rem;">
+                            <li class="empty-stats">Nenhum vetor salvo ainda. Crie reorganizações na aba Início.</li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-quantum">
+        <div class="footer-logo">
+            <svg class="logo-svg" style="width: 1.6rem; height: 1.6rem;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#wave-grad)" stroke-width="2" stroke-dasharray="10 5" opacity="0.3"/>
+                <path d="M 30 50 C 40 30, 45 30, 50 50 C 55 70, 60 70, 70 50" fill="none" stroke="url(#wave-grad)" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="8" fill="url(#wave-grad)"/>
+            </svg>
+            <span class="logo-text" style="font-size: 1.25rem;">InnerMap</span>
+        </div>
+        <p class="footer-text">Percepção, escolha consciente e ação prática para atualizar sua realidade.</p>
+        <p class="footer-copy">&copy; 2026 InnerMap — Reorganização Informacional. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

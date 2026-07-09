@@ -1,0 +1,16 @@
+{
+  "name": "innermap",
+  "version": "1.0.0",
+  "description": "InnerMap - Entenda seus padrões. Transforme suas escolhas.",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 3000"
+  },
+  "keywords": [
+    "innermap",
+    "informacional",
+    "desenvolvimento-humano"
+  ],
+  "author": "InnerMap",
+  "license": "MIT"
+}
