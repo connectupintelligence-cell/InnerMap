@@ -1381,6 +1381,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const data = await response.json();
                 if (data.url) {
+                    try {
+                        localStorage.setItem("pending_payment_plan", plan);
+                        if (data.slug) {
+                            localStorage.setItem("pending_payment_slug", data.slug);
+                        } else if (data.id) {
+                            localStorage.setItem("pending_payment_slug", data.id);
+                        }
+                    } catch (e) {
+                        console.warn("Erro ao salvar dados de pagamento pendente:", e);
+                    }
                     window.location.href = data.url;
                     return;
                 }
@@ -1877,9 +1887,49 @@ Pergunta atual: "${query}"
             active: true,
             date: new Date().toLocaleDateString('pt-BR')
         }).then(() => {
+            localStorage.removeItem("pending_payment_plan");
+            localStorage.removeItem("pending_payment_slug");
             updateUserUI();
             showToast(`Assinatura do Plano ${plan === "yearly" ? "Anual" : "Mensal"} ativada com sucesso! Obrigado!`);
             showScreen("step1");
+        });
+    }
+
+    // Verificar se há algum pagamento pendente no localStorage e consultar na API da InfinitePay
+    const pendingPlan = localStorage.getItem("pending_payment_plan");
+    const pendingSlug = localStorage.getItem("pending_payment_slug");
+    if (pendingPlan && pendingSlug && INFINITEPAY_TAG) {
+        fetch("https://api.checkout.infinitepay.io/payment_check", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                handle: INFINITEPAY_TAG,
+                slug: pendingSlug
+            })
+        })
+        .then(res => {
+            if (res.ok) return res.json();
+            throw new Error("Erro na requisição");
+        })
+        .then(data => {
+            if (data && (data.status === "paid" || data.status === "approved" || data.status === "completed" || data.paid === true)) {
+                localStorage.removeItem("pending_payment_plan");
+                localStorage.removeItem("pending_payment_slug");
+                state.saveSubscription({
+                    plan: pendingPlan,
+                    active: true,
+                    date: new Date().toLocaleDateString('pt-BR')
+                }).then(() => {
+                    updateUserUI();
+                    showToast(`Sua assinatura do Plano ${pendingPlan === "yearly" ? "Anual" : "Mensal"} foi confirmada! Obrigado!`);
+                    showScreen("step1");
+                });
+            }
+        })
+        .catch(err => {
+            console.warn("Erro ao consultar status do pagamento pendente:", err);
         });
     }
 });
