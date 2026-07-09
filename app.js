@@ -1437,18 +1437,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
             const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             
-            if (codeNormalized === "familiahqi") {
+            if (codeNormalized === "euescolhoasminhasrealidades") {
                 btnClaimInvite.disabled = true;
                 btnClaimInvite.innerHTML = `<span class="spinner"></span> Validando...`;
                 
                 state.saveSubscription({
-                    plan: "invitation",
+                    plan: "trial",
                     active: true,
-                    date: new Date().toLocaleDateString('pt-BR')
+                    date: new Date().toISOString()
                 }).then(() => {
                     inputInviteCode.value = "";
                     updateUserUI();
-                    showToast("Código de convite ativado com sucesso! Bem-vindo(a) à família HQI! 🎉");
+                    showToast("Código de convite ativado! Seus 15 dias de teste começaram agora. 🎉");
                     showScreen("step1");
                 }).catch(err => {
                     console.error(err);
@@ -1843,6 +1843,42 @@ Pergunta atual: "${query}"
         }, 3000);
     }
 
+    // Verificar o status e a data de validade da assinatura de teste (trial de 15 dias)
+    function checkSubscriptionStatus() {
+        if (state.subscription && state.subscription.plan === "trial") {
+            const activationDate = new Date(state.subscription.date);
+            const currentDate = new Date();
+            
+            let diffTime = currentDate - activationDate;
+            if (isNaN(diffTime)) {
+                // Tenta tratar formato local dd/mm/aaaa se houver no histórico antigo
+                const parts = state.subscription.date.split('/');
+                if (parts.length === 3) {
+                    const parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    diffTime = currentDate - parsedDate;
+                }
+            }
+            
+            const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const daysRemaining = 15 - daysElapsed;
+            
+            if (daysRemaining <= 0) {
+                alert("Seu período de teste de 15 dias acabou! Por favor, assine um plano para continuar.");
+                state.saveSubscription(null);
+                state.saveUser(null);
+                if (supabaseClient) {
+                    supabaseClient.auth.signOut();
+                }
+                updateUserUI();
+                showScreen("auth");
+                return false;
+            } else if ([10, 5, 3, 1].includes(daysRemaining)) {
+                showToast(`Atenção: Restam ${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'} do seu período de teste! Assine o plano Mensal ou Anual para continuar.`);
+            }
+        }
+        return true;
+    }
+
     // Inicialização da Tela no Load
     if (supabaseClient) {
         // 1. Obter sessão inicial de forma imediata (Promise)
@@ -1858,11 +1894,13 @@ Pergunta atual: "${query}"
                     renderLibrary();
                     renderStats();
                     
-                    // Redirecionar dependendo da assinatura sincronizada
-                    if (state.subscription) {
-                        showScreen("step1");
-                    } else {
-                        showScreen("paywall");
+                    if (checkSubscriptionStatus()) {
+                        // Redirecionar dependendo da assinatura sincronizada
+                        if (state.subscription) {
+                            showScreen("step1");
+                        } else {
+                            showScreen("paywall");
+                        }
                     }
                 });
             } else {
@@ -1891,7 +1929,9 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen(state.subscription ? "step1" : "paywall");
+                if (checkSubscriptionStatus()) {
+                    showScreen(state.subscription ? "step1" : "paywall");
+                }
             } else if (event === "SIGNED_OUT") {
                 state.saveUser(null);
                 state.saveSubscription(null);
@@ -1905,12 +1945,14 @@ Pergunta atual: "${query}"
     } else {
         // Fallback local se Supabase não configurado
         updateUserUI();
-        if (!state.currentUser) {
-            showScreen("auth");
-        } else if (!state.subscription) {
-            showScreen("paywall");
-        } else {
-            showScreen("step1");
+        if (checkSubscriptionStatus()) {
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else {
+                showScreen("step1");
+            }
         }
     }
 
