@@ -40,12 +40,18 @@
             <span class="logo-text">InnerMap</span>
         </div>
         
-        <nav>
+        <nav style="display: flex; align-items: center; gap: 2rem;">
             <ul class="nav-links">
                 <li><a href="#" id="nav-app" class="nav-link active">Início & App</a></li>
                 <li><a href="#" id="nav-lib" class="nav-link">Minhas Reorganizações</a></li>
                 <li><a href="#" id="nav-rag" class="nav-link">Simulador RAG</a></li>
             </ul>
+            
+            <div class="user-nav-container" id="user-nav-container" style="display: none; align-items: center; gap: 0.75rem;">
+                <span class="user-email" id="user-email-display" style="font-size: 0.85rem; color: var(--color-text-muted);"></span>
+                <span class="user-status-badge" id="user-status-display" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(102, 252, 241, 0.15); border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: 100px; font-weight: 600;"></span>
+                <button id="btn-logout" class="btn-logout" title="Sair da Conta" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 0.85rem; padding: 0.25rem 0.5rem; border-radius: 4px; transition: var(--transition-smooth);">Sair 🚪</button>
+            </div>
         </nav>
     </header>
 
@@ -201,6 +207,155 @@
                     <button id="btn-finish" class="btn btn-primary btn-block">Salvar e Finalizar Reorganização →</button>
                 </div>
 
+                <!-- AUTHENTICATION SCREEN -->
+                <div id="screen-auth" class="app-screen">
+                    <h2 class="step-title">Acesse o InnerMap</h2>
+                    <p class="step-subtitle">Entre na sua conta para iniciar seus ajustes informacionais e sincronizar sua biblioteca.</p>
+                    
+                    <div class="auth-card glass-card">
+                        <!-- Tab selectors for Login vs Sign up -->
+                        <div class="auth-tabs">
+                            <span id="auth-tab-login" class="auth-tab-link active">Entrar</span>
+                            <span id="auth-tab-register" class="auth-tab-link">Criar Conta</span>
+                        </div>
+                        
+                        <form id="auth-form" class="auth-form-container">
+                            <div class="input-group">
+                                <label for="auth-email" class="label-text">E-mail</label>
+                                <input type="email" id="auth-email" class="input-quantum" placeholder="seu@email.com" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="auth-password" class="label-text">Senha</label>
+                                <input type="password" id="auth-password" class="input-quantum" placeholder="••••••••" required>
+                            </div>
+                            
+                            <button type="submit" id="btn-auth-submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Acessar Conta</button>
+                        </form>
+                        
+                        <div class="auth-divider">
+                            <span>ou</span>
+                        </div>
+                        
+                        <button id="btn-auth-google" class="btn btn-google btn-block">
+                            <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                            </svg>
+                            Entrar com o Google
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PAYWALL SCREEN -->
+                <div id="screen-paywall" class="app-screen">
+                    <h2 class="step-title">Assine o InnerMap</h2>
+                    <p class="step-subtitle">Transforme suas escolhas de forma consistente. Tenha acesso ilimitado a todas as reorganizações de padrões.</p>
+                    
+                    <div class="paywall-container">
+                        <!-- Plans grid -->
+                        <div class="plans-grid">
+                            <!-- Monthly Card -->
+                            <div class="plan-card glass-card" id="plan-monthly">
+                                <h3 class="plan-title">Plano Mensal</h3>
+                                <div class="plan-price">
+                                    <span class="currency">R$</span>
+                                    <span class="value">29</span>
+                                    <span class="cents">,90</span>
+                                    <span class="period">/mês</span>
+                                </div>
+                                <p class="plan-desc">Ideal para quem quer experimentar e fazer os primeiros ajustes informacionais.</p>
+                                <ul class="plan-features">
+                                    <li>✓ Acesso ao Reorganizador ilimitado</li>
+                                    <li>✓ Biblioteca de memórias local</li>
+                                    <li>✓ Sem fidelidade, cancele quando quiser</li>
+                                </ul>
+                                <button class="btn btn-outline btn-block btn-select-plan" data-plan="monthly" style="margin-top: auto;">Assinar Mensal</button>
+                            </div>
+                            
+                            <!-- Yearly Card (Recommended) -->
+                            <div class="plan-card glass-card recommended" id="plan-yearly">
+                                <span class="badge-recommended">RECOMENDADO (Salvar 33%)</span>
+                                <h3 class="plan-title">Plano Anual</h3>
+                                <div class="plan-price">
+                                    <span class="currency">R$</span>
+                                    <span class="value">19</span>
+                                    <span class="cents">,90</span>
+                                    <span class="period">/mês</span>
+                                </div>
+                                <div class="plan-price-total">Cobrado anualmente: R$ 238,80/ano</div>
+                                <p class="plan-desc">Para quem busca atualização de padrões e acompanhamento de longo prazo.</p>
+                                <ul class="plan-features">
+                                    <li>✓ Todos os recursos do Mensal</li>
+                                    <li>✓ Economia de 33% em relação ao mensal</li>
+                                    <li>✓ Relatórios e dashboard de evolução</li>
+                                </ul>
+                                <button class="btn btn-primary btn-block btn-select-plan" data-plan="yearly" style="margin-top: auto;">Assinar Anual</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Checkout Simulation Modal -->
+            <div id="checkout-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-card glass-card">
+                    <button id="btn-close-checkout" class="modal-close-btn">&times;</button>
+                    <h3 class="modal-title" style="font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem;">Simulador de Checkout</h3>
+                    <p class="modal-subtitle" style="font-size: 0.9rem; text-align: center; color: var(--color-text-muted); margin-bottom: 1.5rem;">Ativar assinatura do plano <span id="checkout-plan-name" style="color: var(--color-primary); font-weight: 600;">Anual</span>.</p>
+                    
+                    <div class="checkout-tabs" style="display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 1.5rem;">
+                        <span id="checkout-tab-pix" class="checkout-tab active" style="flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; font-weight: 600; transition: var(--transition-smooth); border-bottom: 2px solid var(--color-primary);">Pix</span>
+                        <span id="checkout-tab-card" class="checkout-tab" style="flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; font-weight: 600; transition: var(--transition-smooth); color: var(--color-text-muted);">Cartão de Crédito</span>
+                    </div>
+                    
+                    <!-- PIX Content -->
+                    <div id="checkout-content-pix" class="checkout-content-panel active">
+                        <div class="pix-instructions" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                            <p style="font-size: 0.9rem;">Escaneie o QR Code ou copie o código Pix abaixo:</p>
+                            <div class="qr-code-box" style="padding: 1rem; background: #fff; border-radius: 8px; display: inline-block;">
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 120px; height: 120px; background: #000;">
+                                    <div style="background: #fff;"></div><div style="background: #000;"></div><div style="background: #fff;"></div><div style="background: #fff;"></div>
+                                    <div style="background: #000;"></div><div style="background: #fff;"></div><div style="background: #000;"></div><div style="background: #000;"></div>
+                                    <div style="background: #fff;"></div><div style="background: #000;"></div><div style="background: #fff;"></div><div style="background: #fff;"></div>
+                                    <div style="background: #fff;"></div><div style="background: #fff;"></div><div style="background: #000;"></div><div style="background: #fff;"></div>
+                                </div>
+                            </div>
+                            <div class="pix-key-box" style="display: flex; gap: 0.5rem; width: 100%;">
+                                <input type="text" id="pix-key-value" class="input-quantum" value="00020126580014BR.GOV.BCB.PIX0136e3c64c4c-473d-4c31-90a6-mockkey" readonly style="flex: 1; font-family: monospace; font-size: 0.75rem;">
+                                <button id="btn-copy-pix" class="btn btn-outline" style="padding: 0.5rem 1rem;">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Content -->
+                    <div id="checkout-content-card" class="checkout-content-panel" style="display: none;">
+                        <form id="checkout-card-form" class="card-form-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="input-group">
+                                <label class="label-text">Número do Cartão</label>
+                                <input type="text" class="input-quantum" placeholder="4444 4444 4444 4444" required>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <div class="input-group" style="flex: 2;">
+                                    <label class="label-text">Validade</label>
+                                    <input type="text" class="input-quantum" placeholder="MM/AA" required>
+                                </div>
+                                <div class="input-group" style="flex: 1;">
+                                    <label class="label-text">CVV</label>
+                                    <input type="text" class="input-quantum" placeholder="123" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="label-text">Nome no Cartão</label>
+                                <input type="text" class="input-quantum" placeholder="NOME COMPLETO" required>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <button id="btn-confirm-payment" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Simular Confirmação de Pagamento</button>
+                </div>
             </div>
 
             <!-- Landing Informative: Como Funciona -->

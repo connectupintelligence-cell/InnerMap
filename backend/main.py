@@ -110,7 +110,9 @@ async def login(user_data: UserRegister):
     return {
         "access_token": "mock_jwt_token_for_innermap",
         "token_type": "bearer",
-        "email": user_data.email
+        "email": user_data.email,
+        "is_premium": True,
+        "subscription_plan": "yearly"
     }
 
 

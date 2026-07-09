@@ -576,12 +576,13 @@ class AppStateManager {
 document.addEventListener("DOMContentLoaded", () => {
     const state = new AppStateManager();
     
-    // Elementos DOM
     const screens = {
         step1: document.getElementById("screen-step1"),
         step2: document.getElementById("screen-step2"),
         step3: document.getElementById("screen-step3"),
-        step4: document.getElementById("screen-step4")
+        step4: document.getElementById("screen-step4"),
+        auth: document.getElementById("screen-auth"),
+        paywall: document.getElementById("screen-paywall")
     };
     
     const inputPhrase = document.getElementById("input-phrase");
@@ -652,10 +653,29 @@ document.addEventListener("DOMContentLoaded", () => {
     navApp.addEventListener("click", (e) => {
         e.preventDefault();
         switchTab(navApp, sectionApp);
+        if (!state.currentUser) {
+            showScreen("auth");
+        } else if (!state.subscription) {
+            showScreen("paywall");
+        } else {
+            showScreen("step1");
+        }
     });
 
     navLib.addEventListener("click", (e) => {
         e.preventDefault();
+        if (!state.currentUser) {
+            showToast("Acesse sua conta para ver suas Reorganizações.");
+            switchTab(navApp, sectionApp);
+            showScreen("auth");
+            return;
+        }
+        if (!state.subscription) {
+            showToast("Assine um plano para ver suas Reorganizações.");
+            switchTab(navApp, sectionApp);
+            showScreen("paywall");
+            return;
+        }
         switchTab(navLib, sectionLib);
         renderLibrary();
         renderStats();
@@ -663,6 +683,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navNav.addEventListener("click", (e) => {
         e.preventDefault();
+        if (!state.currentUser) {
+            showToast("Acesse sua conta para rodar o simulador RAG.");
+            switchTab(navApp, sectionApp);
+            showScreen("auth");
+            return;
+        }
+        if (!state.subscription) {
+            showToast("Assine um plano para rodar o simulador RAG.");
+            switchTab(navApp, sectionApp);
+            showScreen("paywall");
+            return;
+        }
         switchTab(navNav, sectionRag);
         renderVectorList();
     });
@@ -851,13 +883,277 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Processo salvo na sua biblioteca!");
     });
 
-    // Helper: Mostrar tela específica
+    // Helper: Mostrar tela específica com interceptações de autenticação e paywall
     function showScreen(screenId) {
         Object.keys(screens).forEach(key => {
-            screens[key].classList.remove("active");
+            if (screens[key]) {
+                screens[key].classList.remove("active");
+            }
         });
-        screens[screenId].classList.add("active");
-        state.currentStep = parseInt(screenId.replace("step", ""));
+        
+        // Interceptação de segurança e faturamento
+        if (!state.currentUser) {
+            if (screens["auth"]) screens["auth"].classList.add("active");
+            state.currentStep = 0;
+            updateUserUI();
+            return;
+        }
+        
+        if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
+            if (screens["paywall"]) screens["paywall"].classList.add("active");
+            state.currentStep = 0;
+            updateUserUI();
+            return;
+        }
+
+        if (screens[screenId]) {
+            screens[screenId].classList.add("active");
+            if (screenId.startsWith("step")) {
+                state.currentStep = parseInt(screenId.replace("step", ""));
+            } else {
+                state.currentStep = 0;
+            }
+        }
+        updateUserUI();
+    }
+
+    // ==========================================================================
+    // Lógica de Autenticação e Assinaturas (Simulador SaaS)
+    // ==========================================================================
+    const userNavContainer = document.getElementById("user-nav-container");
+    const userEmailDisplay = document.getElementById("user-email-display");
+    const userStatusDisplay = document.getElementById("user-status-display");
+    const btnLogout = document.getElementById("btn-logout");
+
+    function updateUserUI() {
+        if (!userNavContainer) return;
+        if (state.currentUser) {
+            userNavContainer.style.display = "flex";
+            if (userEmailDisplay) userEmailDisplay.innerText = state.currentUser.email;
+            if (userStatusDisplay) {
+                if (state.subscription) {
+                    userStatusDisplay.innerText = state.subscription.plan === "yearly" ? "Premium Anual" : "Premium Mensal";
+                    userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
+                    userStatusDisplay.style.color = "var(--color-primary)";
+                    userStatusDisplay.style.borderColor = "var(--color-primary)";
+                } else {
+                    userStatusDisplay.innerText = "Pendente";
+                    userStatusDisplay.style.background = "rgba(234, 67, 53, 0.15)";
+                    userStatusDisplay.style.color = "#EA4335";
+                    userStatusDisplay.style.borderColor = "#EA4335";
+                }
+            }
+        } else {
+            userNavContainer.style.display = "none";
+        }
+    }
+
+    // Elementos do Auth
+    const authTabLogin = document.getElementById("auth-tab-login");
+    const authTabRegister = document.getElementById("auth-tab-register");
+    const authForm = document.getElementById("auth-form");
+    const authEmailInput = document.getElementById("auth-email");
+    const authPasswordInput = document.getElementById("auth-password");
+    const btnAuthSubmit = document.getElementById("btn-auth-submit");
+    const btnAuthGoogle = document.getElementById("btn-auth-google");
+
+    let authMode = "login";
+
+    if (authTabLogin) {
+        authTabLogin.addEventListener("click", () => {
+            authMode = "login";
+            authTabLogin.classList.add("active");
+            if (authTabRegister) authTabRegister.classList.remove("active");
+            if (btnAuthSubmit) btnAuthSubmit.innerText = "Acessar Conta";
+        });
+    }
+
+    if (authTabRegister) {
+        authTabRegister.addEventListener("click", () => {
+            authMode = "register";
+            authTabRegister.classList.add("active");
+            if (authTabLogin) authTabLogin.classList.remove("active");
+            if (btnAuthSubmit) btnAuthSubmit.innerText = "Criar Conta";
+        });
+    }
+
+    if (authForm) {
+        authForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const email = authEmailInput.value.trim();
+            const pwd = authPasswordInput.value.trim();
+            
+            if (!email || !pwd) return;
+            
+            if (btnAuthSubmit) {
+                btnAuthSubmit.disabled = true;
+                btnAuthSubmit.innerHTML = `<span class="spinner"></span> ${authMode === 'login' ? 'Entrando' : 'Cadastrando'}...`;
+            }
+
+            setTimeout(() => {
+                state.saveUser({
+                    email: email,
+                    provider: "email"
+                });
+                
+                if (btnAuthSubmit) {
+                    btnAuthSubmit.disabled = false;
+                    btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
+                }
+                
+                authEmailInput.value = "";
+                authPasswordInput.value = "";
+                
+                updateUserUI();
+                
+                if (state.subscription) {
+                    showScreen("step1");
+                    showToast("Logado com sucesso!");
+                } else {
+                    showScreen("paywall");
+                    showToast("Conta criada! Selecione o seu plano de acesso.");
+                }
+            }, 1200);
+        });
+    }
+
+    if (btnAuthGoogle) {
+        btnAuthGoogle.addEventListener("click", () => {
+            btnAuthGoogle.disabled = true;
+            btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
+
+            setTimeout(() => {
+                state.saveUser({
+                    email: "visitante.google@gmail.com",
+                    provider: "google"
+                });
+                
+                btnAuthGoogle.disabled = false;
+                btnAuthGoogle.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+                    </svg> Entrar com o Google
+                `;
+
+                updateUserUI();
+                
+                if (state.subscription) {
+                    showScreen("step1");
+                    showToast("Conectado com o Google!");
+                } else {
+                    showScreen("paywall");
+                    showToast("Google conectado! Selecione o seu plano de acesso.");
+                }
+            }, 1200);
+        });
+    }
+
+    if (btnLogout) {
+        btnLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+            state.saveUser(null);
+            state.saveSubscription(null);
+            
+            updateUserUI();
+            showScreen("auth");
+            showToast("Você saiu da sua conta.");
+        });
+    }
+
+    // Elementos do Checkout
+    const checkoutModal = document.getElementById("checkout-modal");
+    const btnCloseCheckout = document.getElementById("btn-close-checkout");
+    const checkoutPlanName = document.getElementById("checkout-plan-name");
+    const checkoutTabPix = document.getElementById("checkout-tab-pix");
+    const checkoutTabCard = document.getElementById("checkout-tab-card");
+    const checkoutContentPix = document.getElementById("checkout-content-pix");
+    const checkoutContentCard = document.getElementById("checkout-content-card");
+    const btnConfirmPayment = document.getElementById("btn-confirm-payment");
+    const btnCopyPix = document.getElementById("btn-copy-pix");
+
+    let activeSelectedPlan = "yearly";
+
+    document.querySelectorAll(".btn-select-plan").forEach(btn => {
+        btn.addEventListener("click", () => {
+            activeSelectedPlan = btn.dataset.plan;
+            if (checkoutPlanName) {
+                checkoutPlanName.innerText = activeSelectedPlan === "yearly" ? "Anual (R$ 19,90/mês)" : "Mensal (R$ 29,90/mês)";
+            }
+            if (checkoutModal) checkoutModal.style.display = "flex";
+        });
+    });
+
+    if (btnCloseCheckout) {
+        btnCloseCheckout.addEventListener("click", () => {
+            if (checkoutModal) checkoutModal.style.display = "none";
+        });
+    }
+
+    if (checkoutTabPix) {
+        checkoutTabPix.addEventListener("click", () => {
+            checkoutTabPix.style.borderBottom = "2px solid var(--color-primary)";
+            checkoutTabPix.style.color = "var(--color-text-main)";
+            
+            if (checkoutTabCard) {
+                checkoutTabCard.style.borderBottom = "none";
+                checkoutTabCard.style.color = "var(--color-text-muted)";
+            }
+            
+            if (checkoutContentPix) checkoutContentPix.style.display = "block";
+            if (checkoutContentCard) checkoutContentCard.style.display = "none";
+        });
+    }
+
+    if (checkoutTabCard) {
+        checkoutTabCard.addEventListener("click", () => {
+            checkoutTabCard.style.borderBottom = "2px solid var(--color-primary)";
+            checkoutTabCard.style.color = "var(--color-text-main)";
+            
+            if (checkoutTabPix) {
+                checkoutTabPix.style.borderBottom = "none";
+                checkoutTabPix.style.color = "var(--color-text-muted)";
+            }
+            
+            if (checkoutContentCard) checkoutContentCard.style.display = "block";
+            if (checkoutContentPix) checkoutContentPix.style.display = "none";
+        });
+    }
+
+    if (btnCopyPix) {
+        btnCopyPix.addEventListener("click", () => {
+            const pixInput = document.getElementById("pix-key-value");
+            if (pixInput) {
+                pixInput.select();
+                document.execCommand("copy");
+                showToast("Código Copia e Cola copiado!");
+            }
+        });
+    }
+
+    if (btnConfirmPayment) {
+        btnConfirmPayment.addEventListener("click", () => {
+            btnConfirmPayment.disabled = true;
+            btnConfirmPayment.innerHTML = '<span class="spinner"></span> Confirmando...';
+            
+            setTimeout(() => {
+                state.saveSubscription({
+                    plan: activeSelectedPlan,
+                    active: true,
+                    date: new Date().toLocaleDateString('pt-BR')
+                });
+                
+                if (checkoutModal) checkoutModal.style.display = "none";
+                btnConfirmPayment.disabled = false;
+                btnConfirmPayment.innerText = "Simular Confirmação de Pagamento";
+                
+                updateUserUI();
+                showScreen("step1");
+                showToast("Assinatura confirmada! Acesso Premium liberado.");
+            }, 1500);
+        });
     }
 
     // Helper: Renderizar Biblioteca (Histórico)
@@ -1163,5 +1459,15 @@ Pergunta atual: "${query}"
             toast.classList.remove("show");
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // Inicialização da Tela no Load
+    updateUserUI();
+    if (!state.currentUser) {
+        showScreen("auth");
+    } else if (!state.subscription) {
+        showScreen("paywall");
+    } else {
+        showScreen("step1");
     }
 });
