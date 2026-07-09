@@ -22,10 +22,10 @@ window.appLoaded = true;
 const SUPABASE_URL = "https://vyhwpjktsdvfnwvvjnbh.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_vfK43gvWRToO8gR9cd9ttA_dzDrAqHI";
 
-let supabase = null;
+let supabaseClient = null;
 if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
     try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("Supabase Client inicializado com sucesso!");
     } catch (err) {
         console.error("Erro de inicialização do Supabase:", err);
@@ -595,8 +595,8 @@ class AppStateManager {
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
         }
-        if (!user && supabase) {
-            supabase.auth.signOut();
+        if (!user && supabaseClient) {
+            supabaseClient.auth.signOut();
         }
     }
 
@@ -622,9 +622,9 @@ class AppStateManager {
             console.warn("Erro ao salvar assinatura no localStorage:", e);
         }
         // Sincronizar com o banco do Supabase se o usuário estiver logado
-        if (sub && supabase && this.currentUser) {
+        if (sub && supabaseClient && this.currentUser) {
             try {
-                await supabase.from("subscriptions").upsert({
+                await supabaseClient.from("subscriptions").upsert({
                     user_id: this.currentUser.id || this.currentUser.email,
                     plan: sub.plan,
                     active: sub.active,
@@ -637,11 +637,11 @@ class AppStateManager {
     }
 
     async loadDataFromSupabase() {
-        if (!supabase || !this.currentUser) return;
+        if (!supabaseClient || !this.currentUser) return;
         
         try {
             // 1. Buscar Assinatura Remota
-            const { data: subData, error: subErr } = await supabase
+            const { data: subData, error: subErr } = await supabaseClient
                 .from("subscriptions")
                 .select("*")
                 .eq("user_id", this.currentUser.id || this.currentUser.email)
@@ -657,7 +657,7 @@ class AppStateManager {
             }
 
             // 2. Buscar Histórico de Reorganizações Remoto
-            const { data: histData, error: histErr } = await supabase
+            const { data: histData, error: histErr } = await supabaseClient
                 .from("reorganizations")
                 .select("*")
                 .eq("user_id", this.currentUser.id || this.currentUser.email)
@@ -696,9 +696,9 @@ class AppStateManager {
         this.history.unshift(entry);
         this.saveHistory();
 
-        if (supabase && this.currentUser) {
+        if (supabaseClient && this.currentUser) {
             try {
-                await supabase.from("reorganizations").insert({
+                await supabaseClient.from("reorganizations").insert({
                     id: entry.id,
                     user_id: this.currentUser.id || this.currentUser.email,
                     date: entry.date,
@@ -1163,10 +1163,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnAuthSubmit.innerHTML = `<span class="spinner"></span> ${authMode === 'login' ? 'Entrando' : 'Cadastrando'}...`;
             }
 
-            if (supabase) {
+            if (supabaseClient) {
                 try {
                     if (authMode === "register") {
-                        const { data, error } = await supabase.auth.signUp({
+                        const { data, error } = await supabaseClient.auth.signUp({
                             email: email,
                             password: pwd
                         });
@@ -1183,7 +1183,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         showToast("Cadastro realizado com sucesso! Verifique seu e-mail.");
                         showScreen("paywall");
                     } else {
-                        const { data, error } = await supabase.auth.signInWithPassword({
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({
                             email: email,
                             password: pwd
                         });
@@ -1255,9 +1255,9 @@ document.addEventListener("DOMContentLoaded", () => {
             btnAuthGoogle.disabled = true;
             btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
 
-            if (supabase) {
+            if (supabaseClient) {
                 try {
-                    const { error } = await supabase.auth.signInWithOAuth({
+                    const { error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
                             redirectTo: window.location.origin + window.location.pathname
@@ -1724,9 +1724,9 @@ Pergunta atual: "${query}"
     }
 
     // Inicialização da Tela no Load
-    if (supabase) {
+    if (supabaseClient) {
         // 1. Obter sessão inicial de forma imediata (Promise)
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session && session.user) {
                 state.saveUser({
                     email: session.user.email,
@@ -1760,7 +1760,7 @@ Pergunta atual: "${query}"
         });
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === "SIGNED_IN" && session) {
                 state.saveUser({
                     email: session.user.email,
