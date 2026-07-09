@@ -1425,6 +1425,42 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Código de convite / Reivindicar Assinatura Gratuita
+    const btnClaimInvite = document.getElementById("btn-claim-invite");
+    const inputInviteCode = document.getElementById("input-invite-code");
+
+    if (btnClaimInvite && inputInviteCode) {
+        btnClaimInvite.addEventListener("click", () => {
+            const rawCode = inputInviteCode.value.trim();
+            // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
+            const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            if (codeNormalized === "familiahqi") {
+                btnClaimInvite.disabled = true;
+                btnClaimInvite.innerHTML = `<span class="spinner"></span> Validando...`;
+                
+                state.saveSubscription({
+                    plan: "invitation",
+                    active: true,
+                    date: new Date().toLocaleDateString('pt-BR')
+                }).then(() => {
+                    inputInviteCode.value = "";
+                    updateUserUI();
+                    showToast("Código de convite ativado com sucesso! Bem-vindo(a) à família HQI! 🎉");
+                    showScreen("step1");
+                }).catch(err => {
+                    console.error(err);
+                    showToast("Erro ao processar ativação do convite.");
+                }).finally(() => {
+                    btnClaimInvite.disabled = false;
+                    btnClaimInvite.innerText = "Reivindicar";
+                });
+            } else {
+                showToast("Código de convite inválido ou expirado.");
+            }
+        });
+    }
+
     if (btnCloseCheckout) {
         btnCloseCheckout.addEventListener("click", () => {
             if (checkoutModal) checkoutModal.style.display = "none";
