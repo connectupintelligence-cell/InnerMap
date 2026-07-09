@@ -631,6 +631,7 @@ class AppStateManager {
             try {
                 await supabaseClient.from("subscriptions").upsert({
                     user_id: this.currentUser.id || this.currentUser.email,
+                    email: this.currentUser.email,
                     plan: sub.plan,
                     active: sub.active,
                     date: sub.date
@@ -706,6 +707,7 @@ class AppStateManager {
                 await supabaseClient.from("reorganizations").insert({
                     id: entry.id,
                     user_id: this.currentUser.id || this.currentUser.email,
+                    email: this.currentUser.email,
                     date: entry.date,
                     phrase: entry.phrase,
                     category: entry.category,

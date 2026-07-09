@@ -6,7 +6,8 @@
 
 -- 1. TABELA DE ASSINATURAS (subscriptions)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
-    user_id TEXT PRIMARY KEY, -- ID do usuário (do Supabase Auth ou e-mail)
+    user_id TEXT PRIMARY KEY, -- ID do usuário (do Supabase Auth)
+    email TEXT,               -- E-mail de login do usuário
     plan TEXT NOT NULL,       -- "monthly" ou "yearly"
     active BOOLEAN NOT NULL DEFAULT FALSE,
     date TEXT NOT NULL,       -- Data de ativação
@@ -18,17 +19,18 @@ ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de Acesso RLS
 CREATE POLICY "Permitir leitura da própria assinatura" ON public.subscriptions
-    FOR SELECT USING (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id);
+    FOR SELECT USING (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id OR auth.jwt()->>'email' = email);
 
 CREATE POLICY "Permitir inserção/atualização da própria assinatura" ON public.subscriptions
-    FOR ALL USING (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id)
-    WITH CHECK (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id);
+    FOR ALL USING (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id OR auth.jwt()->>'email' = email)
+    WITH CHECK (auth.uid()::text = user_id OR auth.jwt()->>'email' = user_id OR auth.jwt()->>'email' = email);
 
 
 -- 2. TABELA DE REORGANIZAÇÕES (reorganizations)
 CREATE TABLE IF NOT EXISTS public.reorganizations (
     id TEXT PRIMARY KEY,      -- ID da reorganização (timestamp)
     user_id TEXT NOT NULL,    -- ID do usuário associado
+    email TEXT,               -- E-mail de login do usuário
     date TEXT NOT NULL,       -- Data formatada
     phrase TEXT NOT NULL,     -- Objetivo digitado
     category TEXT NOT NULL,   -- Categoria do padrão
