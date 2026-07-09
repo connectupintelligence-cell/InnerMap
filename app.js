@@ -1688,9 +1688,43 @@ Pergunta atual: "${query}"
 
     // Inicialização da Tela no Load
     if (supabase) {
-        // Observador de estado de autenticação real (Supabase)
-        supabase.auth.onAuthStateChange(async (event, session) => {
+        // 1. Obter sessão inicial de forma imediata (Promise)
+        supabase.auth.getSession().then(({ data: { session } }) => {
             if (session && session.user) {
+                state.saveUser({
+                    email: session.user.email,
+                    provider: session.user.app_metadata.provider || "email",
+                    id: session.user.id
+                });
+                state.loadDataFromSupabase().then(() => {
+                    updateUserUI();
+                    renderLibrary();
+                    renderStats();
+                    
+                    // Redirecionar dependendo da assinatura sincronizada
+                    if (state.subscription) {
+                        showScreen("step1");
+                    } else {
+                        showScreen("paywall");
+                    }
+                });
+            } else {
+                state.saveUser(null);
+                state.saveSubscription(null);
+                state.history = [];
+                updateUserUI();
+                renderLibrary();
+                renderStats();
+                showScreen("auth");
+            }
+        }).catch(err => {
+            console.error("Erro ao obter sessão inicial:", err);
+            showScreen("auth");
+        });
+
+        // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === "SIGNED_IN" && session) {
                 state.saveUser({
                     email: session.user.email,
                     provider: session.user.app_metadata.provider || "email",
@@ -1700,14 +1734,8 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                
-                // Redirecionar dependendo da assinatura sincronizada
-                if (state.subscription) {
-                    showScreen("step1");
-                } else {
-                    showScreen("paywall");
-                }
-            } else {
+                showScreen(state.subscription ? "step1" : "paywall");
+            } else if (event === "SIGNED_OUT") {
                 state.saveUser(null);
                 state.saveSubscription(null);
                 state.history = [];
