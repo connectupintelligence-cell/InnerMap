@@ -1,21 +1,12 @@
 // Global Error Debugging Handler
 window.onerror = function(message, source, lineno, colno, error) {
-    const errorDiv = document.createElement("div");
-    errorDiv.style.position = "fixed";
-    errorDiv.style.top = "0";
-    errorDiv.style.left = "0";
-    errorDiv.style.width = "100%";
-    errorDiv.style.background = "#EA4335";
-    errorDiv.style.color = "white";
-    errorDiv.style.padding = "1rem";
-    errorDiv.style.zIndex = "999999";
-    errorDiv.style.fontFamily = "monospace";
-    errorDiv.style.fontSize = "0.9rem";
-    errorDiv.style.wordBreak = "break-all";
-    errorDiv.innerHTML = `<strong>Erro JavaScript:</strong> ${message}<br><small>Fonte: ${source}:${lineno}:${colno}</small>`;
-    document.body.appendChild(errorDiv);
+    const errorMsg = `Erro JavaScript: ${message}\nFonte: ${source}:${lineno}:${colno}`;
+    console.error(errorMsg);
+    alert(errorMsg);
     return false;
 };
+
+window.appLoaded = true;
 
 /**
  * InnerMap - Motor de Reorganização Informacional

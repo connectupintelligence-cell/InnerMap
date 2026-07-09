@@ -483,5 +483,15 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="app.js"></script>
+    <script>
+        // Monitoramento de inicialização do app.js
+        setTimeout(() => {
+            if (!window.appLoaded) {
+                alert("Erro crítico: O arquivo app.js não pôde ser executado ou carregado pelo navegador. Verifique a conexão com a internet ou adblockers.");
+            } else {
+                console.log("Monitoramento: app.js carregou com sucesso.");
+            }
+        }, 3000);
+    </script>
 </body>
 </html>
