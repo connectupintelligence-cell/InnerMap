@@ -1341,7 +1341,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             activeSelectedPlan = btn.dataset.plan;
             if (checkoutPlanName) {
-                checkoutPlanName.innerText = activeSelectedPlan === "yearly" ? "Anual (R$ 19,90/mês)" : "Mensal (R$ 29,90/mês)";
+                checkoutPlanName.innerText = activeSelectedPlan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
             }
             if (checkoutModal) checkoutModal.style.display = "flex";
         });
