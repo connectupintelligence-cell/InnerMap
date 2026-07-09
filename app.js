@@ -9,8 +9,8 @@
 // Insira as chaves do seu projeto do Supabase aqui para ativar o login real com Google
 // e sincronização das reorganizações na nuvem de forma 100% gratuita e sem servidor.
 // Caso fiquem vazias, o aplicativo entrará em modo de simulação local automática.
-const SUPABASE_URL = ""; 
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL = "https://vyhwpjktsdvfnwvvjnbh.supabase.co"; 
+const SUPABASE_ANON_KEY = "sb_publishable_vfK43gvWRToO8gR9cd9ttA_dzDrAqHI";
 
 let supabase = null;
 if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
