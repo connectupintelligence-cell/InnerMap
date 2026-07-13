@@ -1600,3 +1600,26 @@ a:hover {
     border-color: var(--color-primary-glow);
     background: rgba(255, 255, 255, 0.03);
 }
+
+/* Layout Limpo e Exclusivo para o Painel do Terapeuta */
+body:has(#screen-therapist.active) .hero-section,
+body:has(#screen-therapist.active) .info-section,
+body:has(#screen-therapist.active) .footer-quantum {
+    display: none !important;
+}
+
+body:has(#screen-therapist.active) #reorganizer-tool {
+    max-width: 1400px;
+    width: 95%;
+    padding: 3rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    margin-top: 2rem;
+    margin-bottom: 4rem;
+}
+
+body:has(#screen-therapist.active) .main-content {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
