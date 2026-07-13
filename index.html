@@ -310,8 +310,13 @@
 
                 <!-- THERAPIST DASHBOARD SCREEN -->
                 <div id="screen-therapist" class="app-screen">
-                    <h2 class="step-title">Painel de Controle do Terapeuta</h2>
-                    <p class="step-subtitle">Gerencie os seus clientes, acompanhe suas práticas e edite o método terapêutico em tempo real.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h2 class="step-title" style="margin: 0; text-align: left;">Painel de Controle do Terapeuta</h2>
+                            <p class="step-subtitle" style="margin: 0.5rem 0 0 0; text-align: left;">Gerencie os seus clientes, acompanhe suas práticas e edite o método terapêutico em tempo real.</p>
+                        </div>
+                        <button id="btn-back-to-app" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Voltar ao Aplicativo</button>
+                    </div>
                     
                     <!-- Dashboard Statistics -->
                     <div class="dashboard-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
@@ -664,7 +669,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=17"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

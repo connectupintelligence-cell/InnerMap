@@ -2495,6 +2495,14 @@ Pergunta atual: "${query}"
     }
 
     // Handlers e Binds de Elementos Administrativos
+    const btnBackToApp = document.getElementById("btn-back-to-app");
+    if (btnBackToApp) {
+        btnBackToApp.addEventListener("click", () => {
+            switchTab(navApp, sectionApp);
+            showScreen("step1");
+        });
+    }
+
     const btnCloseClientDetails = document.getElementById("btn-close-client-details");
     if (btnCloseClientDetails) {
         btnCloseClientDetails.addEventListener("click", () => {

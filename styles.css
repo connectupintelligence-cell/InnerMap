@@ -1602,6 +1602,7 @@ a:hover {
 }
 
 /* Layout Limpo e Exclusivo para o Painel do Terapeuta */
+body.mode-therapist .header-quantum,
 body.mode-therapist .hero-section,
 body.mode-therapist .info-section,
 body.mode-therapist .footer-quantum {
