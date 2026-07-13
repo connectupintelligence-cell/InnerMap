@@ -181,45 +181,127 @@ function formatFactForSentence(fact) {
     }
 
     const VERB_PARTICIPLES = {
-        'bati': 'batido',
-        'bater': 'batido',
-        'perdi': 'perdido',
-        'perder': 'perdido',
-        'errei': 'errado',
-        'errar': 'errado',
-        'briguei': 'brigado',
-        'brigar': 'brigado',
-        'falei': 'falado',
-        'falar': 'falado',
-        'discuti': 'discutido',
-        'discutir': 'discutido',
-        'fiz': 'feito',
-        'fazer': 'feito',
-        'gastei': 'gastado',
-        'gastar': 'gastado',
-        'comprei': 'comprado',
-        'comprar': 'comprado',
-        'fui': 'ido',
-        'ir': 'ido',
+        // Consegui
+        'consegui': 'conseguido',
+        'conseguiu': 'conseguido',
+        'conseguimos': 'conseguido',
+        'conseguiram': 'conseguido',
+        'conseguir': 'conseguido',
+        // Tive
         'tive': 'tido',
+        'teve': 'tido',
+        'tivemos': 'tido',
+        'tiveram': 'tido',
         'ter': 'tido',
+        // Fui
+        'fui': 'ido',
+        'foi': 'ido',
+        'fomos': 'ido',
+        'foram': 'ido',
+        'ir': 'ido',
+        // Fiz
+        'fiz': 'feito',
+        'fez': 'feito',
+        'fizemos': 'feito',
+        'fizeram': 'feito',
+        'fazer': 'feito',
+        // Bati
+        'bati': 'batido',
+        'bateu': 'batido',
+        'bater': 'batido',
+        // Perdi
+        'perdi': 'perdido',
+        'perdeu': 'perdido',
+        'perder': 'perdido',
+        // Errei
+        'errei': 'errado',
+        'errou': 'errado',
+        'errar': 'errado',
+        // Briguei
+        'briguei': 'brigado',
+        'brigou': 'brigado',
+        'brigar': 'brigado',
+        // Falei
+        'falei': 'falado',
+        'falou': 'falado',
+        'falar': 'falado',
+        // Discuti
+        'discuti': 'discutido',
+        'discutiu': 'discutido',
+        'discutir': 'discutido',
+        // Recebi
         'recebi': 'recebido',
+        'recebeu': 'recebido',
         'receber': 'recebido',
+        // Senti
         'senti': 'sentido',
+        'sentiu': 'sentido',
         'sentir': 'sentido',
+        // Fiquei
         'fiquei': 'ficado',
+        'ficou': 'ficado',
         'ficar': 'ficado',
+        // Pude
+        'pude': 'podido',
+        'poder': 'podido',
+        // Outros
         'gritei': 'gritado',
+        'gritou': 'gritado',
         'gritar': 'gritado',
         'chorei': 'chorado',
+        'chorou': 'chorado',
         'chorar': 'chorado',
         'quebrei': 'quebrado',
+        'quebrou': 'quebrado',
         'quebrar': 'quebrado',
         'falhei': 'falhado',
+        'falhou': 'falhado',
         'falhar': 'falhado',
-        'minto': 'mentido',
         'menti': 'mentido',
-        'mentir': 'mentido'
+        'mentiu': 'mentido',
+        'mentir': 'mentido',
+        'gastei': 'gastado',
+        'gastou': 'gastado',
+        'gastar': 'gastado',
+        'comprei': 'comprado',
+        'comprou': 'comprado',
+        'comprar': 'comprado',
+        'vendi': 'vendido',
+        'vendeu': 'vendido',
+        'vender': 'vendido',
+        'ganhei': 'ganhado',
+        'ganhou': 'ganhado',
+        'ganhar': 'ganhado',
+        'vi': 'visto',
+        'viu': 'visto',
+        'ver': 'visto',
+        'olhei': 'olhado',
+        'olhou': 'olhado',
+        'olhar': 'olhado',
+        'esqueci': 'esquecido',
+        'esqueceu': 'esquecido',
+        'esquecer': 'esquecido',
+        'lembrei': 'lembrado',
+        'lembrou': 'lembrado',
+        'lembrar': 'lembrado',
+        'deixei': 'deixado',
+        'deixou': 'deixado',
+        'deixar': 'deixado',
+        'ajudei': 'ajudado',
+        'ajudou': 'ajudado',
+        'ajudar': 'ajudado',
+        'cheguei': 'chegado',
+        'chegou': 'chegado',
+        'chegar': 'chegado',
+        'sai': 'saído',
+        'saiu': 'saído',
+        'sair': 'saído',
+        'cai': 'caído',
+        'caiu': 'caído',
+        'cair': 'caído',
+        'entrei': 'entrado',
+        'entrou': 'entrado',
+        'entrar': 'entrado'
     };
 
     const words = clean.split(/\s+/);
@@ -239,9 +321,33 @@ function formatFactForSentence(fact) {
     if (verbIndex !== -1) {
         const wordsBefore = words.slice(0, verbIndex).join(" ");
         const wordsAfter = words.slice(verbIndex + 1).join(" ");
-        let result = `por eu ter ${participle}`;
+        
+        const preWords = [];
+        const postWords = [];
+        
+        if (wordsBefore) {
+            wordsBefore.split(/\s+/).forEach(w => {
+                const low = w.trim().toLowerCase();
+                const isPre = ["eu", "você", "ele", "ela", "nós", "a gente", "não", "nunca", "jamais", "nem", "ontem", "hoje", "anteontem", "agora", "antes", "depois", "já"].includes(low);
+                if (isPre) {
+                    preWords.push(w);
+                } else {
+                    postWords.push(w);
+                }
+            });
+        }
+        
+        let result = "por ";
+        if (preWords.length > 0) {
+            result += preWords.join(" ") + " ";
+        } else {
+            result += "eu ";
+        }
+        
+        result += `ter ${participle}`;
+        
         if (wordsAfter) result += ` ${wordsAfter}`;
-        if (wordsBefore) result += ` ${wordsBefore}`;
+        if (postWords.length > 0) result += ` ${postWords.join(" ")}`;
         return result;
     }
 

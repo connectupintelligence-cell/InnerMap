@@ -11,7 +11,7 @@
     <meta name="author" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=20">
+    <link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
 
@@ -163,7 +163,10 @@
                         </div>
                         
                         <div class="hqi-item">
-                            <span class="hqi-item-title">Liberação de Registros</span>
+                            <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                                <span>Liberação de Registros</span>
+                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(234, 67, 53, 0.12); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">⚠️ Emitir 1x na vida!</span>
+                            </span>
                             <p id="output-declaracao" class="hqi-text-box"></p>
                         </div>
 
@@ -176,6 +179,18 @@
                             <span class="hqi-item-title">Ação e Integração</span>
                             <p id="output-microacao" class="action-card"></p>
                         </div>
+                    </div>
+
+                    <!-- Instruções de Emissão de Comandos -->
+                    <div style="margin: 1.5rem 0; padding: 1.25rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: 10px; text-align: left;">
+                        <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--color-primary-glow); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🗣️ Como emitir os comandos?</span>
+                        </h4>
+                        <p style="margin: 0 0 0.5rem 0; color: var(--color-text-main); font-size: 0.9rem;">Os comandos podem ser emitidos de 2 formas:</p>
+                        <ul style="margin: 0; padding-left: 1.15rem; color: var(--color-text-muted); font-size: 0.85rem; line-height: 1.6;">
+                            <li><strong>1ª</strong> - Mentalmente</li>
+                            <li><strong>2ª</strong> - Verbalmente (em voz alta ou voz baixa)</li>
+                        </ul>
                     </div>
 
                     <!-- Timer elements for active reading -->
@@ -669,7 +684,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=21"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
