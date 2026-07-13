@@ -369,7 +369,6 @@ function formatFactForSentence(fact) {
 
 // Função auxiliar para construir as frases de MSI e MFI de acordo com a seleção e sentimentos
 function buildDeclarations(phrase, isHereditary, factDetail, category) {
-    let parts = [];
     const cleanConcept = phrase.replace(/eu tenho/gi, '')
                             .replace(/estou com/gi, '')
                             .replace(/sinto muito/gi, '')
@@ -378,15 +377,14 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
                             .replace(/medo de/gi, 'medo de ')
                             .trim();
 
+    let msi = "";
     if (isHereditary) {
-        // MSI - Movimento Sistêmico Informacional (Alma e Espírito se for genérico/comportamento)
-        let msi = `Alma, comportamentos e registros hereditários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n`;
+        msi = `Alma, comportamentos e registros hereditários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n`;
         msi += `Espírito, pensamentos hereditários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!`;
-        parts.push(msi);
     }
 
+    let mfi = "";
     if (factDetail && factDetail.trim() !== "") {
-        // MFI - Movimento Factual Informacional
         const formattedFact = formatFactForSentence(factDetail);
         const text = factDetail.toLowerCase().trim();
         const SENTIMENTS_LIST = [
@@ -406,7 +404,6 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
             }
         });
 
-        // Heurísticas de sentimentos baseados em contexto
         if (text.includes("briga") || text.includes("discuti") || text.includes("conflito") || text.includes("discussão") || text.includes("marido") || text.includes("esposa") || text.includes("carro") || text.includes("bati")) {
             if (!matchedSentiments.includes("tristeza")) matchedSentiments.push("tristeza");
             if (!matchedSentiments.includes("raiva")) matchedSentiments.push("raiva");
@@ -430,17 +427,15 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
 
         matchedSentiments = [...new Set(matchedSentiments)];
 
-        let mfi = "";
         matchedSentiments.forEach(s => {
             mfi += `Alma, ${s} que senti ${formattedFact} acabou!\n`;
         });
         mfi += `Alma, todos os sentimentos que senti ${formattedFact} acabaram!\n`;
         mfi += `Espírito, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
         mfi += `Espírito, todas as informações negativas que gerei ${formattedFact} acabou!`;
-        parts.push(mfi);
     }
 
-    return parts.join("\n\n");
+    return { msi, mfi };
 }
 
 // Lógica de processamento e classificação de texto
@@ -508,7 +503,28 @@ class ReorganizationEngine {
         let cleanMRI = rawMRI.replace(/3 - Movimento de Reinterpretação Informacional - MRI\n?/gi, "").trim();
 
         // Construir declarações MSI/MFI dinamicamente de acordo com as respostas do cliente
-        const finalDeclaracao = buildDeclarations(inputPhrase, isHereditary, factDetail, category);
+        const declarations = buildDeclarations(inputPhrase, isHereditary, factDetail, category);
+
+        // Juntar MSI (Hereditário) e MRI (Fortalecimento) como "Não Específico"
+        let finalNaoEspecifica = "";
+        if (declarations.msi) {
+            finalNaoEspecifica += declarations.msi + "\n\n";
+        }
+        finalNaoEspecifica += cleanMRI;
+
+        // Adiciona sugestão de melhoria específica baseada na categoria à microação
+        let finalMicroacao = microacao;
+        if (category === "Prosperidade") {
+            finalMicroacao += "\n\n💡 Sugestão de melhoria: Dedique 15 minutos hoje para revisar e organizar suas metas financeiras semanais.";
+        } else if (category === "Trabalho") {
+            finalMicroacao += "\n\n💡 Sugestão de melhoria: Organize sua agenda do dia com foco em resolver a pendência mais importante logo pela manhã.";
+        } else if (category === "Relacionamentos") {
+            finalMicroacao += "\n\n💡 Sugestão de melhoria: Pratique a escuta ativa hoje, prestando atenção plena a uma pessoa querida sem interrompê-la.";
+        } else if (category === "Saúde" || category === "Autoestima") {
+            finalMicroacao += "\n\n💡 Sugestão de melhoria: Faça uma pausa de 10 minutos para respiração consciente e alongamento leve hoje.";
+        } else {
+            finalMicroacao += "\n\n💡 Sugestão de melhoria: Reserve um momento de silêncio hoje para se conectar com a sua respiração.";
+        }
 
         return {
             category: category,
@@ -517,10 +533,10 @@ class ReorganizationEngine {
             ajuste: ajuste,
             movimento: movimento,
             objetivo: objetivo,
-            declaracao: finalDeclaracao,
-            fortalecimento: cleanMRI,
+            declaracaoEspecifica: declarations.mfi, // Fatos/Factual (MFI) - 1x na vida
+            declaracaoNaoEspecifica: finalNaoEspecifica, // Hereditário (MSI) + Reinterpretação (MRI) - 1x por dia por 15 dias
             pergunta: pergunta,
-            microacao: microacao,
+            microacao: finalMicroacao,
             embedding: embedding,
             originalPhrase: inputPhrase
         };
@@ -926,8 +942,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tela 3
     const outputCategory = document.getElementById("output-category");
     const outputObjetivo = document.getElementById("output-objetivo");
-    const outputDeclaracao = document.getElementById("output-declaracao");
-    const outputFortalecimento = document.getElementById("output-fortalecimento");
+    const outputEspecifico = document.getElementById("output-especifico");
+    const outputNaoEspecifico = document.getElementById("output-nao-especifico");
     const outputMicroacao = document.getElementById("output-microacao");
     const btnToStep4 = document.getElementById("btn-to-step4");
     const timerProgress = document.getElementById("timer-progress");
@@ -1128,15 +1144,16 @@ document.addEventListener("DOMContentLoaded", () => {
             outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
             outputObjetivo.innerText = result.objetivo;
             
-            // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MSI/MFI
-            if (!result.declaracao || result.declaracao.trim() === "") {
-                outputDeclaracao.closest(".hqi-item").style.display = "none";
+            // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MFI (específica)
+            const itemEspecifico = document.getElementById("item-especifico");
+            if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
+                if (itemEspecifico) itemEspecifico.style.display = "none";
             } else {
-                outputDeclaracao.closest(".hqi-item").style.display = "block";
-                outputDeclaracao.innerText = result.declaracao;
+                if (itemEspecifico) itemEspecifico.style.display = "block";
+                if (outputEspecifico) outputEspecifico.innerText = result.declaracaoEspecifica;
             }
 
-            outputFortalecimento.innerText = result.fortalecimento;
+            if (outputNaoEspecifico) outputNaoEspecifico.innerText = result.declaracaoNaoEspecifica;
             outputMicroacao.innerText = result.microacao;
             
             showScreen("step3");
@@ -1210,6 +1227,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         state.addReorganization(inputPhrase.value.trim(), state.currentData, ratingValue);
         
+        // Criar e salvar Agenda de 15 dias
+        if (state.currentUser && state.currentData) {
+            const agenda = {
+                reorgId: Date.now().toString(),
+                title: state.currentData.title,
+                phrase: inputPhrase.value.trim(),
+                command: state.currentData.declaracaoNaoEspecifica,
+                microaction: state.currentData.microacao,
+                startDate: new Date().toISOString(),
+                ticks: {}
+            };
+            localStorage.setItem("active_agenda_" + state.currentUser.email, JSON.stringify(agenda));
+            if (window.renderAgenda) window.renderAgenda();
+        }
+
         ratingOptions.forEach(o => o.classList.remove("selected"));
         document.querySelector('[data-value="Mais leve"]').classList.add("selected");
         selectedRating = "Mais leve";
@@ -1330,10 +1362,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     userStatusDisplay.style.borderColor = "#EA4335";
                 }
             }
+            if (window.renderAgenda) window.renderAgenda();
+            if (window.checkDailyReminder) window.checkDailyReminder();
         } else {
             userNavContainer.style.display = "none";
             document.body.classList.remove("user-logged-in");
             if (navTherapist) navTherapist.style.display = "none";
+            const agendaContainer = document.getElementById("agenda-container");
+            if (agendaContainer) agendaContainer.style.display = "none";
         }
     }
 
@@ -2747,4 +2783,177 @@ Pergunta atual: "${query}"
             }
         });
     }
+
+    // ==========================================================================
+    // Lógica da Agenda de Exercícios Diários (15 dias)
+    // ==========================================================================
+    function renderAgenda() {
+        const agendaContainer = document.getElementById("agenda-container");
+        if (!agendaContainer) return;
+
+        if (!state.currentUser) {
+            agendaContainer.style.display = "none";
+            return;
+        }
+
+        const emailKey = state.currentUser.email;
+        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
+        if (!agendaDataRaw) {
+            agendaContainer.style.display = "none";
+            return;
+        }
+
+        let agenda;
+        try {
+            agenda = JSON.parse(agendaDataRaw);
+        } catch (e) {
+            agendaContainer.style.display = "none";
+            return;
+        }
+
+        // Popula as informações da agenda
+        const agendaTitle = document.getElementById("agenda-title");
+        const agendaCommand = document.getElementById("agenda-command");
+        const agendaMicroaction = document.getElementById("agenda-microaction");
+        
+        if (agendaTitle) agendaTitle.innerText = `"${agenda.phrase}" (${agenda.title})`;
+        if (agendaCommand) agendaCommand.innerText = agenda.command;
+        if (agendaMicroaction) agendaMicroaction.innerText = agenda.microaction;
+
+        // Renderiza o grid de 15 dias
+        const grid = document.getElementById("agenda-calendar-grid");
+        if (grid) {
+            grid.innerHTML = "";
+
+            for (let day = 1; day <= 15; day++) {
+                const btn = document.createElement("button");
+                btn.className = "agenda-day-btn";
+                btn.type = "button";
+                btn.innerText = `D${day}`;
+                
+                if (agenda.ticks && agenda.ticks[day]) {
+                    btn.classList.add("completed");
+                    btn.innerHTML = `D${day} ✓`;
+                }
+
+                btn.addEventListener("click", () => {
+                    if (!agenda.ticks) agenda.ticks = {};
+                    agenda.ticks[day] = !agenda.ticks[day];
+                    
+                    // Salvar ticks
+                    localStorage.setItem("active_agenda_" + emailKey, JSON.stringify(agenda));
+                    renderAgenda();
+
+                    // Mostrar mensagem de incentivo
+                    if (agenda.ticks[day]) {
+                        showToast(`Dia ${day} concluído com sucesso! Ótimo trabalho!`);
+                        
+                        // Se concluiu todos os 15 dias, parabenizar!
+                        let allDone = true;
+                        for (let d = 1; d <= 15; d++) {
+                            if (!agenda.ticks[d]) {
+                                allDone = false;
+                                break;
+                            }
+                        }
+                        if (allDone) {
+                            showToast("🎉 Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
+                        }
+                    }
+                });
+
+                grid.appendChild(btn);
+            }
+        }
+
+        agendaContainer.style.display = "block";
+    }
+
+    function checkDailyReminder() {
+        if (!state.currentUser) return;
+        const enabled = localStorage.getItem("reminders_enabled") === "true";
+        if (!enabled) return;
+
+        const emailKey = state.currentUser.email;
+        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
+        if (!agendaDataRaw) return;
+
+        try {
+            const agenda = JSON.parse(agendaDataRaw);
+            const startDate = new Date(agenda.startDate);
+            const diffTime = new Date() - startDate;
+            const currentDay = Math.min(15, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
+            // Se o dia atual da prática ainda não foi marcado como completo
+            if (!agenda.ticks || !agenda.ticks[currentDay]) {
+                // Verificar se já mostramos lembrete hoje para não fludar
+                const lastReminderStr = localStorage.getItem("last_reminder_date_" + emailKey);
+                const todayStr = new Date().toDateString();
+                if (lastReminderStr !== todayStr) {
+                    localStorage.setItem("last_reminder_date_" + emailKey, todayStr);
+                    
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        new Notification("InnerMap: Exercício de Hoje", {
+                            body: `Dia ${currentDay} da sua reprogramação: "${agenda.phrase}". Realize o comando diário e sua microação!`,
+                            icon: "favicon.ico"
+                        });
+                    } else {
+                        showToast(`📝 Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    // Inicialização do botão de Lembretes
+    const btnToggleReminders = document.getElementById("btn-toggle-reminders");
+    if (btnToggleReminders) {
+        const updateRemindersBtnUI = () => {
+            const enabled = localStorage.getItem("reminders_enabled") === "true";
+            if (enabled) {
+                btnToggleReminders.className = "btn btn-outline active";
+                btnToggleReminders.innerHTML = `<span>🔕 Desativar Lembretes</span>`;
+                btnToggleReminders.style.borderColor = "var(--color-primary)";
+                btnToggleReminders.style.color = "var(--color-primary)";
+            } else {
+                btnToggleReminders.className = "btn btn-outline";
+                btnToggleReminders.innerHTML = `<span>🔔 Ativar Lembretes</span>`;
+                btnToggleReminders.style.borderColor = "var(--color-border)";
+                btnToggleReminders.style.color = "var(--color-text-muted)";
+            }
+        };
+
+        btnToggleReminders.addEventListener("click", async () => {
+            const enabled = localStorage.getItem("reminders_enabled") === "true";
+            if (!enabled) {
+                if ("Notification" in window) {
+                    const permission = await Notification.requestPermission();
+                    if (permission === "granted") {
+                        localStorage.setItem("reminders_enabled", "true");
+                        showToast("Notificações ativadas com sucesso!");
+                        new Notification("InnerMap", {
+                            body: "Você receberá lembretes diários para realizar seus exercícios informacionais.",
+                            icon: "favicon.ico"
+                        });
+                    } else {
+                        showToast("Permissão de notificação negada pelo navegador.");
+                    }
+                } else {
+                    showToast("Este navegador não suporta notificações de área de trabalho.");
+                }
+            } else {
+                localStorage.setItem("reminders_enabled", "false");
+                showToast("Lembretes diários desativados.");
+            }
+            updateRemindersBtnUI();
+        });
+
+        updateRemindersBtnUI();
+    }
+
+    // Expõe para uso em outros handlers
+    window.renderAgenda = renderAgenda;
+    window.checkDailyReminder = checkDailyReminder;
 });
