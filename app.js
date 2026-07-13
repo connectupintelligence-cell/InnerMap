@@ -776,7 +776,8 @@ document.addEventListener("DOMContentLoaded", () => {
         step3: document.getElementById("screen-step3"),
         step4: document.getElementById("screen-step4"),
         auth: document.getElementById("screen-auth"),
-        paywall: document.getElementById("screen-paywall")
+        paywall: document.getElementById("screen-paywall"),
+        therapist: document.getElementById("screen-therapist")
     };
     
     const inputPhrase = document.getElementById("input-phrase");
@@ -1910,6 +1911,11 @@ Pergunta atual: "${query}"
 
     // Verificar o status e a data de validade da assinatura de teste (trial de 15 dias)
     function checkSubscriptionStatus() {
+        // Se o usuário for um terapeuta/admin, desativa o limite e o aviso de 15 dias de teste
+        if (state.currentUser && state.currentUser.role === "therapist") {
+            return true;
+        }
+
         if (state.subscription && state.subscription.plan === "trial") {
             const activationDate = new Date(state.subscription.date);
             const currentDate = new Date();
