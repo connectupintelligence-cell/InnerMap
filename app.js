@@ -961,37 +961,36 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.factDetail);
             state.currentData = result;
             
+            // Popula Tela 2 (Consciência)
             outputAjuste.innerText = result.ajuste;
             outputMovimento.innerText = result.movimento;
             
-            showScreen("step2");
+            // Popula Tela 3 (Práticas Guiadas)
+            outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
+            outputObjetivo.innerText = result.objetivo;
+            
+            // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MSI/MFI
+            if (!result.declaracao || result.declaracao.trim() === "") {
+                outputDeclaracao.closest(".hqi-item").style.display = "none";
+            } else {
+                outputDeclaracao.closest(".hqi-item").style.display = "block";
+                outputDeclaracao.innerText = result.declaracao;
+            }
+
+            outputFortalecimento.innerText = result.fortalecimento;
+            outputMicroacao.innerText = result.microacao;
+            
+            showScreen("step3");
+            startPracticeTimer();
             
             btnGenerate.disabled = false;
             btnGenerate.innerText = "Gerar Ajustes Informacionais →";
         }, 1200);
     });
 
-    // Tela 2 -> Tela 3: Ir para Ajustes Informacionais
+    // Tela 2 (Consciência) -> Tela 4: Ir para Registro & Acompanhamento
     btnToStep3.addEventListener("click", () => {
-        const result = state.currentData;
-        if (!result) return;
-
-        outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
-        outputObjetivo.innerText = result.objetivo;
-        
-        // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MSI/MFI
-        if (!result.declaracao || result.declaracao.trim() === "") {
-            outputDeclaracao.closest(".hqi-item").style.display = "none";
-        } else {
-            outputDeclaracao.closest(".hqi-item").style.display = "block";
-            outputDeclaracao.innerText = result.declaracao;
-        }
-
-        outputFortalecimento.innerText = result.fortalecimento;
-        outputMicroacao.innerText = result.microacao;
-
-        showScreen("step3");
-        startPracticeTimer();
+        showScreen("step4");
     });
 
     // Lógica do Timer de Prática (Tela 3)
@@ -1011,7 +1010,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (timeLeft <= 0) {
                 clearInterval(state.timerInterval);
                 btnToStep4.disabled = false;
-                btnToStep4.innerText = "Concluir Prática e Registrar →";
+                btnToStep4.innerText = "Concluir Prática e Ver Leitura Informacional →";
                 btnToStep4.classList.add("pulse-glow");
             } else {
                 btnToStep4.innerText = `Realize a prática com atenção... (${timeLeft}s)`;
@@ -1019,10 +1018,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1000);
     }
 
-    // Tela 3 -> Tela 4: Registro
+    // Tela 3 (Práticas Guiadas) -> Tela 2: Ir para Consciência
     btnToStep4.addEventListener("click", () => {
         if (state.timerInterval) clearInterval(state.timerInterval);
-        showScreen("step4");
+        showScreen("step2");
     });
 
     // Seleção de sentimentos na Tela 4
