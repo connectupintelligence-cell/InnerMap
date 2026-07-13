@@ -653,11 +653,29 @@ class AppStateManager {
         
         try {
             // 0. Buscar perfil (role) no Supabase
-            const { data: profData, error: profErr } = await supabaseClient
+            let { data: profData, error: profErr } = await supabaseClient
                 .from("profiles")
                 .select("role")
                 .eq("id", this.currentUser.id)
                 .maybeSingle();
+
+            // Se o perfil não existir (usuário antigo criado antes do trigger), cria-o agora!
+            if (!profErr && !profData) {
+                console.log("Perfil não encontrado. Criando perfil padrão...");
+                const { data: newProfile, error: insertErr } = await supabaseClient
+                    .from("profiles")
+                    .insert({
+                        id: this.currentUser.id,
+                        email: this.currentUser.email,
+                        role: "client"
+                    })
+                    .select("role")
+                    .maybeSingle();
+                
+                if (!insertErr && newProfile) {
+                    profData = newProfile;
+                }
+            }
 
             if (!profErr && profData) {
                 this.currentUser.role = profData.role;
