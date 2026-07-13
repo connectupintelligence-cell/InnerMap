@@ -1602,13 +1602,13 @@ a:hover {
 }
 
 /* Layout Limpo e Exclusivo para o Painel do Terapeuta */
-body:has(#screen-therapist.active) .hero-section,
-body:has(#screen-therapist.active) .info-section,
-body:has(#screen-therapist.active) .footer-quantum {
+body.mode-therapist .hero-section,
+body.mode-therapist .info-section,
+body.mode-therapist .footer-quantum {
     display: none !important;
 }
 
-body:has(#screen-therapist.active) #reorganizer-tool {
+body.mode-therapist #reorganizer-tool {
     max-width: 1400px;
     width: 95%;
     padding: 3rem;
@@ -1619,7 +1619,7 @@ body:has(#screen-therapist.active) #reorganizer-tool {
     margin-bottom: 4rem;
 }
 
-body:has(#screen-therapist.active) .main-content {
+body.mode-therapist .main-content {
     padding-top: 1rem;
     padding-bottom: 2rem;
 }

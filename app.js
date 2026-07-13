@@ -1151,6 +1151,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 state.currentStep = 0;
             }
         }
+
+        // Se a tela ativa for o painel do terapeuta, adiciona classe ao body para limpar o layout
+        if (screenId === "therapist") {
+            document.body.classList.add("mode-therapist");
+        } else {
+            document.body.classList.remove("mode-therapist");
+        }
         updateUserUI();
     }
 
