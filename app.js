@@ -350,15 +350,21 @@ class ReorganizationEngine {
         let matchedKey = null;
         let maxMatches = 0;
 
-        for (const key in INFORMATIONAL_DATABASE) {
-            const entry = INFORMATIONAL_DATABASE[key];
+        const dbToSearch = (window.patternsDatabase && Object.keys(window.patternsDatabase).length > 0) 
+            ? window.patternsDatabase 
+            : INFORMATIONAL_DATABASE;
+
+        for (const key in dbToSearch) {
+            const entry = dbToSearch[key];
             let matches = 0;
             
-            entry.keywords.forEach(kw => {
-                if (text.includes(kw)) {
-                    matches++;
-                }
-            });
+            if (entry.keywords) {
+                entry.keywords.forEach(kw => {
+                    if (text.includes(kw)) {
+                        matches++;
+                    }
+                });
+            }
 
             if (matches > maxMatches) {
                 maxMatches = matches;
@@ -369,7 +375,7 @@ class ReorganizationEngine {
         let category, categoryEmoji, title, ajuste, movimento, objetivo, pergunta, microacao, rawMRI;
 
         if (matchedKey && maxMatches > 0) {
-            const preset = INFORMATIONAL_DATABASE[matchedKey];
+            const preset = dbToSearch[matchedKey];
             category = preset.category;
             categoryEmoji = preset.categoryEmoji;
             title = preset.title;
@@ -646,6 +652,20 @@ class AppStateManager {
         if (!supabaseClient || !this.currentUser) return;
         
         try {
+            // 0. Buscar perfil (role) no Supabase
+            const { data: profData, error: profErr } = await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq("id", this.currentUser.id)
+                .maybeSingle();
+
+            if (!profErr && profData) {
+                this.currentUser.role = profData.role;
+            } else {
+                this.currentUser.role = "client";
+            }
+            this.saveUser(this.currentUser);
+
             // 1. Buscar Assinatura Remota
             const { data: subData, error: subErr } = await supabaseClient
                 .from("subscriptions")
@@ -800,6 +820,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navApp = document.getElementById("nav-app");
     const navLib = document.getElementById("nav-lib");
     const navNav = document.getElementById("nav-rag"); // matches nav-rag
+    const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
     const sectionLib = document.getElementById("library-workspace");
     const sectionRag = document.getElementById("rag-workspace");
@@ -817,7 +838,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Lógica Centralizada de Tabs
     function switchTab(activeNav, activeSection) {
-        [navApp, navLib, navNav].forEach(el => el && el.classList.remove("active"));
+        [navApp, navLib, navNav, navTherapist].forEach(el => el && el.classList.remove("active"));
         [sectionApp, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
         
         if (activeNav) activeNav.classList.add("active");
@@ -835,6 +856,19 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (state.currentStep === 0) {
                 showScreen("step1");
             }
+        });
+    }
+
+    if (navTherapist) {
+        navTherapist.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser || state.currentUser.role !== "therapist") {
+                showToast("Acesso restrito a terapeutas.");
+                return;
+            }
+            switchTab(navTherapist, sectionApp);
+            showScreen("therapist");
+            loadTherapistDashboardData();
         });
     }
 
@@ -1109,12 +1143,43 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.currentUser) {
             userNavContainer.style.display = "flex";
             if (userEmailDisplay) userEmailDisplay.innerText = state.currentUser.email;
+            
+            // Controle de visibilidade do link de administrador
+            if (navTherapist) {
+                if (state.currentUser.role === "therapist") {
+                    navTherapist.style.display = "inline-block";
+                } else {
+                    navTherapist.style.display = "none";
+                }
+            }
+
             if (userStatusDisplay) {
                 if (state.subscription) {
-                    userStatusDisplay.innerText = state.subscription.plan === "yearly" ? "Premium Anual" : "Premium Mensal";
-                    userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
-                    userStatusDisplay.style.color = "var(--color-primary)";
-                    userStatusDisplay.style.borderColor = "var(--color-primary)";
+                    if (state.subscription.plan === "trial") {
+                        // Calcular dias restantes
+                        const activationDate = new Date(state.subscription.date);
+                        const currentDate = new Date();
+                        let diffTime = currentDate - activationDate;
+                        if (isNaN(diffTime)) {
+                            const parts = state.subscription.date.split('/');
+                            if (parts.length === 3) {
+                                const parsedDate = new Date(parts[2], parts[1]-1, parts[0]);
+                                diffTime = currentDate - parsedDate;
+                            }
+                        }
+                        const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                        const daysRemaining = Math.max(0, 15 - daysElapsed);
+                        
+                        userStatusDisplay.innerText = `Teste: ${daysRemaining}d rest.`;
+                        userStatusDisplay.style.background = "rgba(251, 188, 5, 0.15)";
+                        userStatusDisplay.style.color = "#FBBC05";
+                        userStatusDisplay.style.borderColor = "#FBBC05";
+                    } else {
+                        userStatusDisplay.innerText = state.subscription.plan === "yearly" ? "Premium Anual" : "Premium Mensal";
+                        userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
+                        userStatusDisplay.style.color = "var(--color-primary)";
+                        userStatusDisplay.style.borderColor = "var(--color-primary)";
+                    }
                 } else {
                     userStatusDisplay.innerText = "Pendente";
                     userStatusDisplay.style.background = "rgba(234, 67, 53, 0.15)";
@@ -1124,6 +1189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else {
             userNavContainer.style.display = "none";
+            if (navTherapist) navTherapist.style.display = "none";
         }
     }
 
@@ -1880,6 +1946,11 @@ Pergunta atual: "${query}"
 
     // Inicialização da Tela no Load
     if (supabaseClient) {
+        // Carregar a base de padrões do Supabase e semear se necessário
+        loadPatternsFromSupabase().then(() => {
+            seedPatternsDatabaseIfEmpty();
+        });
+
         // 1. Obter sessão inicial de forma imediata (Promise)
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session && session.user) {
@@ -2010,6 +2081,508 @@ Pergunta atual: "${query}"
         })
         .catch(err => {
             console.warn("Erro ao consultar status do pagamento pendente:", err);
+        });
+    }
+
+    // ==========================================================================
+    // SISTEMA ADMINISTRATIVO E PAINEL DO TERAPEUTA (MÉTODO & CLIENTES)
+    // ==========================================================================
+    window.patternsDatabase = {};
+
+    async function loadPatternsFromSupabase() {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient
+                .from("patterns_kb")
+                .select("*");
+            if (!error && data && data.length > 0) {
+                const db = {};
+                data.forEach(item => {
+                    db[item.id] = {
+                        keywords: item.keywords,
+                        category: item.category,
+                        categoryEmoji: item.categoryEmoji,
+                        title: item.title,
+                        ajuste: item.ajuste,
+                        movimento: item.movimento,
+                        objetivo: item.objetivo,
+                        declaracao: item.declaracao,
+                        fortalecimento: item.fortalecimento,
+                        pergunta: item.pergunta,
+                        microacao: item.microacao
+                    };
+                });
+                window.patternsDatabase = db;
+                console.log("Banco de dados do Método carregado com sucesso do Supabase.");
+            }
+        } catch (err) {
+            console.warn("Erro ao carregar patterns_kb do Supabase:", err);
+        }
+    }
+
+    async function seedPatternsDatabaseIfEmpty() {
+        if (!supabaseClient) return;
+        try {
+            const { count, error } = await supabaseClient
+                .from("patterns_kb")
+                .select("*", { count: "exact", head: true });
+            
+            if (!error && count === 0) {
+                console.log("Banco patterns_kb vazio. Iniciando carga inicial...");
+                const rows = Object.keys(INFORMATIONAL_DATABASE).map(key => {
+                    const item = INFORMATIONAL_DATABASE[key];
+                    return {
+                        id: key,
+                        title: item.title,
+                        category: item.category,
+                        categoryEmoji: item.categoryEmoji,
+                        keywords: item.keywords,
+                        ajuste: item.ajuste,
+                        movimento: item.movimento,
+                        objetivo: item.objetivo,
+                        declaracao: item.declaracao,
+                        fortalecimento: item.fortalecimento,
+                        pergunta: item.pergunta,
+                        microacao: item.microacao
+                    };
+                });
+                const { error: insertErr } = await supabaseClient
+                    .from("patterns_kb")
+                    .insert(rows);
+                if (!insertErr) {
+                    console.log("Carga inicial de padrões concluída com sucesso!");
+                    await loadPatternsFromSupabase();
+                } else {
+                    console.error("Erro na carga inicial:", insertErr);
+                }
+            }
+        } catch (err) {
+            console.warn("Erro ao verificar/semear base de padrões:", err);
+        }
+    }
+
+    async function loadTherapistDashboardData() {
+        if (!supabaseClient) {
+            showToast("Supabase não configurado.");
+            return;
+        }
+
+        try {
+            // 1. Buscar dados do banco
+            const { data: profiles, error: profErr } = await supabaseClient.from("profiles").select("*");
+            const { data: subs, error: subsErr } = await supabaseClient.from("subscriptions").select("*");
+            const { data: reorgs, error: reorgsErr } = await supabaseClient.from("reorganizations").select("*");
+
+            if (profErr || subsErr || reorgsErr) {
+                console.error("Erro ao carregar dados do dashboard:", profErr || subsErr || reorgsErr);
+                showToast("Erro ao carregar dados do painel.");
+                return;
+            }
+
+            // Guardar no escopo local do window para manipulação
+            window.dashProfiles = profiles;
+            window.dashSubscriptions = subs;
+            window.dashReorganizations = reorgs;
+
+            // 2. Calcular estatísticas
+            const totalClients = profiles.filter(p => p.role === "client").length;
+            const activeSubs = subs.filter(s => s.active && (s.plan === "monthly" || s.plan === "yearly")).length;
+            
+            let activeTrials = 0;
+            subs.forEach(s => {
+                if (s.plan === "trial" && s.active) {
+                    const activationDate = new Date(s.date);
+                    const currentDate = new Date();
+                    let diffTime = currentDate - activationDate;
+                    if (isNaN(diffTime)) {
+                        const parts = s.date.split('/');
+                        if (parts.length === 3) {
+                            const parsedDate = new Date(parts[2], parts[1]-1, parts[0]);
+                            diffTime = currentDate - parsedDate;
+                        }
+                    }
+                    const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    const daysRemaining = 15 - daysElapsed;
+                    if (daysRemaining > 0) {
+                        activeTrials++;
+                    }
+                }
+            });
+
+            const totalPractices = reorgs.length;
+
+            // Exibir estatísticas
+            document.getElementById("stat-total-clients").innerText = totalClients;
+            document.getElementById("stat-active-subs").innerText = activeSubs;
+            document.getElementById("stat-active-trials").innerText = activeTrials;
+            document.getElementById("stat-total-practices").innerText = totalPractices;
+
+            // 3. Renderizar tabelas
+            renderClientsTable(profiles, subs, reorgs);
+            renderKbTable();
+
+        } catch (err) {
+            console.error("Erro no Dashboard do Terapeuta:", err);
+        }
+    }
+
+    function renderClientsTable(profiles, subs, reorgs) {
+        const body = document.getElementById("table-clients-body");
+        if (!body) return;
+        body.innerHTML = "";
+
+        const clients = profiles.filter(p => p.role === "client");
+
+        if (clients.length === 0) {
+            body.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">Nenhum cliente cadastrado ainda.</td></tr>`;
+            return;
+        }
+
+        clients.forEach(c => {
+            const sub = subs.find(s => s.user_id === c.id || s.email === c.email);
+            const clientReorgs = reorgs.filter(r => r.user_id === c.id || r.email === c.email);
+
+            let statusHTML = `<span class="badge-status inactive">Inativo</span>`;
+            let dateHTML = "-";
+
+            if (sub && sub.active) {
+                dateHTML = sub.date;
+                if (sub.plan === "trial") {
+                    const activationDate = new Date(sub.date);
+                    const currentDate = new Date();
+                    let diffTime = currentDate - activationDate;
+                    if (isNaN(diffTime)) {
+                        const parts = sub.date.split('/');
+                        if (parts.length === 3) {
+                            const parsedDate = new Date(parts[2], parts[1]-1, parts[0]);
+                            diffTime = currentDate - parsedDate;
+                        }
+                    }
+                    const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    const daysRemaining = Math.max(0, 15 - daysElapsed);
+                    
+                    if (daysRemaining <= 0) {
+                        statusHTML = `<span class="badge-status inactive">Teste Expirado</span>`;
+                    } else {
+                        statusHTML = `<span class="badge-status trial">Teste (${daysRemaining}d rest.)</span>`;
+                    }
+                } else {
+                    const planLabel = sub.plan === "yearly" ? "Anual" : "Mensal";
+                    statusHTML = `<span class="badge-status active">${planLabel}</span>`;
+                }
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="padding: 1rem; font-weight: 500; color: var(--color-text-main);">${c.email}</td>
+                <td style="padding: 1rem;">${statusHTML}</td>
+                <td style="padding: 1rem; color: var(--color-text-muted);">${dateHTML}</td>
+                <td style="padding: 1rem; text-align: center; font-weight: bold; color: var(--color-primary);">${clientReorgs.length}</td>
+                <td style="padding: 1rem; text-align: right;">
+                    <button class="btn btn-outline btn-view-history" data-email="${c.email}" data-id="${c.id}" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Ver Histórico</button>
+                </td>
+            `;
+            body.appendChild(tr);
+        });
+
+        body.querySelectorAll(".btn-view-history").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const email = btn.dataset.email;
+                const id = btn.dataset.id;
+                openClientDetailsModal(email, id);
+            });
+        });
+    }
+
+    function openClientDetailsModal(email, id) {
+        const modal = document.getElementById("modal-client-details");
+        const emailLabel = document.getElementById("details-client-email");
+        const container = document.getElementById("details-practices-container");
+
+        if (!modal || !emailLabel || !container) return;
+
+        emailLabel.innerText = email;
+        container.innerHTML = "";
+
+        const clientReorgs = window.dashReorganizations.filter(r => r.user_id === id || r.email === email);
+
+        if (clientReorgs.length === 0) {
+            container.innerHTML = `<p style="color: var(--color-text-muted); text-align: center; padding: 2rem 0;">Este cliente ainda não realizou nenhuma prática informacional.</p>`;
+        } else {
+            clientReorgs.sort((a, b) => b.id - a.id);
+            clientReorgs.forEach(r => {
+                const card = document.createElement("div");
+                card.className = "practice-item-card";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted);">
+                        <span>📅 ${r.date}</span>
+                        <span style="font-weight: 600; color: var(--color-primary-glow);">${r.categoryEmoji}</span>
+                    </div>
+                    <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main);">"${r.phrase}"</div>
+                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;"><strong style="color: var(--color-text-muted);">Padrão Ativado:</strong> ${r.title}</div>
+                    <div style="font-size: 0.9rem;"><strong style="color: var(--color-text-muted);">Sentimento Pós-Prática:</strong> <span style="color: var(--color-primary);">${r.rating}</span></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        modal.style.display = "flex";
+    }
+
+    function renderKbTable() {
+        const body = document.getElementById("table-kb-body");
+        if (!body) return;
+        body.innerHTML = "";
+
+        const db = window.patternsDatabase || INFORMATIONAL_DATABASE;
+        const keys = Object.keys(db);
+
+        if (keys.length === 0) {
+            body.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">Nenhum padrão cadastrado.</td></tr>`;
+            return;
+        }
+
+        keys.forEach(key => {
+            const item = db[key];
+            const keywordsText = item.keywords ? item.keywords.join(", ") : "-";
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="padding: 1rem; font-family: monospace; color: var(--color-text-muted); font-size: 0.8rem;">${key}</td>
+                <td style="padding: 1rem; font-weight: 500; color: var(--color-text-main);">${item.title}</td>
+                <td style="padding: 1rem; color: var(--color-primary-glow); font-weight: 600;">${item.categoryEmoji}</td>
+                <td style="padding: 1rem; color: var(--color-text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${keywordsText}</td>
+                <td style="padding: 1rem; text-align: right;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button class="btn btn-outline btn-edit-pattern" data-id="${key}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar</button>
+                        <button class="btn btn-text btn-delete-pattern" data-id="${key}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #EA4335;">Excluir</button>
+                    </div>
+                </td>
+            `;
+            body.appendChild(tr);
+        });
+
+        body.querySelectorAll(".btn-edit-pattern").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.dataset.id;
+                openPatternEditor(id);
+            });
+        });
+
+        body.querySelectorAll(".btn-delete-pattern").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.dataset.id;
+                deletePattern(id);
+            });
+        });
+    }
+
+    function openPatternEditor(id = null) {
+        const modal = document.getElementById("modal-pattern-editor");
+        const titleEl = document.getElementById("pattern-editor-title");
+        const idInput = document.getElementById("edit-pattern-id");
+        const idDisplayInput = document.getElementById("edit-id-display");
+        
+        const form = document.getElementById("form-pattern-editor");
+        if (!modal || !titleEl || !idInput || !idDisplayInput || !form) return;
+        
+        form.reset();
+
+        if (id) {
+            titleEl.innerText = "Editar Padrão Terapêutico";
+            idInput.value = id;
+            idDisplayInput.value = id;
+            idDisplayInput.disabled = true;
+
+            const db = window.patternsDatabase || INFORMATIONAL_DATABASE;
+            const item = db[id];
+
+            if (item) {
+                document.getElementById("edit-title").value = item.title;
+                document.getElementById("edit-category").value = item.category;
+                document.getElementById("edit-category-emoji").value = item.categoryEmoji;
+                document.getElementById("edit-keywords").value = item.keywords ? item.keywords.join(", ") : "";
+                document.getElementById("edit-ajuste").value = item.ajuste;
+                document.getElementById("edit-movimento").value = item.movimento;
+                document.getElementById("edit-objetivo").value = item.objetivo;
+                document.getElementById("edit-declaracao").value = item.declaracao;
+                document.getElementById("edit-fortalecimento").value = item.fortalecimento || "";
+                document.getElementById("edit-pergunta").value = item.pergunta || "";
+                document.getElementById("edit-microacao").value = item.microacao || "";
+            }
+        } else {
+            titleEl.innerText = "Novo Padrão Terapêutico";
+            idInput.value = "";
+            idDisplayInput.value = "";
+            idDisplayInput.disabled = false;
+        }
+
+        modal.style.display = "flex";
+    }
+
+    async function deletePattern(id) {
+        if (!confirm(`Tem certeza que deseja excluir o padrão '${id}'? Esta ação não pode ser desfeita.`)) {
+            return;
+        }
+
+        try {
+            if (supabaseClient) {
+                const { error } = await supabaseClient
+                    .from("patterns_kb")
+                    .delete()
+                    .eq("id", id);
+
+                if (error) {
+                    console.error("Erro ao excluir do Supabase:", error);
+                    showToast("Erro ao excluir do banco remoto.");
+                } else {
+                    showToast("Padrão excluído!");
+                    await loadPatternsFromSupabase();
+                    renderKbTable();
+                }
+            } else {
+                if (window.patternsDatabase && window.patternsDatabase[id]) {
+                    delete window.patternsDatabase[id];
+                    showToast("Excluído localmente (offline).");
+                    renderKbTable();
+                }
+            }
+        } catch (err) {
+            console.error("Falha ao excluir padrão:", err);
+            showToast("Erro crítico ao excluir.");
+        }
+    }
+
+    // Handlers e Binds de Elementos Administrativos
+    const btnCloseClientDetails = document.getElementById("btn-close-client-details");
+    if (btnCloseClientDetails) {
+        btnCloseClientDetails.addEventListener("click", () => {
+            document.getElementById("modal-client-details").style.display = "none";
+        });
+    }
+
+    const btnClosePatternEditor = document.getElementById("btn-close-pattern-editor");
+    if (btnClosePatternEditor) {
+        btnClosePatternEditor.addEventListener("click", () => {
+            document.getElementById("modal-pattern-editor").style.display = "none";
+        });
+    }
+
+    const btnCancelPattern = document.getElementById("btn-cancel-pattern");
+    if (btnCancelPattern) {
+        btnCancelPattern.addEventListener("click", () => {
+            document.getElementById("modal-pattern-editor").style.display = "none";
+        });
+    }
+
+    const btnAddPattern = document.getElementById("btn-add-pattern");
+    if (btnAddPattern) {
+        btnAddPattern.addEventListener("click", () => {
+            openPatternEditor(null);
+        });
+    }
+
+    const tabDashClients = document.getElementById("tab-dash-clients");
+    const tabDashKb = document.getElementById("tab-dash-kb");
+    const panelDashClients = document.getElementById("panel-dash-clients");
+    const panelDashKb = document.getElementById("panel-dash-kb");
+
+    if (tabDashClients && tabDashKb && panelDashClients && panelDashKb) {
+        tabDashClients.addEventListener("click", () => {
+            tabDashClients.classList.add("active");
+            tabDashKb.classList.remove("active");
+            tabDashClients.style.borderBottomColor = "var(--color-primary)";
+            tabDashKb.style.borderBottomColor = "transparent";
+            panelDashClients.style.display = "block";
+            panelDashKb.style.display = "none";
+        });
+
+        tabDashKb.addEventListener("click", () => {
+            tabDashKb.classList.add("active");
+            tabDashClients.classList.remove("active");
+            tabDashKb.style.borderBottomColor = "var(--color-primary)";
+            tabDashClients.style.borderBottomColor = "transparent";
+            panelDashClients.style.display = "none";
+            panelDashKb.style.display = "block";
+        });
+    }
+
+    const formPatternEditor = document.getElementById("form-pattern-editor");
+    if (formPatternEditor) {
+        formPatternEditor.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const idInput = document.getElementById("edit-pattern-id").value;
+            const idDisplay = document.getElementById("edit-id-display").value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
+            const finalId = idInput ? idInput : idDisplay;
+
+            if (!finalId) {
+                showToast("ID inválido.");
+                return;
+            }
+
+            const patternData = {
+                title: document.getElementById("edit-title").value.trim(),
+                category: document.getElementById("edit-category").value.trim(),
+                categoryEmoji: document.getElementById("edit-category-emoji").value.trim(),
+                keywords: document.getElementById("edit-keywords").value.split(",").map(k => k.trim().toLowerCase()).filter(k => k !== ""),
+                ajuste: document.getElementById("edit-ajuste").value.trim(),
+                movimento: document.getElementById("edit-movimento").value.trim(),
+                objetivo: document.getElementById("edit-objetivo").value.trim(),
+                declaracao: document.getElementById("edit-declaracao").value.trim(),
+                fortalecimento: document.getElementById("edit-fortalecimento").value.trim(),
+                pergunta: document.getElementById("edit-pergunta").value.trim(),
+                microacao: document.getElementById("edit-microacao").value.trim()
+            };
+
+            const btnSave = document.getElementById("btn-save-pattern");
+            btnSave.disabled = true;
+            btnSave.innerText = "Salvando...";
+
+            try {
+                if (supabaseClient) {
+                    const payload = {
+                        id: finalId,
+                        title: patternData.title,
+                        category: patternData.category,
+                        categoryEmoji: patternData.categoryEmoji,
+                        keywords: patternData.keywords,
+                        ajuste: patternData.ajuste,
+                        movimento: patternData.movimento,
+                        objetivo: patternData.objetivo,
+                        declaracao: patternData.declaracao,
+                        fortalecimento: patternData.fortalecimento,
+                        pergunta: patternData.pergunta,
+                        microacao: patternData.microacao
+                    };
+
+                    const { error } = await supabaseClient
+                        .from("patterns_kb")
+                        .upsert(payload);
+
+                    if (error) {
+                        console.error("Erro ao salvar padrão no Supabase:", error);
+                        showToast("Erro ao salvar padrão no banco remoto.");
+                    } else {
+                        showToast("Padrão salvo com sucesso!");
+                        document.getElementById("modal-pattern-editor").style.display = "none";
+                        await loadPatternsFromSupabase();
+                        renderKbTable();
+                    }
+                } else {
+                    if (!window.patternsDatabase) window.patternsDatabase = { ...INFORMATIONAL_DATABASE };
+                    window.patternsDatabase[finalId] = patternData;
+                    showToast("Salvo localmente (offline).");
+                    document.getElementById("modal-pattern-editor").style.display = "none";
+                    renderKbTable();
+                }
+            } catch (err) {
+                console.error("Falha ao salvar padrão:", err);
+                showToast("Erro crítico ao salvar.");
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerText = "Salvar Padrão";
+            }
         });
     }
 });
