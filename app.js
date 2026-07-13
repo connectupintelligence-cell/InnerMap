@@ -2225,12 +2225,17 @@ Pergunta atual: "${query}"
             window.dashSubscriptions = subs;
             window.dashReorganizations = reorgs;
 
-            // 2. Calcular estatísticas
-            const totalClients = profiles.filter(p => p.role === "client").length;
-            const activeSubs = subs.filter(s => s.active && (s.plan === "monthly" || s.plan === "yearly")).length;
+            // 2. Calcular estatísticas filtrando apenas contas que são Clientes (role === 'client')
+            const clientIds = new Set(profiles.filter(p => p.role === "client").map(p => p.id));
+            const clientEmails = new Set(profiles.filter(p => p.role === "client").map(p => p.email));
+
+            const totalClients = clientIds.size;
+            
+            const clientSubs = subs.filter(s => clientIds.has(s.user_id) || clientEmails.has(s.email) || clientEmails.has(s.user_id));
+            const activeSubs = clientSubs.filter(s => s.active && (s.plan === "monthly" || s.plan === "yearly")).length;
             
             let activeTrials = 0;
-            subs.forEach(s => {
+            clientSubs.forEach(s => {
                 if (s.plan === "trial" && s.active) {
                     const activationDate = new Date(s.date);
                     const currentDate = new Date();
@@ -2250,7 +2255,7 @@ Pergunta atual: "${query}"
                 }
             });
 
-            const totalPractices = reorgs.length;
+            const totalPractices = reorgs.filter(r => clientIds.has(r.user_id) || clientEmails.has(r.email) || clientEmails.has(r.user_id)).length;
 
             // Exibir estatísticas
             document.getElementById("stat-total-clients").innerText = totalClients;
