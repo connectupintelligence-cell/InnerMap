@@ -25,7 +25,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+-- Evita erro de trigger duplicado ao reexecutar o script
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
@@ -39,6 +41,10 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Remover políticas antigas de profiles se existirem
+DROP POLICY IF EXISTS "Permitir leitura do próprio perfil ou se for terapeuta" ON public.profiles;
+DROP POLICY IF EXISTS "Permitir atualização do próprio perfil" ON public.profiles;
 
 -- Políticas de RLS para profiles
 CREATE POLICY "Permitir leitura do próprio perfil ou se for terapeuta" ON public.profiles
@@ -59,6 +65,13 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 -- Ativar RLS em subscriptions
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Remover políticas antigas de subscriptions se existirem
+DROP POLICY IF EXISTS "Permitir leitura da própria assinatura ou se for terapeuta" ON public.subscriptions;
+DROP POLICY IF EXISTS "Permitir inserção/atualização da própria assinatura" ON public.subscriptions;
+DROP POLICY IF EXISTS "Permitir leitura da própria assinatura" ON public.subscriptions;
+DROP POLICY IF EXISTS "Permitir inserção de sua própria assinatura" ON public.subscriptions;
+DROP POLICY IF EXISTS "Permitir leitura se próprio ou terapeuta" ON public.subscriptions;
 
 -- Políticas de RLS para subscriptions
 CREATE POLICY "Permitir leitura da própria assinatura ou se for terapeuta" ON public.subscriptions
@@ -85,6 +98,15 @@ CREATE TABLE IF NOT EXISTS public.reorganizations (
 
 -- Ativar RLS em reorganizations
 ALTER TABLE public.reorganizations ENABLE ROW LEVEL SECURITY;
+
+-- Remover políticas antigas de reorganizations se existirem
+DROP POLICY IF EXISTS "Permitir leitura do próprio histórico ou se for terapeuta" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir inserção no próprio histórico" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir deleção do próprio histórico" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir leitura de seu próprio histórico" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir inserção em seu próprio histórico" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir deleção de seu próprio histórico" ON public.reorganizations;
+DROP POLICY IF EXISTS "Permitir leitura do histórico se próprio ou terapeuta" ON public.reorganizations;
 
 -- Políticas de RLS para reorganizations
 CREATE POLICY "Permitir leitura do próprio histórico ou se for terapeuta" ON public.reorganizations
@@ -115,6 +137,10 @@ CREATE TABLE IF NOT EXISTS public.patterns_kb (
 
 -- Ativar RLS em patterns_kb
 ALTER TABLE public.patterns_kb ENABLE ROW LEVEL SECURITY;
+
+-- Remover políticas antigas de patterns_kb se existirem
+DROP POLICY IF EXISTS "Permitir leitura pública do método" ON public.patterns_kb;
+DROP POLICY IF EXISTS "Permitir modificações apenas para terapeutas" ON public.patterns_kb;
 
 -- Políticas de RLS para patterns_kb
 CREATE POLICY "Permitir leitura pública do método" ON public.patterns_kb
