@@ -942,8 +942,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Tela 3
     const outputCategory = document.getElementById("output-category");
     const outputObjetivo = document.getElementById("output-objetivo");
-    const outputEspecifico = document.getElementById("output-especifico");
-    const outputNaoEspecifico = document.getElementById("output-nao-especifico");
+    const outputEspecifico = document.getElementById("output-especifico") || document.getElementById("output-declaracao");
+    const outputNaoEspecifico = document.getElementById("output-nao-especifico") || document.getElementById("output-fortalecimento");
     const outputMicroacao = document.getElementById("output-microacao");
     const btnToStep4 = document.getElementById("btn-to-step4");
     const timerProgress = document.getElementById("timer-progress");
@@ -1145,7 +1145,7 @@ document.addEventListener("DOMContentLoaded", () => {
             outputObjetivo.innerText = result.objetivo;
             
             // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MFI (específica)
-            const itemEspecifico = document.getElementById("item-especifico");
+            const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
             if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
                 if (itemEspecifico) itemEspecifico.style.display = "none";
             } else {
