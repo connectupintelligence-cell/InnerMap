@@ -1114,10 +1114,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
-            if (screens["paywall"]) screens["paywall"].classList.add("active");
-            state.currentStep = 0;
-            updateUserUI();
-            return;
+            // Se o usuário logado for terapeuta, não precisa de assinatura ativa e pode acessar qualquer tela
+            if (state.currentUser && state.currentUser.role === "therapist") {
+                // Acesso liberado
+            } else {
+                if (screens["paywall"]) screens["paywall"].classList.add("active");
+                state.currentStep = 0;
+                updateUserUI();
+                return;
+            }
         }
 
         if (screens[screenId]) {
@@ -1971,8 +1976,8 @@ Pergunta atual: "${query}"
                     renderStats();
                     
                     if (checkSubscriptionStatus()) {
-                        // Redirecionar dependendo da assinatura sincronizada
-                        if (state.subscription) {
+                        // Redirecionar dependendo da assinatura sincronizada (ou se for terapeuta)
+                        if (state.subscription || (state.currentUser && state.currentUser.role === "therapist")) {
                             showScreen("step1");
                         } else {
                             showScreen("paywall");
@@ -2006,7 +2011,7 @@ Pergunta atual: "${query}"
                 renderLibrary();
                 renderStats();
                 if (checkSubscriptionStatus()) {
-                    showScreen(state.subscription ? "step1" : "paywall");
+                    showScreen((state.subscription || (state.currentUser && state.currentUser.role === "therapist")) ? "step1" : "paywall");
                 }
             } else if (event === "SIGNED_OUT") {
                 state.saveUser(null);
@@ -2024,7 +2029,7 @@ Pergunta atual: "${query}"
         if (checkSubscriptionStatus()) {
             if (!state.currentUser) {
                 showScreen("auth");
-            } else if (!state.subscription) {
+            } else if (!state.subscription && state.currentUser.role !== "therapist") {
                 showScreen("paywall");
             } else {
                 showScreen("step1");
