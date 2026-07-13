@@ -1178,7 +1178,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (userStatusDisplay) {
-                if (state.subscription) {
+                if (state.currentUser.role === "therapist") {
+                    userStatusDisplay.innerText = "Terapeuta 🔑";
+                    userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
+                    userStatusDisplay.style.color = "var(--color-primary)";
+                    userStatusDisplay.style.borderColor = "var(--color-primary)";
+                } else if (state.subscription) {
                     if (state.subscription.plan === "trial") {
                         // Calcular dias restantes
                         const activationDate = new Date(state.subscription.date);
