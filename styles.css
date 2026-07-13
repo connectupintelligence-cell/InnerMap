@@ -1601,11 +1601,15 @@ a:hover {
     background: rgba(255, 255, 255, 0.03);
 }
 
-/* Layout Limpo e Exclusivo para o Painel do Terapeuta */
-body.mode-therapist .header-quantum,
-body.mode-therapist .hero-section,
-body.mode-therapist .info-section,
-body.mode-therapist .footer-quantum {
+/* Layout Limpo e Focado para Usuários Logados (SaaS Mode) */
+body.user-logged-in .hero-section,
+body.user-logged-in .info-section,
+body.user-logged-in .footer-quantum {
+    display: none !important;
+}
+
+/* Customizações Exclusivas para o Painel do Terapeuta */
+body.mode-therapist .header-quantum {
     display: none !important;
 }
 

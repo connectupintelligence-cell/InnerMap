@@ -1173,6 +1173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!userNavContainer) return;
         if (state.currentUser) {
             userNavContainer.style.display = "flex";
+            document.body.classList.add("user-logged-in");
             if (userEmailDisplay) userEmailDisplay.innerText = state.currentUser.email;
             
             // Controle de visibilidade do link de administrador
@@ -1225,6 +1226,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } else {
             userNavContainer.style.display = "none";
+            document.body.classList.remove("user-logged-in");
             if (navTherapist) navTherapist.style.display = "none";
         }
     }
