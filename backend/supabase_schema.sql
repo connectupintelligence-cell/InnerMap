@@ -44,11 +44,12 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Remover políticas antigas de profiles se existirem
 DROP POLICY IF EXISTS "Permitir leitura do próprio perfil ou se for terapeuta" ON public.profiles;
+DROP POLICY IF EXISTS "Permitir leitura do perfil por qualquer logado" ON public.profiles;
 DROP POLICY IF EXISTS "Permitir atualização do próprio perfil" ON public.profiles;
 
--- Políticas de RLS para profiles
-CREATE POLICY "Permitir leitura do próprio perfil ou se for terapeuta" ON public.profiles
-    FOR SELECT USING (auth.uid() = id OR public.is_therapist(auth.uid()));
+-- Políticas de RLS para profiles (evita recursão infinita usando auth.uid() IS NOT NULL)
+CREATE POLICY "Permitir leitura do perfil por qualquer logado" ON public.profiles
+    FOR SELECT USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Permitir atualização do próprio perfil" ON public.profiles
     FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
