@@ -1057,10 +1057,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Abas e Workspaces
     const navApp = document.getElementById("nav-app");
+    const navAgenda = document.getElementById("nav-agenda");
     const navLib = document.getElementById("nav-lib");
     const navNav = document.getElementById("nav-rag"); // matches nav-rag
     const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
+    const sectionAgenda = document.getElementById("agenda-workspace");
     const sectionLib = document.getElementById("library-workspace");
     const sectionRag = document.getElementById("rag-workspace");
     
@@ -1077,8 +1079,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Lógica Centralizada de Tabs
     function switchTab(activeNav, activeSection) {
-        [navApp, navLib, navNav, navTherapist].forEach(el => el && el.classList.remove("active"));
-        [sectionApp, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
+        [navApp, navAgenda, navLib, navNav, navTherapist].forEach(el => el && el.classList.remove("active"));
+        [sectionApp, sectionAgenda, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
         
         if (activeNav) activeNav.classList.add("active");
         if (activeSection) activeSection.style.display = "block";
@@ -1095,6 +1097,26 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (state.currentStep === 0) {
                 showScreen("step1");
             }
+        });
+    }
+
+    if (navAgenda) {
+        navAgenda.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver sua agenda.");
+                switchTab(navApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription && state.currentUser.role !== "therapist") {
+                showToast("Assine um plano para ver sua agenda.");
+                switchTab(navApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(navAgenda, sectionAgenda);
+            if (window.renderAgenda) window.renderAgenda();
         });
     }
 
@@ -3202,10 +3224,12 @@ Pergunta atual: "${query}"
     // ==========================================================================
     function renderAgenda() {
         const agendaContainer = document.getElementById("agenda-container");
+        const emptyPlaceholder = document.getElementById("agenda-empty-placeholder");
         if (!agendaContainer) return;
 
         if (!state.currentUser) {
             agendaContainer.style.display = "none";
+            if (emptyPlaceholder) emptyPlaceholder.style.display = "block";
             return;
         }
 
@@ -3213,6 +3237,7 @@ Pergunta atual: "${query}"
         const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
         if (!agendaDataRaw) {
             agendaContainer.style.display = "none";
+            if (emptyPlaceholder) emptyPlaceholder.style.display = "block";
             return;
         }
 
@@ -3221,8 +3246,13 @@ Pergunta atual: "${query}"
             agenda = JSON.parse(agendaDataRaw);
         } catch (e) {
             agendaContainer.style.display = "none";
+            if (emptyPlaceholder) emptyPlaceholder.style.display = "block";
             return;
         }
+
+        // Se existe uma agenda ativa, esconde o placeholder e exibe a agenda
+        if (emptyPlaceholder) emptyPlaceholder.style.display = "none";
+        agendaContainer.style.display = "block";
 
         // Popula as informações da agenda
         const agendaTitle = document.getElementById("agenda-title");
