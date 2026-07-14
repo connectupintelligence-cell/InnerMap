@@ -48,11 +48,16 @@ DROP POLICY IF EXISTS "Permitir leitura do perfil por qualquer logado" ON public
 DROP POLICY IF EXISTS "Permitir atualização do próprio perfil" ON public.profiles;
 
 -- Políticas de RLS para profiles (evita recursão infinita usando auth.uid() IS NOT NULL)
+DROP POLICY IF EXISTS "Permitir inserção do próprio perfil" ON public.profiles;
+
 CREATE POLICY "Permitir leitura do perfil por qualquer logado" ON public.profiles
     FOR SELECT USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Permitir atualização do próprio perfil" ON public.profiles
     FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Permitir inserção do próprio perfil" ON public.profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- 4. TABELA DE ASSINATURAS (subscriptions)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
