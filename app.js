@@ -1014,23 +1014,39 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Sub-screens da Tela 1 (Questionário)
     const subStep1a = document.getElementById("sub-step-1a");
-    const subStep1b = document.getElementById("sub-step-1b");
-    const subStep1c = document.getElementById("sub-step-1c");
     const btnSubNext1 = document.getElementById("btn-sub-next1");
+    const subStep1aConfirm = document.getElementById("sub-step-1a-confirm");
+    const confirmThemeText = document.getElementById("confirm-theme-text");
+    const btnConfirmAdjust = document.getElementById("btn-confirm-adjust");
+    const btnConfirmNext = document.getElementById("btn-confirm-next");
+    const subStep1b = document.getElementById("sub-step-1b");
     const btnFamilyNo = document.getElementById("btn-family-no");
     const btnFamilyYesSentimento = document.getElementById("btn-family-yes-sentimento");
     const btnFamilyYesPensamento = document.getElementById("btn-family-yes-pensamento");
     const btnFamilyYesComportamento = document.getElementById("btn-family-yes-comportamento");
     const btnFamilyBack = document.getElementById("btn-family-back");
-    const btnFactBack = document.getElementById("btn-fact-back");
-    const inputFactDetail = document.getElementById("input-fact-detail");
-    
-    // MFI Multi-Facts and Sentiments DOM Elements
-    const btnAddFact = document.getElementById("btn-add-fact");
-    const sentimentTagsGrid = document.getElementById("sentiment-tags-grid");
-    const addedFactsListContainer = document.getElementById("added-facts-list-container");
-    const addedFactsList = document.getElementById("added-facts-list");
-    const addedFactsCountLabel = document.getElementById("added-facts-count-label");
+
+    // Rastreamento Guiado - MFI DOM Elements
+    const subStep2a = document.getElementById("sub-step-2a");
+    const questQuestionText = document.getElementById("quest-question-text");
+    const questInputWrapper = document.getElementById("quest-input-wrapper");
+    const questOpenInput = document.getElementById("quest-open-input");
+    const questOptionsWrapper = document.getElementById("quest-options-wrapper");
+    const btnQuestBack = document.getElementById("btn-quest-back");
+    const btnQuestSkip = document.getElementById("btn-quest-skip");
+    const btnQuestNext = document.getElementById("btn-quest-next");
+
+    // Revisão e Sentimentos DOM Elements
+    const subStep2b = document.getElementById("sub-step-2b");
+    const revisionFactsList = document.getElementById("revision-facts-list");
+    const btnRevisionAddMore = document.getElementById("btn-revision-add-more");
+    const btnRevisionNext = document.getElementById("btn-revision-next");
+
+    const subStep2c = document.getElementById("sub-step-2c");
+    const sentimentCurrentFactText = document.getElementById("sentiment-current-fact-text");
+    const sentimentFactTagsGrid = document.getElementById("sentiment-fact-tags-grid");
+    const sentimentStepCount = document.getElementById("sentiment-step-count");
+    const btnSentimentSave = document.getElementById("btn-sentiment-save");
     
     // Tela 2
     const outputAjuste = document.getElementById("output-ajuste");
@@ -1186,122 +1202,60 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
+    // Chips de Sugestões de Temas na Tela 1A
+    const themeChips = document.querySelectorAll("#theme-suggestions-chips .sentiment-tag");
+    themeChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+            themeChips.forEach(c => c.classList.remove("selected"));
+            chip.classList.add("selected");
+            if (inputPhrase) {
+                inputPhrase.value = chip.dataset.value;
+            }
+        });
+    });
+
+    // Lógica de Navegação e Transição dos Sub-Passos da Tela 1
+    function switchSubStep(hideEl, showEl) {
+        if (!hideEl || !showEl) return;
+        hideEl.classList.remove("active");
+        setTimeout(() => {
+            hideEl.style.display = "none";
+            showEl.style.display = "block";
+            setTimeout(() => {
+                showEl.classList.add("active");
+            }, 50);
+        }, 150);
+    }
+
+    // Tela 1A -> Tela 1A-Confirm (Confirmação do Tema)
     btnSubNext1.addEventListener("click", () => {
         const val = inputPhrase.value.trim();
         if (!val) {
-            alert("Por favor, digite seu objetivo ou padrão limitante.");
+            alert("Por favor, digite seu objetivo ou tema limitante.");
             return;
         }
-        switchSubStep(subStep1a, subStep1b);
+        state.tempTheme = val;
+        if (confirmThemeText) {
+            confirmThemeText.innerText = `"${val}"`;
+        }
+        switchSubStep(subStep1a, subStep1aConfirm);
     });
 
-    // Sentimentos - Banco Fixo
-    const SENTIMENTS_LIST = [
-        "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", "carência", 
-        "raiva", "ódio", "decepção", "incompetência", "incapacidade", "inferioridade", "pressão", 
-        "invasão", "usada", "manipulada", "desrespeitada", "ser controlada", "não controlar", 
-        "perder o controle", "sensação de estar ou ser feia", "pânico", "medo", "trocada", 
-        "frustração", "sensação de perder o sentido da vida", "insegurança", "nojo", "desânimo", 
-        "não servir pra nada", "vontade de morrer", "angústia", "incerteza", "sensação de não ter estabilidade", 
-        "abandonada", "submissão"
-    ];
-
-    let selectedSentiments = new Set();
-
-    // Renderizar Seletor de Sentimentos (Tags)
-    function renderSentimentTags() {
-        if (!sentimentTagsGrid) return;
-        sentimentTagsGrid.innerHTML = "";
-        selectedSentiments.clear();
-
-        SENTIMENTS_LIST.forEach(s => {
-            const tag = document.createElement("span");
-            tag.className = "sentiment-tag";
-            tag.innerText = s;
-            tag.addEventListener("click", () => {
-                if (selectedSentiments.has(s)) {
-                    selectedSentiments.delete(s);
-                    tag.classList.remove("selected");
-                } else {
-                    selectedSentiments.add(s);
-                    tag.classList.add("selected");
-                }
-            });
-            sentimentTagsGrid.appendChild(tag);
+    // Tela 1A-Confirm: Ajustar texto -> Volta para 1A
+    if (btnConfirmAdjust) {
+        btnConfirmAdjust.addEventListener("click", () => {
+            switchSubStep(subStep1aConfirm, subStep1a);
         });
     }
 
-    // Inicializa a renderização das tags de sentimentos
-    renderSentimentTags();
-
-    // Renderizar Lista de Fatos Adicionados
-    function renderAddedFacts() {
-        if (!addedFactsList || !addedFactsListContainer || !addedFactsCountLabel) return;
-        
-        if (state.addedFacts.length === 0) {
-            addedFactsListContainer.style.display = "none";
-            addedFactsList.innerHTML = "";
-            return;
-        }
-
-        addedFactsListContainer.style.display = "block";
-        addedFactsCountLabel.innerText = `📋 Fatos Adicionados (${state.addedFacts.length}):`;
-        addedFactsList.innerHTML = "";
-
-        state.addedFacts.forEach((fact, idx) => {
-            const item = document.createElement("div");
-            item.className = "practice-item-card";
-            item.style.padding = "0.75rem";
-            item.style.margin = "0";
-            item.style.display = "flex";
-            item.style.justify = "space-between";
-            item.style.alignItems = "center";
-            
-            const textContent = document.createElement("div");
-            textContent.style.fontSize = "0.85rem";
-            textContent.innerHTML = `
-                <strong style="color: var(--color-text-main);">Fato ${idx + 1}:</strong> "${fact.phrase}"
-                ${fact.sentiments.length > 0 ? `<br><small style="color: var(--color-primary); font-size: 0.75rem;">🎭 Sentimentos: ${fact.sentiments.join(', ')}</small>` : ''}
-            `;
-
-            const btnDel = document.createElement("button");
-            btnDel.className = "btn btn-text";
-            btnDel.innerHTML = "🗑️";
-            btnDel.style.padding = "0.25rem 0.5rem";
-            btnDel.style.fontSize = "0.85rem";
-            btnDel.addEventListener("click", () => {
-                state.addedFacts.splice(idx, 1);
-                renderAddedFacts();
-            });
-
-            item.appendChild(textContent);
-            item.appendChild(btnDel);
-            addedFactsList.appendChild(item);
+    // Tela 1A-Confirm: Sim, seguir -> Vai para 1B (Familiar)
+    if (btnConfirmNext) {
+        btnConfirmNext.addEventListener("click", () => {
+            switchSubStep(subStep1aConfirm, subStep1b);
         });
     }
 
-    // Botão Adicionar Fato
-    if (btnAddFact) {
-        btnAddFact.addEventListener("click", () => {
-            const phrase = inputFactDetail.value.trim();
-            if (!phrase) {
-                alert("Por favor, descreva o fato específico antes de adicionar.");
-                return;
-            }
-
-            state.addedFacts.push({
-                phrase: phrase,
-                sentiments: Array.from(selectedSentiments)
-            });
-
-            // Limpar formulário de fato
-            inputFactDetail.value = "";
-            renderSentimentTags(); // Reseta seleção
-            renderAddedFacts();
-        });
-    }
-
-    // Handlers para MSI (Hereditário)
+    // Handlers para MSI (Hereditário - 1B)
     btnFamilyNo.addEventListener("click", () => {
         state.isHereditary = false;
         state.hereditaryType = null;
@@ -1310,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFamilyYesPensamento.classList.remove("active");
         btnFamilyYesComportamento.classList.remove("active");
         setTimeout(() => {
-            switchSubStep(subStep1b, subStep1c);
+            startGuidedQuestionnaire();
         }, 200);
     });
 
@@ -1322,7 +1276,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFamilyYesPensamento.classList.remove("active");
         btnFamilyYesComportamento.classList.remove("active");
         setTimeout(() => {
-            switchSubStep(subStep1b, subStep1c);
+            startGuidedQuestionnaire();
         }, 200);
     });
 
@@ -1334,7 +1288,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFamilyYesSentimento.classList.remove("active");
         btnFamilyYesComportamento.classList.remove("active");
         setTimeout(() => {
-            switchSubStep(subStep1b, subStep1c);
+            startGuidedQuestionnaire();
         }, 200);
     });
 
@@ -1346,64 +1300,587 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFamilyYesSentimento.classList.remove("active");
         btnFamilyYesPensamento.classList.remove("active");
         setTimeout(() => {
-            switchSubStep(subStep1b, subStep1c);
+            startGuidedQuestionnaire();
         }, 200);
     });
 
     btnFamilyBack.addEventListener("click", () => {
-        switchSubStep(subStep1b, subStep1a);
+        switchSubStep(subStep1b, subStep1aConfirm);
     });
 
-    btnFactBack.addEventListener("click", () => {
-        switchSubStep(subStep1c, subStep1b);
-    });
+    // ==========================================================================
+    // Motor do Rastreamento Guiado - MFI (Telas 2.1.0 a 2.1.8)
+    // ==========================================================================
+    const QUESTIONNAIRE_STEPS = {
+        "triagem": {
+            text: (state) => `O tema <strong>'${state.tempTheme}'</strong> está diretamente ligado a alguma pessoa específica (ex.: pai, mãe, parceiro, ex, chefe, amigo)?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.0" },
+                { text: "Não", next: "P1.1" },
+                { text: "Não sei / Não tenho certeza", next: "P1.1", action: (state) => { state.triagemNaoSei = true; } }
+            ]
+        },
+        // --- PROTOCOLO 1: RASTREIO POR FATOS ---
+        "P1.1": {
+            text: (state) => `Pensando no tema <strong>'${state.tempTheme}'</strong>, qual é o fato mais marcante que vem à sua mente?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Ontem tentei cobrar pelo meu serviço e travei na hora de falar o preço...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: val, sentiments: [] });
+                    return "P1.2";
+                }
+                if (state.triagemNaoSei) {
+                    state.triagemNaoSei = false;
+                    return "P1.4_triagemNaoSei";
+                }
+                return "2.1.9";
+            }
+        },
+        "P1.2": {
+            text: (state) => `Dentro desse fato, existe um momento específico que foi o mais marcante?`,
+            type: "closed",
+            options: [
+                { text: "Sim, quero detalhar", next: "P1.2a" },
+                { text: "Não, seguir", next: "P1.3" }
+            ]
+        },
+        "P1.2a": {
+            text: (state) => `Descreva esse momento específico.`,
+            type: "open-or-skip",
+            placeholder: "Ex: Quando ele olhou sério e disse que ia pensar antes de fechar...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Momento do fato: ${val}`, sentiments: [] });
+                }
+                return "P1.3";
+            }
+        },
+        "P1.3": {
+            text: (state) => `Você se lembra de outro fato igual ou parecido com esse?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P1.1" },
+                { text: "Não", next: "P1.4" }
+            ]
+        },
+        "P1.4": {
+            text: (state) => `Existe outro fato, diferente desse, ligado ao tema <strong>'${state.tempTheme}'</strong>, que você quer trazer?`,
+            type: "closed",
+            options: [
+                { text: "Sim, adicionar outro fato", next: "P1.1" },
+                { text: "Não, é só isso", next: "2.1.9" }
+            ],
+            dynamicNext: (state) => {
+                if (state.triagemNaoSei) {
+                    state.triagemNaoSei = false;
+                    return "P1.4_triagemNaoSei";
+                }
+                return "2.1.9";
+            }
+        },
+        "P1.4_triagemNaoSei": {
+            text: (state) => `Você gostaria de explorar agora se o tema <strong>'${state.tempTheme}'</strong> está ligado a alguma pessoa específica?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.0" },
+                { text: "Não, ir para revisão", next: "2.1.9" }
+            ]
+        },
+        // --- PROTOCOLO 2: RASTREIO POR PESSOAS ---
+        "P2.0": {
+            text: (state) => `Quem é essa pessoa para você? (nome ou vínculo, ex.: 'minha mãe', 'meu ex-marido')`,
+            type: "open",
+            placeholder: "Ex: Meu pai...",
+            onNext: (val, state) => {
+                state.tempPessoa = val || "a pessoa";
+                return "P2.1";
+            }
+        },
+        "P2.1": {
+            text: (state) => `Quais características de <strong>${state.tempPessoa}</strong> mais te incomodam?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Autoritário, ausente, cobrador...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.tempCaracteristicas = val.split(",").map(c => c.trim()).filter(Boolean);
+                    state.caractIdx = 0;
+                    return "P2.2";
+                }
+                return "P2.4";
+            }
+        },
+        "P2.2": {
+            text: (state) => {
+                const c = state.tempCaracteristicas[state.caractIdx] || "essa característica";
+                return `Existe um fato marcante ligado a essa característica (<strong>${c}</strong>) de <strong>${state.tempPessoa}</strong>?`;
+            },
+            type: "open-or-skip",
+            placeholder: "Ex: Quando eu tirei uma nota baixa e ele ficou dias sem falar comigo...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Fato sobre ${state.tempPessoa} ser ${state.tempCaracteristicas[state.caractIdx]}: ${val}`, sentiments: [] });
+                    return "P2.2a";
+                }
+                state.caractIdx++;
+                if (state.caractIdx < state.tempCaracteristicas.length) {
+                    return "P2.2";
+                }
+                return "P2.4";
+            }
+        },
+        "P2.2a": {
+            text: (state) => `Dentro desse fato, existe um momento específico que mais te marcou?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.2a_open" },
+                { text: "Não", next: "P2.2b" }
+            ]
+        },
+        "P2.2a_open": {
+            text: (state) => `Descreva esse momento específico.`,
+            type: "open-or-skip",
+            placeholder: "Ex: Quando ele me ignorou na hora do jantar...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Momento do fato de ${state.tempPessoa}: ${val}`, sentiments: [] });
+                }
+                return "P2.2b";
+            }
+        },
+        "P2.2b": {
+            text: (state) => `Lembra de outros fatos parecidos com esse, ligados a <strong>${state.tempPessoa}</strong>?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.2" },
+                {
+                    text: "Não",
+                    next: null,
+                    action: (state) => {
+                        state.caractIdx++;
+                    }
+                }
+            ],
+            dynamicNext: (state) => {
+                if (state.caractIdx < state.tempCaracteristicas.length) {
+                    return "P2.2";
+                }
+                return "P2.3";
+            }
+        },
+        "P2.3": {
+            text: (state) => `Existe outra característica de <strong>${state.tempPessoa}</strong> que te incomoda?`,
+            type: "closed",
+            options: [
+                {
+                    text: "Sim",
+                    next: "P2.1",
+                    action: (state) => {
+                        state.tempCaracteristicas = [];
+                    }
+                },
+                { text: "Não", next: "P2.4" }
+            ]
+        },
+        "P2.4": {
+            text: (state) => `<strong>${state.tempPessoa}</strong> é ou era carinhosa e atenciosa com você?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.5" },
+                {
+                    text: "Não",
+                    next: "P2.4_fact",
+                    action: (state) => {
+                        state.premarkedSentiments = ["tristeza", "rejeição"];
+                    }
+                }
+            ]
+        },
+        "P2.4_fact": {
+            text: (state) => `Quer registrar um fato específico ligado a essa falta de carinho/atenção de <strong>${state.tempPessoa}</strong>?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Lembro que ele nunca ia nas minhas apresentações da escola...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({
+                        phrase: `Falta de carinho de ${state.tempPessoa}: ${val}`,
+                        sentiments: state.premarkedSentiments || []
+                    });
+                }
+                state.premarkedSentiments = null;
+                return "P2.5";
+            }
+        },
+        "P2.5": {
+            text: (state) => `Você sente ou sentia que <strong>${state.tempPessoa}</strong> te preferia, ou preferia outra pessoa (ex.: irmão(ã), outro filho, outro parceiro)?`,
+            type: "closed",
+            options: [
+                { text: "Prefere a mim", next: "P2.6" },
+                {
+                    text: "Prefere o outro",
+                    next: "P2.5_fact",
+                    action: (state) => {
+                        state.premarkedSentiments = ["tristeza", "raiva", "rejeição"];
+                    }
+                },
+                { text: "Não sei / Não sei dizer", next: "P2.6" }
+            ]
+        },
+        "P2.5_fact": {
+            text: (state) => `Quer registrar um fato específico ligado a isso?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Ele elogiava muito as conquistas do meu irmão e ignorava as minhas...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({
+                        phrase: `Preferência de ${state.tempPessoa} por outro: ${val}`,
+                        sentiments: state.premarkedSentiments || []
+                    });
+                }
+                state.premarkedSentiments = null;
+                return "P2.6";
+            }
+        },
+        "P2.6": {
+            text: (state) => `Em quais situações <strong>${state.tempPessoa}</strong> fez você se sentir rejeitado(a)?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Quando ele me deixou de lado para falar com amigos...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Situação de rejeição com ${state.tempPessoa}: ${val}`, sentiments: ["rejeição"] });
+                }
+                return "P2.7";
+            }
+        },
+        "P2.7": {
+            text: (state) => `O que <strong>${state.tempPessoa}</strong> fez, deixou de fazer, falou, deixou de falar ou pensou sobre você, que te incomodou?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Ele disse que eu não herdaria o negócio da família porque não tinha capacidade...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Incomodo gerado por ${state.tempPessoa}: ${val}`, sentiments: [] });
+                }
+                return "P2.8";
+            }
+        },
+        "P2.8": {
+            text: (state) => `O que você fez, deixou de fazer, falou, deixou de falar ou pensou sobre <strong>${state.tempPessoa}</strong>, que depois te incomodou?`,
+            type: "open-or-skip",
+            placeholder: "Ex: Fiquei anos sem mandar mensagem de aniversário para ele...",
+            onNext: (val, state) => {
+                if (val) {
+                    state.addedFacts.push({ phrase: `Ações com ${state.tempPessoa} que geraram incômodo: ${val}`, sentiments: ["culpa"] });
+                }
+                return "P2.9";
+            }
+        },
+        "P2.9": {
+            text: (state) => `Existe outra pessoa ligada ao tema <strong>'${state.tempTheme}'</strong> que você quer trazer?`,
+            type: "closed",
+            options: [
+                { text: "Sim", next: "P2.0" },
+                { text: "Não", next: "2.1.9" }
+            ]
+        }
+    };
 
-    function resetStep1Wizard() {
-        state.isHereditary = false;
-        state.hereditaryType = null;
+    function startGuidedQuestionnaire() {
+        state.currentQuestId = "triagem";
+        state.questHistory = [];
         state.addedFacts = [];
-        state.factDetail = "";
+        state.triagemNaoSei = false;
         
-        btnFamilyNo.classList.remove("active");
-        btnFamilyYesSentimento.classList.remove("active");
-        btnFamilyYesPensamento.classList.remove("active");
-        btnFamilyYesComportamento.classList.remove("active");
-        
-        inputPhrase.value = "";
-        inputFactDetail.value = "";
-        renderSentimentTags();
-        renderAddedFacts();
-        
-        subStep1a.style.display = "block";
-        subStep1a.classList.add("active");
-        subStep1b.style.display = "none";
-        subStep1b.classList.remove("active");
-        subStep1c.style.display = "none";
-        subStep1c.classList.remove("active");
+        switchSubStep(subStep1b, subStep2a);
+        renderQuestStep();
     }
 
-    // Tela 1 -> Tela 2: Gerar Ajustes Informacionais
-    btnGenerate.addEventListener("click", () => {
-        const phrase = inputPhrase.value.trim();
-        if (!phrase) {
-            alert("Por favor, digite seu objetivo ou padrão limitante.");
+    function renderQuestStep() {
+        const stepDef = QUESTIONNAIRE_STEPS[state.currentQuestId];
+        if (!stepDef) {
+            transitionToRevisionScreen();
             return;
         }
 
-        // Se houver algum fato digitado mas que não foi adicionado na lista, adiciona automaticamente
-        const currentFactText = inputFactDetail.value.trim();
-        if (currentFactText) {
-            state.addedFacts.push({
-                phrase: currentFactText,
-                sentiments: Array.from(selectedSentiments)
-            });
-            inputFactDetail.value = "";
-            renderSentimentTags();
-            renderAddedFacts();
+        // Popula Pergunta
+        if (questQuestionText) {
+            questQuestionText.innerHTML = stepDef.text(state);
         }
 
-        btnGenerate.disabled = true;
-        btnGenerate.innerHTML = '<span class="spinner"></span> Analisando padrões...';
+        // Resetar UI
+        if (questInputWrapper) questInputWrapper.style.display = "none";
+        if (questOptionsWrapper) questOptionsWrapper.style.display = "none";
+        if (btnQuestNext) btnQuestNext.style.display = "none";
+        if (btnQuestSkip) btnQuestSkip.style.display = "none";
+
+        if (stepDef.type === "open" || stepDef.type === "open-or-skip") {
+            if (questInputWrapper) {
+                questInputWrapper.style.display = "block";
+                const textarea = document.getElementById("quest-open-input");
+                if (textarea) {
+                    textarea.value = "";
+                    textarea.placeholder = stepDef.placeholder || "";
+                    textarea.focus();
+                }
+            }
+            if (btnQuestNext) btnQuestNext.style.display = "block";
+            if (stepDef.type === "open-or-skip" && btnQuestSkip) {
+                btnQuestSkip.style.display = "block";
+            }
+        } else if (stepDef.type === "closed") {
+            if (questOptionsWrapper) {
+                questOptionsWrapper.style.display = "flex";
+                questOptionsWrapper.innerHTML = "";
+                
+                stepDef.options.forEach(opt => {
+                    const btn = document.createElement("button");
+                    btn.className = "btn btn-secondary";
+                    btn.style.padding = "0.75rem";
+                    btn.style.fontSize = "0.9rem";
+                    btn.style.textAlign = "left";
+                    btn.innerText = opt.text;
+                    
+                    btn.addEventListener("click", () => {
+                        if (opt.action) opt.action(state);
+                        
+                        state.questHistory.push(state.currentQuestId);
+                        
+                        let nextId = opt.next;
+                        if (!nextId && stepDef.dynamicNext) {
+                            nextId = stepDef.dynamicNext(state);
+                        }
+                        
+                        transitionToNextQuestStep(nextId);
+                    });
+                    
+                    questOptionsWrapper.appendChild(btn);
+                });
+            }
+        }
+    }
+
+    function transitionToNextQuestStep(nextId) {
+        if (nextId === "2.1.9") {
+            transitionToRevisionScreen();
+        } else if (QUESTIONNAIRE_STEPS[nextId]) {
+            state.currentQuestId = nextId;
+            renderQuestStep();
+        } else {
+            transitionToRevisionScreen();
+        }
+    }
+
+    // Handlers dos botões de avançar/pular na pergunta aberta
+    if (btnQuestNext) {
+        btnQuestNext.addEventListener("click", () => {
+            const textarea = document.getElementById("quest-open-input");
+            const val = textarea ? textarea.value.trim() : "";
+            
+            const stepDef = QUESTIONNAIRE_STEPS[state.currentQuestId];
+            if (stepDef.type === "open" && !val) {
+                alert("Por favor, preencha o campo antes de avançar.");
+                return;
+            }
+            
+            state.questHistory.push(state.currentQuestId);
+            const nextId = stepDef.onNext(val, state);
+            transitionToNextQuestStep(nextId);
+        });
+    }
+
+    if (btnQuestSkip) {
+        btnQuestSkip.addEventListener("click", () => {
+            const stepDef = QUESTIONNAIRE_STEPS[state.currentQuestId];
+            state.questHistory.push(state.currentQuestId);
+            const nextId = stepDef.onNext("", state);
+            transitionToNextQuestStep(nextId);
+        });
+    }
+
+    if (btnQuestBack) {
+        btnQuestBack.addEventListener("click", () => {
+            if (state.questHistory.length > 0) {
+                const lastId = state.questHistory.pop();
+                
+                // Desfaz inserção de fatos caso tenha voltado de passos de inserção
+                const lastStepDef = QUESTIONNAIRE_STEPS[lastId];
+                if (lastStepDef && (lastStepDef.type === "open" || lastStepDef.type === "open-or-skip")) {
+                    if (state.addedFacts.length > 0) {
+                        state.addedFacts.pop();
+                    }
+                } else if (lastId === "P2.4" || lastId === "P2.5" || lastId === "P2.6" || lastId === "P2.7" || lastId === "P2.8") {
+                    if (state.addedFacts.length > 0) {
+                        state.addedFacts.pop();
+                    }
+                }
+                
+                state.currentQuestId = lastId;
+                renderQuestStep();
+            } else {
+                switchSubStep(subStep2a, subStep1b);
+            }
+        });
+    }
+
+    // ==========================================================================
+    // Revisão de Fatos - MFI (Tela 2.1.9)
+    // ==========================================================================
+    function transitionToRevisionScreen() {
+        switchSubStep(subStep2a, subStep2b);
+        renderRevisionFacts();
+    }
+
+    function renderRevisionFacts() {
+        if (!revisionFactsList) return;
+        revisionFactsList.innerHTML = "";
+
+        if (state.addedFacts.length === 0) {
+            revisionFactsList.innerHTML = `
+                <div class="glass-card" style="padding: 2rem; text-align: center; border-radius: 8px; width: 100%;">
+                    <p style="margin: 0; color: var(--color-text-muted); font-size: 0.9rem;">Nenhum fato específico registrado. Você pode avançar diretamente para a liberação geral.</p>
+                </div>
+            `;
+            return;
+        }
+
+        state.addedFacts.forEach((fact, idx) => {
+            const card = document.createElement("div");
+            card.className = "practice-item-card";
+            card.style.padding = "0.75rem";
+            card.style.margin = "0";
+            card.style.display = "flex";
+            card.style.flexDirection = "column";
+            card.style.gap = "0.5rem";
+
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-primary);">Fato ${idx + 1}</span>
+                    <button type="button" class="btn-delete-fact btn btn-text" data-idx="${idx}" style="color: #EA4335; padding: 0.25rem; font-size: 0.8rem;">🗑️ Excluir</button>
+                </div>
+                <input type="text" class="input-quantum input-edit-fact" data-idx="${idx}" value="${fact.phrase}" style="font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+            `;
+
+            revisionFactsList.appendChild(card);
+        });
+
+        // Event Listeners para edição
+        revisionFactsList.querySelectorAll(".input-edit-fact").forEach(input => {
+            input.addEventListener("input", (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                if (state.addedFacts[idx]) {
+                    state.addedFacts[idx].phrase = e.target.value;
+                }
+            });
+        });
+
+        // Event Listeners para exclusão
+        revisionFactsList.querySelectorAll(".btn-delete-fact").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                state.addedFacts.splice(idx, 1);
+                renderRevisionFacts();
+            });
+        });
+    }
+
+    if (btnRevisionAddMore) {
+        btnRevisionAddMore.addEventListener("click", () => {
+            state.currentQuestId = "P1.1";
+            state.questHistory = [];
+            switchSubStep(subStep2b, subStep2a);
+            renderQuestStep();
+        });
+    }
+
+    if (btnRevisionNext) {
+        btnRevisionNext.addEventListener("click", () => {
+            if (state.addedFacts.length === 0) {
+                triggerFinalGeneration();
+            } else {
+                state.sentimentFactIdx = 0;
+                switchSubStep(subStep2b, subStep2c);
+                renderSentimentSelectStep();
+            }
+        });
+    }
+
+    // ==========================================================================
+    // Passo 2.2: Escolha de Sentimentos por Fato (Tela 2.2)
+    // ==========================================================================
+    // Sentimentos - Banco Fixo
+    const SENTIMENTS_LIST = [
+        "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", "carência", 
+        "raiva", "ódio", "decepção", "incompetência", "incapacidade", "inferioridade", "pressão", 
+        "invasão", "usada", "manipulada", "desrespeitada", "ser controlada", "não controlar", 
+        "perder o controle", "sensação de estar ou ser feia", "pânico", "medo", "trocada", 
+        "frustração", "sensação de perder o sentido da vida", "insegurança", "nojo", "desânimo", 
+        "não servir pra nada", "vontade de morrer", "angústia", "incerteza", "sensação de não ter estabilidade", 
+        "abandonada", "submissão"
+    ];
+
+    function renderSentimentSelectStep() {
+        if (!sentimentCurrentFactText || !sentimentFactTagsGrid || !sentimentStepCount) return;
+
+        const fact = state.addedFacts[state.sentimentFactIdx];
+        if (!fact) {
+            triggerFinalGeneration();
+            return;
+        }
+
+        sentimentCurrentFactText.innerHTML = `"${fact.phrase}"`;
+        sentimentStepCount.innerText = `Processando fato ${state.sentimentFactIdx + 1} de ${state.addedFacts.length}`;
+        sentimentFactTagsGrid.innerHTML = "";
+
+        const activeSentiments = new Set(fact.sentiments || []);
+
+        SENTIMENTS_LIST.forEach(s => {
+            const tag = document.createElement("span");
+            tag.className = "sentiment-tag";
+            tag.innerText = s;
+            
+            if (activeSentiments.has(s)) {
+                tag.classList.add("selected");
+            }
+
+            tag.addEventListener("click", () => {
+                if (activeSentiments.has(s)) {
+                    activeSentiments.delete(s);
+                    tag.classList.remove("selected");
+                } else {
+                    activeSentiments.add(s);
+                    tag.classList.add("selected");
+                }
+                fact.sentiments = Array.from(activeSentiments);
+            });
+
+            sentimentFactTagsGrid.appendChild(tag);
+        });
+    }
+
+    if (btnSentimentSave) {
+        btnSentimentSave.addEventListener("click", () => {
+            state.sentimentFactIdx++;
+            if (state.sentimentFactIdx < state.addedFacts.length) {
+                renderSentimentSelectStep();
+            } else {
+                triggerFinalGeneration();
+            }
+        });
+    }
+
+    // ==========================================================================
+    // Geração de Decretos Final
+    // ==========================================================================
+
+
+    function triggerFinalGeneration() {
+        const phrase = state.tempTheme || inputPhrase.value.trim();
+        
+        if (btnSentimentSave) btnSentimentSave.disabled = true;
+        if (btnGenerate) {
+            btnGenerate.disabled = true;
+            btnGenerate.innerHTML = '<span class="spinner"></span> Analisando padrões...';
+        }
         
         setTimeout(() => {
             const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail);
@@ -1417,7 +1894,6 @@ document.addEventListener("DOMContentLoaded", () => {
             outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
             outputObjetivo.innerText = result.objetivo;
             
-            // Habilita/Desabilita o card de Liberação dinamicamente dependendo da presença de MFI (específica)
             const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
             if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
                 if (itemEspecifico) itemEspecifico.style.display = "none";
@@ -1434,8 +1910,43 @@ document.addEventListener("DOMContentLoaded", () => {
             
             btnGenerate.disabled = false;
             btnGenerate.innerText = "Gerar Ajustes Informacionais →";
+            if (btnSentimentSave) btnSentimentSave.disabled = false;
         }, 1200);
-    });
+    }
+
+    function resetStep1Wizard() {
+        state.isHereditary = false;
+        state.hereditaryType = null;
+        state.addedFacts = [];
+        state.factDetail = "";
+        state.tempTheme = "";
+        state.tempPessoa = "";
+        state.tempCaracteristicas = [];
+        state.caractIdx = 0;
+        state.triagemNaoSei = false;
+        state.sentimentFactIdx = 0;
+        
+        btnFamilyNo.classList.remove("active");
+        btnFamilyYesSentimento.classList.remove("active");
+        btnFamilyYesPensamento.classList.remove("active");
+        btnFamilyYesComportamento.classList.remove("active");
+        
+        inputPhrase.value = "";
+        themeChips.forEach(c => c.classList.remove("selected"));
+        
+        subStep1a.style.display = "block";
+        subStep1a.classList.add("active");
+        subStep1aConfirm.style.display = "none";
+        subStep1aConfirm.classList.remove("active");
+        subStep1b.style.display = "none";
+        subStep1b.classList.remove("active");
+        subStep2a.style.display = "none";
+        subStep2a.classList.remove("active");
+        subStep2b.style.display = "none";
+        subStep2b.classList.remove("active");
+        subStep2c.style.display = "none";
+        subStep2c.classList.remove("active");
+    }
 
     // Tela 2 (Consciência) -> Tela 4: Ir para Registro & Acompanhamento
     btnToStep3.addEventListener("click", () => {
