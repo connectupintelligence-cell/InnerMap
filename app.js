@@ -2554,12 +2554,147 @@ Pergunta atual: "${query}"
                         </div>
                         ` : ''}
                     </div>
+
+                    <!-- Botões de Ações do Terapeuta -->
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.75rem;">
+                        <button class="btn btn-outline btn-edit-reorg" data-id="${r.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar Ajustes</button>
+                        <button class="btn btn-text btn-delete-reorg" data-id="${r.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #EA4335;">Excluir</button>
+                    </div>
                 `;
                 container.appendChild(card);
+            });
+
+            // Adicionar event listeners para os botões de edição e exclusão
+            container.querySelectorAll(".btn-edit-reorg").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const reorgId = btn.dataset.id;
+                    openEditReorgModal(reorgId, email);
+                });
+            });
+
+            container.querySelectorAll(".btn-delete-reorg").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const reorgId = btn.dataset.id;
+                    deleteClientReorganization(reorgId, email, id);
+                });
             });
         }
 
         modal.style.display = "flex";
+    }
+
+    function openEditReorgModal(reorgId, email) {
+        const modal = document.getElementById("modal-edit-reorg");
+        const clientLabel = document.getElementById("edit-reorg-client");
+        const inputId = document.getElementById("edit-reorg-id");
+        const inputPhrase = document.getElementById("edit-reorg-phrase");
+        const textareaEspecifica = document.getElementById("edit-reorg-especifica");
+        const textareaNaoEspecifica = document.getElementById("edit-reorg-nao-especifica");
+        const textareaMicroacao = document.getElementById("edit-reorg-microacao");
+
+        if (!modal || !clientLabel || !inputId || !inputPhrase || !textareaEspecifica || !textareaNaoEspecifica || !textareaMicroacao) return;
+
+        const reorg = window.dashReorganizations.find(r => r.id === reorgId);
+        if (!reorg) return;
+
+        clientLabel.innerText = `Cliente: ${email}`;
+        inputId.value = reorg.id;
+        inputPhrase.value = reorg.phrase || "";
+        textareaEspecifica.value = (reorg.data && reorg.data.declaracaoEspecifica) ? reorg.data.declaracaoEspecifica : "";
+        textareaNaoEspecifica.value = (reorg.data && reorg.data.declaracaoNaoEspecifica) ? reorg.data.declaracaoNaoEspecifica : "";
+        textareaMicroacao.value = (reorg.data && reorg.data.microacao) ? reorg.data.microacao : "";
+
+        modal.style.display = "flex";
+    }
+
+    async function deleteClientReorganization(reorgId, email, clientId) {
+        if (!confirm("Tem certeza que deseja excluir esta prática do histórico do cliente permanentemente?")) return;
+
+        if (supabaseClient) {
+            try {
+                const { error } = await supabaseClient.from("reorganizations").delete().eq("id", reorgId);
+                if (error) {
+                    showToast("Erro ao excluir do Supabase: " + error.message);
+                    return;
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Erro crítico ao excluir.");
+                return;
+            }
+        }
+
+        // Remover do escopo local
+        window.dashReorganizations = window.dashReorganizations.filter(r => r.id !== reorgId);
+        showToast("Prática excluída com sucesso!");
+        
+        // Re-renderizar o histórico e a lista
+        openClientDetailsModal(email, clientId);
+        loadTherapistDashboardData();
+    }
+
+    // Fechar e Submeter Modal de Edição de Reorganização
+    const btnCloseEditReorg = document.getElementById("btn-close-edit-reorg");
+    const btnCancelEditReorg = document.getElementById("btn-cancel-edit-reorg");
+    const modalEditReorg = document.getElementById("modal-edit-reorg");
+    const formEditReorg = document.getElementById("form-edit-reorg");
+
+    if (btnCloseEditReorg) btnCloseEditReorg.addEventListener("click", () => modalEditReorg.style.display = "none");
+    if (btnCancelEditReorg) btnCancelEditReorg.addEventListener("click", () => modalEditReorg.style.display = "none");
+
+    if (formEditReorg) {
+        formEditReorg.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const reorgId = document.getElementById("edit-reorg-id").value;
+            const newPhrase = document.getElementById("edit-reorg-phrase").value.trim();
+            const newEspecifica = document.getElementById("edit-reorg-especifica").value.trim();
+            const newNaoEspecifica = document.getElementById("edit-reorg-nao-especifica").value.trim();
+            const newMicroacao = document.getElementById("edit-reorg-microacao").value.trim();
+
+            const reorg = window.dashReorganizations.find(r => r.id === reorgId);
+            if (!reorg) return;
+
+            // Criar objeto data atualizado
+            const updatedData = {
+                ...reorg.data,
+                declaracaoEspecifica: newEspecifica,
+                declaracaoNaoEspecifica: newNaoEspecifica,
+                microacao: newMicroacao
+            };
+
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient
+                        .from("reorganizations")
+                        .update({
+                            phrase: newPhrase,
+                            data: updatedData
+                        })
+                        .eq("id", reorgId);
+
+                    if (error) {
+                        showToast("Erro ao salvar alterações no Supabase: " + error.message);
+                        return;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast("Erro crítico ao salvar alterações.");
+                    return;
+                }
+            }
+
+            // Atualizar no escopo local
+            reorg.phrase = newPhrase;
+            reorg.data = updatedData;
+
+            showToast("Ajustes atualizados com sucesso!");
+            modalEditReorg.style.display = "none";
+
+            // Atualizar modal de histórico e estatísticas
+            openClientDetailsModal(reorg.email, reorg.user_id);
+            loadTherapistDashboardData();
+        });
     }
 
     function renderKbTable() {
