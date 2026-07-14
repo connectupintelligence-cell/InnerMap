@@ -2524,9 +2524,36 @@ Pergunta atual: "${query}"
                         <span>📅 ${r.date}</span>
                         <span style="font-weight: 600; color: var(--color-primary-glow);">${r.categoryEmoji}</span>
                     </div>
-                    <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main);">"${r.phrase}"</div>
-                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;"><strong style="color: var(--color-text-muted);">Padrão Ativado:</strong> ${r.title}</div>
-                    <div style="font-size: 0.9rem;"><strong style="color: var(--color-text-muted);">Sentimento Pós-Prática:</strong> <span style="color: var(--color-primary);">${r.rating}</span></div>
+                    <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.75rem; color: var(--color-text-main);">"${r.phrase}"</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px dashed rgba(255,255,255,0.06);">
+                        <div><strong style="color: var(--color-text-muted);">Padrão Ativado:</strong><br>${r.title}</div>
+                        <div><strong style="color: var(--color-text-muted);">Sentimento Pós-Prática:</strong><br><span style="color: var(--color-primary);">${r.rating}</span></div>
+                    </div>
+
+                    <!-- Detalhes do Diagnóstico e Comandos Sugeridos -->
+                    <div class="practice-details-section" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255,255,255,0.01); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+                        ${r.data && r.data.declaracaoEspecifica ? `
+                        <div>
+                            <strong style="color: #EA4335; font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">⚠️ Liberação Específica (1x na vida)</strong>
+                            <p style="margin: 0; padding: 0.5rem; background: rgba(234, 67, 53, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoEspecifica}</p>
+                        </div>
+                        ` : ''}
+
+                        ${r.data && r.data.declaracaoNaoEspecifica ? `
+                        <div>
+                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">🔄 Liberação Não Específica (1x por dia / 15 dias)</strong>
+                            <p style="margin: 0; padding: 0.5rem; background: rgba(102, 252, 241, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoNaoEspecifica}</p>
+                        </div>
+                        ` : ''}
+
+                        ${r.data && r.data.microacao ? `
+                        <div>
+                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">💡 Microação & Sugestão de Melhoria</strong>
+                            <p style="margin: 0; padding: 0.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 4px; font-size: 0.8rem; color: var(--color-text-muted); white-space: pre-wrap;">${r.data.microacao}</p>
+                        </div>
+                        ` : ''}
+                    </div>
                 `;
                 container.appendChild(card);
             });
