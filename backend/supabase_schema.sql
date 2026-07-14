@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS public.reorganizations (
     date TEXT NOT NULL,       -- Data formatada
     phrase TEXT NOT NULL,     -- Objetivo digitado
     category TEXT NOT NULL,   -- Categoria do padrão
-    categoryEmoji TEXT NOT NULL,
+    "categoryEmoji" TEXT NOT NULL,
     title TEXT NOT NULL,      -- Nome do padrão
     rating TEXT NOT NULL,     -- Avaliação emocional pós-prática
     data JSONB NOT NULL,      -- Objeto completo de dados da reorganização
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS public.patterns_kb (
     id TEXT PRIMARY KEY,         -- Identificador (ex: 'medo_crescer')
     title TEXT NOT NULL,         -- Título do padrão
     category TEXT NOT NULL,      -- Categoria (ex: 'Trabalho')
-    categoryEmoji TEXT NOT NULL, -- Emoji e nome da categoria
+    "categoryEmoji" TEXT NOT NULL, -- Emoji e nome da categoria
     keywords TEXT[] NOT NULL,    -- Palavras-chave para busca
     ajuste TEXT NOT NULL,        -- Ajuste observado
     movimento TEXT NOT NULL,     -- Movimento sugerido

@@ -806,6 +806,10 @@ class AppStateManager {
             }
             this.saveUser(this.currentUser);
 
+            if (profErr) {
+                console.error("Erro ao carregar perfil do Supabase:", profErr);
+            }
+
             // 1. Buscar Assinatura Remota
             const { data: subData, error: subErr } = await supabaseClient
                 .from("subscriptions")
@@ -813,7 +817,9 @@ class AppStateManager {
                 .eq("user_id", this.currentUser.id || this.currentUser.email)
                 .maybeSingle();
 
-            if (!subErr && subData) {
+            if (subErr) {
+                console.error("Erro ao carregar assinatura do Supabase:", subErr);
+            } else if (subData) {
                 this.subscription = {
                     plan: subData.plan,
                     active: subData.active,
@@ -829,7 +835,10 @@ class AppStateManager {
                 .eq("user_id", this.currentUser.id || this.currentUser.email)
                 .order("id", { ascending: false });
 
-            if (!histErr && histData) {
+            if (histErr) {
+                console.error("Erro ao buscar histórico de reorganizações no Supabase:", histErr);
+                showToast("Erro ao sincronizar histórico: " + histErr.message);
+            } else if (histData) {
                 this.history = histData.map(d => ({
                     id: d.id,
                     date: d.date,
@@ -843,7 +852,7 @@ class AppStateManager {
                 this.saveHistory();
             }
         } catch (err) {
-            console.error("Erro na carga do Supabase:", err);
+            console.error("Erro crítico na carga do Supabase:", err);
         }
     }
 
@@ -864,7 +873,7 @@ class AppStateManager {
 
         if (supabaseClient && this.currentUser) {
             try {
-                await supabaseClient.from("reorganizations").insert({
+                const { error: insertErr } = await supabaseClient.from("reorganizations").insert({
                     id: entry.id,
                     user_id: this.currentUser.id || this.currentUser.email,
                     email: this.currentUser.email,
@@ -876,8 +885,15 @@ class AppStateManager {
                     rating: entry.rating,
                     data: entry.data
                 });
+                
+                if (insertErr) {
+                    console.error("Erro ao salvar reorganização no Supabase:", insertErr);
+                    showToast("Erro ao salvar no banco: " + insertErr.message);
+                } else {
+                    console.log("Reorganização salva com sucesso no Supabase!");
+                }
             } catch (err) {
-                console.error("Erro ao salvar reorganização no Supabase:", err);
+                console.error("Erro crítico ao salvar reorganização no Supabase:", err);
             }
         }
     }
