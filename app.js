@@ -1908,8 +1908,10 @@ document.addEventListener("DOMContentLoaded", () => {
             showScreen("step3");
             startPracticeTimer();
             
-            btnGenerate.disabled = false;
-            btnGenerate.innerText = "Gerar Ajustes Informacionais →";
+            if (btnGenerate) {
+                btnGenerate.disabled = false;
+                btnGenerate.innerText = "Gerar Ajustes Informacionais →";
+            }
             if (btnSentimentSave) btnSentimentSave.disabled = false;
         }, 1200);
     }
