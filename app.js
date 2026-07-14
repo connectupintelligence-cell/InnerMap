@@ -368,7 +368,7 @@ function formatFactForSentence(fact) {
 }
 
 // Função auxiliar para construir as frases de MSI e MFI de acordo com a seleção e sentimentos
-function buildDeclarations(phrase, isHereditary, factDetail, category) {
+function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, category, factDetail) {
     const cleanConcept = phrase.replace(/eu tenho/gi, '')
                             .replace(/estou com/gi, '')
                             .replace(/sinto muito/gi, '')
@@ -379,13 +379,22 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
 
     let msi = "";
     if (isHereditary) {
-        msi = `Alma, comportamentos e registros hereditários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n`;
-        msi += `Espírito, pensamentos hereditários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!`;
+        const type = hereditaryType || "comportamento";
+        if (type === "sentimento" || type === "comportamento") {
+            msi += `Alma, "${cleanConcept.toLowerCase()}" (que recebi ou recebidos) do primeiro dia de minha existência até a primeira infância, acabaram!\n`;
+        }
+        if (type === "pensamento" || type === "comportamento") {
+            msi += `Espírito, "${cleanConcept.toLowerCase()}" (que recebi ou recebidos) do primeiro dia de minha existência até a primeira infância, acabaram!`;
+        }
+        msi = msi.trim();
     }
 
     let mfi = "";
-    if (factDetail && factDetail.trim() !== "") {
-        const formattedFact = formatFactForSentence(factDetail);
+    let factsList = [];
+    
+    if (addedFacts && addedFacts.length > 0) {
+        factsList = addedFacts;
+    } else if (factDetail && factDetail.trim() !== "") {
         const text = factDetail.toLowerCase().trim();
         const SENTIMENTS_LIST = [
             "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", 
@@ -424,30 +433,45 @@ function buildDeclarations(phrase, isHereditary, factDetail, category) {
                 matchedSentiments = ["tristeza", "insegurança", "angústia"];
             }
         }
-
-        matchedSentiments = [...new Set(matchedSentiments)];
-
-        matchedSentiments.forEach(s => {
-            mfi += `Alma, ${s} que senti ${formattedFact} acabou!\n`;
+        
+        factsList.push({
+            phrase: factDetail.trim(),
+            sentiments: [...new Set(matchedSentiments)]
         });
-        mfi += `Alma, todos os sentimentos que senti ${formattedFact} acabaram!\n`;
-        mfi += `Espírito, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
-        mfi += `Espírito, todas as informações negativas que gerei ${formattedFact} acabou!`;
     }
+
+    const mfiBlocks = [];
+    factsList.forEach(fact => {
+        const formattedFact = formatFactForSentence(fact.phrase);
+        let block = "";
+        
+        let sList = fact.sentiments;
+        if (!sList || sList.length === 0) {
+            sList = ["tristeza"];
+        }
+
+        sList.forEach(s => {
+            block += `Alma, ${s} que senti ${formattedFact} acabaram!\n`;
+        });
+        block += `Alma, todos sentimentos que senti ${formattedFact} acabaram!\n`;
+        block += `ESPÍRITO, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
+        block += `ESPÍRITO, todas as informações negativas que gerei ${formattedFact} acabou!`;
+        
+        mfiBlocks.push(block);
+    });
+
+    mfi = mfiBlocks.join("\n\n");
 
     return { msi, mfi };
 }
 
-// Lógica de processamento e classificação de texto
 class ReorganizationEngine {
-    static analyzeInput(inputPhrase, isHereditary, factDetail) {
+    static analyzeInput(inputPhrase, isHereditary, hereditaryType, addedFacts, factDetail) {
         const text = inputPhrase.toLowerCase().trim();
         if (!text) return null;
 
-        // Gerar embedding do texto atual para o fluxo relacional
         const embedding = generateMockEmbedding(inputPhrase);
 
-        // 1. Tentar encontrar correspondência por palavras-chave
         let matchedKey = null;
         let maxMatches = 0;
 
@@ -499,20 +523,42 @@ class ReorganizationEngine {
             rawMRI = fallback.fortalecimento;
         }
 
-        // Remover cabeçalhos caso venham dos presets
-        let cleanMRI = rawMRI.replace(/3 - Movimento de Reinterpretação Informacional - MRI\n?/gi, "").trim();
+        // Construir declarações MSI/MFI dinamicamente
+        const declarations = buildDeclarations(inputPhrase, isHereditary, hereditaryType, addedFacts, category, factDetail);
 
-        // Construir declarações MSI/MFI dinamicamente de acordo com as respostas do cliente
-        const declarations = buildDeclarations(inputPhrase, isHereditary, factDetail, category);
+        // MRI - Movimento de Reinterpretação
+        let cleanMRI = "";
+        if (matchedKey && maxMatches > 0) {
+            cleanMRI = rawMRI.replace(/3 - Movimento de Reinterpretação Informacional - MRI\n?/gi, "").trim();
+        } else {
+            const mriSuggest = this.suggestMriRessignificacao(inputPhrase);
+            cleanMRI = `Espírito, eu escolho ${mriSuggest.es}.\nAlma, eu já ${mriSuggest.al}.`;
+        }
 
-        // Juntar MSI (Hereditário) e MRI (Fortalecimento) como "Não Específico"
+        // MDI - Movimento de Descompactação Informacional (BLOCO 3.3 - Fixo)
+        const cleanConcept = inputPhrase.replace(/eu tenho/gi, '')
+                                .replace(/estou com/gi, '')
+                                .replace(/sinto muito/gi, '')
+                                .replace(/sinto/gi, '')
+                                .replace(/tenho/gi, '')
+                                .replace(/medo de/gi, 'medo de ')
+                                .trim();
+
+        let mdi = `ESPÍRITO, pensamento de "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de manifestar "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de observar "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, crença de "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
+
+        // Juntar Liberação Não Específica na ordem fixa: MSI -> MRI -> MDI
         let finalNaoEspecifica = "";
         if (declarations.msi) {
             finalNaoEspecifica += declarations.msi + "\n\n";
         }
-        finalNaoEspecifica += cleanMRI;
+        finalNaoEspecifica += cleanMRI + "\n\n";
+        finalNaoEspecifica += mdi;
 
-        // Adiciona sugestão de melhoria específica baseada na categoria à microação
         let finalMicroacao = microacao;
         if (category === "Prosperidade") {
             finalMicroacao += "\n\n💡 Sugestão de melhoria: Dedique 15 minutos hoje para revisar e organizar suas metas financeiras semanais.";
@@ -520,7 +566,7 @@ class ReorganizationEngine {
             finalMicroacao += "\n\n💡 Sugestão de melhoria: Organize sua agenda do dia com foco em resolver a pendência mais importante logo pela manhã.";
         } else if (category === "Relacionamentos") {
             finalMicroacao += "\n\n💡 Sugestão de melhoria: Pratique a escuta ativa hoje, prestando atenção plena a uma pessoa querida sem interrompê-la.";
-        } else if (category === "Saúde" || category === "Autoestima") {
+        } else if (category === "Saúde emocional" || category === "Saúde") {
             finalMicroacao += "\n\n💡 Sugestão de melhoria: Faça uma pausa de 10 minutos para respiração consciente e alongamento leve hoje.";
         } else {
             finalMicroacao += "\n\n💡 Sugestão de melhoria: Reserve um momento de silêncio hoje para se conectar com a sua respiração.";
@@ -533,13 +579,38 @@ class ReorganizationEngine {
             ajuste: ajuste,
             movimento: movimento,
             objetivo: objetivo,
-            declaracaoEspecifica: declarations.mfi, // Fatos/Factual (MFI) - 1x na vida
-            declaracaoNaoEspecifica: finalNaoEspecifica, // Hereditário (MSI) + Reinterpretação (MRI) - 1x por dia por 15 dias
+            declaracaoEspecifica: declarations.mfi, // MFI
+            declaracaoNaoEspecifica: finalNaoEspecifica, // MSI + MRI + MDI
             pergunta: pergunta,
             microacao: finalMicroacao,
             embedding: embedding,
             originalPhrase: inputPhrase
         };
+    }
+
+    static suggestMriRessignificacao(phrase) {
+        const clean = phrase.toLowerCase().trim();
+        let es = "direcionar minha atenção para novas possibilidades, soluções e expansão";
+        let al = "construo minha realidade com presença, consistência e equilíbrio";
+
+        if (clean.includes("escassez") || clean.includes("dinheiro") || clean.includes("financeiro") || clean.includes("dívida") || clean.includes("pobre")) {
+            es = "direcionar minha atenção para a abundância, prosperidade e fluxo constante de recursos";
+            al = "construo riqueza, fartura e segurança financeira com ações consistentes e sabedoria";
+        } else if (clean.includes("relacionamento") || clean.includes("amor") || clean.includes("briga") || clean.includes("casamento")) {
+            es = "direcionar minha atenção para conexões saudáveis, comunicação pacífica e amor mútuo";
+            al = "vivencio laços afetivos harmônicos, respeito mútuo e cooperação diária";
+        } else if (clean.includes("ansiedade") || clean.includes("medo") || clean.includes("pânico") || clean.includes("preocupação")) {
+            es = "direcionar minha atenção para a paz interna, segurança e clareza mental";
+            al = "sinto serenidade, confiança absoluta na vida e estabilidade emocional em meu corpo";
+        } else if (clean.includes("trabalho") || clean.includes("carreira") || clean.includes("profissional") || clean.includes("emprego")) {
+            es = "direcionar minha atenção para o crescimento profissional, reconhecimento e realização";
+            al = "exerço meus talentos com dedicação, prosperidade e entrega de valor consistente";
+        } else if (clean.includes("saúde") || clean.includes("dor") || clean.includes("doença") || clean.includes("corpo")) {
+            es = "direcionar minha atenção para a saúde plena, regeneração celular e vitalidade";
+            al = "sinto meu corpo forte, revigorado e em perfeito equilíbrio funcional";
+        }
+
+        return { es, al };
     }
 
     static generateDynamicFallback(phrase) {
@@ -685,6 +756,8 @@ class AppStateManager {
         this.history = this.loadHistory();
         this.timerInterval = null;
         this.isHereditary = false;
+        this.hereditaryType = null;
+        this.addedFacts = []; // [{ phrase: "...", sentiments: [] }]
         this.factDetail = "";
         
         // Autenticação e Assinatura persistidas
@@ -944,11 +1017,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const subStep1b = document.getElementById("sub-step-1b");
     const subStep1c = document.getElementById("sub-step-1c");
     const btnSubNext1 = document.getElementById("btn-sub-next1");
-    const btnFamilyYes = document.getElementById("btn-family-yes");
     const btnFamilyNo = document.getElementById("btn-family-no");
+    const btnFamilyYesSentimento = document.getElementById("btn-family-yes-sentimento");
+    const btnFamilyYesPensamento = document.getElementById("btn-family-yes-pensamento");
+    const btnFamilyYesComportamento = document.getElementById("btn-family-yes-comportamento");
     const btnFamilyBack = document.getElementById("btn-family-back");
     const btnFactBack = document.getElementById("btn-fact-back");
     const inputFactDetail = document.getElementById("input-fact-detail");
+    
+    // MFI Multi-Facts and Sentiments DOM Elements
+    const btnAddFact = document.getElementById("btn-add-fact");
+    const sentimentTagsGrid = document.getElementById("sentiment-tags-grid");
+    const addedFactsListContainer = document.getElementById("added-facts-list-container");
+    const addedFactsList = document.getElementById("added-facts-list");
+    const addedFactsCountLabel = document.getElementById("added-facts-count-label");
     
     // Tela 2
     const outputAjuste = document.getElementById("output-ajuste");
@@ -1091,22 +1173,159 @@ document.addEventListener("DOMContentLoaded", () => {
         switchSubStep(subStep1a, subStep1b);
     });
 
-    btnFamilyYes.addEventListener("click", () => {
-        state.isHereditary = true;
-        btnFamilyYes.classList.add("active");
-        btnFamilyNo.classList.remove("active");
-        setTimeout(() => {
-            switchSubStep(subStep1b, subStep1c);
-        }, 300);
-    });
+    // Sentimentos - Banco Fixo
+    const SENTIMENTS_LIST = [
+        "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", "carência", 
+        "raiva", "ódio", "decepção", "incompetência", "incapacidade", "inferioridade", "pressão", 
+        "invasão", "usada", "manipulada", "desrespeitada", "ser controlada", "não controlar", 
+        "perder o controle", "sensação de estar ou ser feia", "pânico", "medo", "trocada", 
+        "frustração", "sensação de perder o sentido da vida", "insegurança", "nojo", "desânimo", 
+        "não servir pra nada", "vontade de morrer", "angústia", "incerteza", "sensação de não ter estabilidade", 
+        "abandonada", "submissão"
+    ];
 
+    let selectedSentiments = new Set();
+
+    // Renderizar Seletor de Sentimentos (Tags)
+    function renderSentimentTags() {
+        if (!sentimentTagsGrid) return;
+        sentimentTagsGrid.innerHTML = "";
+        selectedSentiments.clear();
+
+        SENTIMENTS_LIST.forEach(s => {
+            const tag = document.createElement("span");
+            tag.className = "sentiment-tag";
+            tag.innerText = s;
+            tag.addEventListener("click", () => {
+                if (selectedSentiments.has(s)) {
+                    selectedSentiments.delete(s);
+                    tag.classList.remove("selected");
+                } else {
+                    selectedSentiments.add(s);
+                    tag.classList.add("selected");
+                }
+            });
+            sentimentTagsGrid.appendChild(tag);
+        });
+    }
+
+    // Inicializa a renderização das tags de sentimentos
+    renderSentimentTags();
+
+    // Renderizar Lista de Fatos Adicionados
+    function renderAddedFacts() {
+        if (!addedFactsList || !addedFactsListContainer || !addedFactsCountLabel) return;
+        
+        if (state.addedFacts.length === 0) {
+            addedFactsListContainer.style.display = "none";
+            addedFactsList.innerHTML = "";
+            return;
+        }
+
+        addedFactsListContainer.style.display = "block";
+        addedFactsCountLabel.innerText = `📋 Fatos Adicionados (${state.addedFacts.length}):`;
+        addedFactsList.innerHTML = "";
+
+        state.addedFacts.forEach((fact, idx) => {
+            const item = document.createElement("div");
+            item.className = "practice-item-card";
+            item.style.padding = "0.75rem";
+            item.style.margin = "0";
+            item.style.display = "flex";
+            item.style.justify = "space-between";
+            item.style.alignItems = "center";
+            
+            const textContent = document.createElement("div");
+            textContent.style.fontSize = "0.85rem";
+            textContent.innerHTML = `
+                <strong style="color: var(--color-text-main);">Fato ${idx + 1}:</strong> "${fact.phrase}"
+                ${fact.sentiments.length > 0 ? `<br><small style="color: var(--color-primary); font-size: 0.75rem;">🎭 Sentimentos: ${fact.sentiments.join(', ')}</small>` : ''}
+            `;
+
+            const btnDel = document.createElement("button");
+            btnDel.className = "btn btn-text";
+            btnDel.innerHTML = "🗑️";
+            btnDel.style.padding = "0.25rem 0.5rem";
+            btnDel.style.fontSize = "0.85rem";
+            btnDel.addEventListener("click", () => {
+                state.addedFacts.splice(idx, 1);
+                renderAddedFacts();
+            });
+
+            item.appendChild(textContent);
+            item.appendChild(btnDel);
+            addedFactsList.appendChild(item);
+        });
+    }
+
+    // Botão Adicionar Fato
+    if (btnAddFact) {
+        btnAddFact.addEventListener("click", () => {
+            const phrase = inputFactDetail.value.trim();
+            if (!phrase) {
+                alert("Por favor, descreva o fato específico antes de adicionar.");
+                return;
+            }
+
+            state.addedFacts.push({
+                phrase: phrase,
+                sentiments: Array.from(selectedSentiments)
+            });
+
+            // Limpar formulário de fato
+            inputFactDetail.value = "";
+            renderSentimentTags(); // Reseta seleção
+            renderAddedFacts();
+        });
+    }
+
+    // Handlers para MSI (Hereditário)
     btnFamilyNo.addEventListener("click", () => {
         state.isHereditary = false;
+        state.hereditaryType = null;
         btnFamilyNo.classList.add("active");
-        btnFamilyYes.classList.remove("active");
+        btnFamilyYesSentimento.classList.remove("active");
+        btnFamilyYesPensamento.classList.remove("active");
+        btnFamilyYesComportamento.classList.remove("active");
         setTimeout(() => {
             switchSubStep(subStep1b, subStep1c);
-        }, 300);
+        }, 200);
+    });
+
+    btnFamilyYesSentimento.addEventListener("click", () => {
+        state.isHereditary = true;
+        state.hereditaryType = "sentimento";
+        btnFamilyYesSentimento.classList.add("active");
+        btnFamilyNo.classList.remove("active");
+        btnFamilyYesPensamento.classList.remove("active");
+        btnFamilyYesComportamento.classList.remove("active");
+        setTimeout(() => {
+            switchSubStep(subStep1b, subStep1c);
+        }, 200);
+    });
+
+    btnFamilyYesPensamento.addEventListener("click", () => {
+        state.isHereditary = true;
+        state.hereditaryType = "pensamento";
+        btnFamilyYesPensamento.classList.add("active");
+        btnFamilyNo.classList.remove("active");
+        btnFamilyYesSentimento.classList.remove("active");
+        btnFamilyYesComportamento.classList.remove("active");
+        setTimeout(() => {
+            switchSubStep(subStep1b, subStep1c);
+        }, 200);
+    });
+
+    btnFamilyYesComportamento.addEventListener("click", () => {
+        state.isHereditary = true;
+        state.hereditaryType = "comportamento";
+        btnFamilyYesComportamento.classList.add("active");
+        btnFamilyNo.classList.remove("active");
+        btnFamilyYesSentimento.classList.remove("active");
+        btnFamilyYesPensamento.classList.remove("active");
+        setTimeout(() => {
+            switchSubStep(subStep1b, subStep1c);
+        }, 200);
     });
 
     btnFamilyBack.addEventListener("click", () => {
@@ -1119,13 +1338,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resetStep1Wizard() {
         state.isHereditary = false;
+        state.hereditaryType = null;
+        state.addedFacts = [];
         state.factDetail = "";
         
-        btnFamilyYes.classList.remove("active");
         btnFamilyNo.classList.remove("active");
+        btnFamilyYesSentimento.classList.remove("active");
+        btnFamilyYesPensamento.classList.remove("active");
+        btnFamilyYesComportamento.classList.remove("active");
         
         inputPhrase.value = "";
         inputFactDetail.value = "";
+        renderSentimentTags();
+        renderAddedFacts();
         
         subStep1a.style.display = "block";
         subStep1a.classList.add("active");
@@ -1143,13 +1368,23 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        state.factDetail = inputFactDetail.value.trim();
+        // Se houver algum fato digitado mas que não foi adicionado na lista, adiciona automaticamente
+        const currentFactText = inputFactDetail.value.trim();
+        if (currentFactText) {
+            state.addedFacts.push({
+                phrase: currentFactText,
+                sentiments: Array.from(selectedSentiments)
+            });
+            inputFactDetail.value = "";
+            renderSentimentTags();
+            renderAddedFacts();
+        }
 
         btnGenerate.disabled = true;
         btnGenerate.innerHTML = '<span class="spinner"></span> Analisando padrões...';
         
         setTimeout(() => {
-            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.factDetail);
+            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail);
             state.currentData = result;
             
             // Popula Tela 2 (Consciência)
