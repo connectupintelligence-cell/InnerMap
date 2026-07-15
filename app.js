@@ -466,7 +466,7 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
 }
 
 class ReorganizationEngine {
-    static analyzeInput(inputPhrase, isHereditary, hereditaryType, addedFacts, factDetail) {
+    static analyzeInput(inputPhrase, isHereditary, hereditaryType, addedFacts, factDetail, selectedLevel = "avancado") {
         const text = inputPhrase.toLowerCase().trim();
         if (!text) return null;
 
@@ -551,25 +551,52 @@ class ReorganizationEngine {
         mdi += `ESPÍRITO, crença de "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
-        // Juntar Liberação Não Específica na ordem fixa: MSI -> MRI -> MDI
+        let finalEspecifica = declarations.mfi;
         let finalNaoEspecifica = "";
-        if (declarations.msi) {
-            finalNaoEspecifica += declarations.msi + "\n\n";
-        }
-        finalNaoEspecifica += cleanMRI + "\n\n";
-        finalNaoEspecifica += mdi;
+        let finalMicroacao = "";
 
-        let finalMicroacao = microacao;
-        if (category === "Prosperidade") {
-            finalMicroacao += "\n\n💡 Sugestão de melhoria: Dedique 15 minutos hoje para revisar e organizar suas metas financeiras semanais.";
-        } else if (category === "Trabalho") {
-            finalMicroacao += "\n\n💡 Sugestão de melhoria: Organize sua agenda do dia com foco em resolver a pendência mais importante logo pela manhã.";
-        } else if (category === "Relacionamentos") {
-            finalMicroacao += "\n\n💡 Sugestão de melhoria: Pratique a escuta ativa hoje, prestando atenção plena a uma pessoa querida sem interrompê-la.";
-        } else if (category === "Saúde emocional" || category === "Saúde") {
-            finalMicroacao += "\n\n💡 Sugestão de melhoria: Faça uma pausa de 10 minutos para respiração consciente e alongamento leve hoje.";
+        if (selectedLevel === "iniciante") {
+            finalEspecifica = ""; // Sem MFI
+            finalNaoEspecifica = cleanMRI; // Apenas MRI
+            finalMicroacao = ""; // Sem microações
+        } else if (selectedLevel === "intermediario") {
+            finalEspecifica = ""; // Sem MFI
+            finalNaoEspecifica = cleanMRI + "\n\n" + mdi; // Apenas MRI + MDI
+            
+            // Ativa microações
+            finalMicroacao = microacao;
+            if (category === "Prosperidade") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Dedique 15 minutos hoje para revisar e organizar suas metas financeiras semanais.";
+            } else if (category === "Trabalho") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Organize sua agenda do dia com foco em resolver a pendência mais importante logo pela manhã.";
+            } else if (category === "Relacionamentos") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Pratique a escuta ativa hoje, prestando atenção plena a uma pessoa querida sem interrompê-la.";
+            } else if (category === "Saúde emocional" || category === "Saúde") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Faça uma pausa de 10 minutos para respiração consciente e alongamento leve hoje.";
+            } else {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Reserve um momento de silêncio hoje para se conectar com a sua respiração.";
+            }
         } else {
-            finalMicroacao += "\n\n💡 Sugestão de melhoria: Reserve um momento de silêncio hoje para se conectar com a sua respiração.";
+            // Avançado (Todos)
+            finalEspecifica = declarations.mfi;
+            if (declarations.msi) {
+                finalNaoEspecifica += declarations.msi + "\n\n";
+            }
+            finalNaoEspecifica += cleanMRI + "\n\n";
+            finalNaoEspecifica += mdi;
+
+            finalMicroacao = microacao;
+            if (category === "Prosperidade") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Dedique 15 minutos hoje para revisar e organizar suas metas financeiras semanais.";
+            } else if (category === "Trabalho") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Organize sua agenda do dia com foco em resolver a pendência mais importante logo pela manhã.";
+            } else if (category === "Relacionamentos") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Pratique a escuta ativa hoje, prestando atenção plena a uma pessoa querida sem interrompê-la.";
+            } else if (category === "Saúde emocional" || category === "Saúde") {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Faça uma pausa de 10 minutos para respiração consciente e alongamento leve hoje.";
+            } else {
+                finalMicroacao += "\n\n💡 Sugestão de melhoria: Reserve um momento de silêncio hoje para se conectar com a sua respiração.";
+            }
         }
 
         return {
@@ -579,8 +606,8 @@ class ReorganizationEngine {
             ajuste: ajuste,
             movimento: movimento,
             objetivo: objetivo,
-            declaracaoEspecifica: declarations.mfi, // MFI
-            declaracaoNaoEspecifica: finalNaoEspecifica, // MSI + MRI + MDI
+            declaracaoEspecifica: finalEspecifica, // MFI
+            declaracaoNaoEspecifica: finalNaoEspecifica, // MSI + MRI + MDI dependendo do nível
             pergunta: pergunta,
             microacao: finalMicroacao,
             embedding: embedding,
@@ -759,6 +786,7 @@ class AppStateManager {
         this.hereditaryType = null;
         this.addedFacts = []; // [{ phrase: "...", sentiments: [] }]
         this.factDetail = "";
+        this.selectedLevel = "avancado"; // iniciante, intermediario, avancado
         
         // Autenticação e Assinatura persistidas
         this.currentUser = this.loadUser();
@@ -1202,6 +1230,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
+    // Seleção de Nível de Profundidade (Tela 1A)
+    const btnLevelIniciante = document.getElementById("btn-level-iniciante");
+    const btnLevelIntermediario = document.getElementById("btn-level-intermediario");
+    const btnLevelAvancado = document.getElementById("btn-level-avancado");
+    const levelCards = [btnLevelIniciante, btnLevelIntermediario, btnLevelAvancado];
+
+    levelCards.forEach(card => {
+        if (card) {
+            card.addEventListener("click", () => {
+                levelCards.forEach(c => c && c.classList.remove("active"));
+                card.classList.add("active");
+                state.selectedLevel = card.dataset.level;
+            });
+        }
+    });
+
     // Chips de Sugestões de Temas na Tela 1A
     const themeChips = document.querySelectorAll("#theme-suggestions-chips .sentiment-tag");
     themeChips.forEach(chip => {
@@ -1248,10 +1292,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Tela 1A-Confirm: Sim, seguir -> Vai para 1B (Familiar)
+    // Tela 1A-Confirm: Sim, seguir -> Vai para 1B (Familiar) ou pula para geração dependendo do nível
     if (btnConfirmNext) {
         btnConfirmNext.addEventListener("click", () => {
-            switchSubStep(subStep1aConfirm, subStep1b);
+            if (state.selectedLevel === "avancado") {
+                switchSubStep(subStep1aConfirm, subStep1b);
+            } else {
+                triggerFinalGeneration();
+            }
         });
     }
 
@@ -1883,7 +1931,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         setTimeout(() => {
-            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail);
+            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel);
             state.currentData = result;
             
             // Popula Tela 2 (Consciência)
@@ -1903,7 +1951,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (outputNaoEspecifico) outputNaoEspecifico.innerText = result.declaracaoNaoEspecifica;
-            outputMicroacao.innerText = result.microacao;
+            
+            const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
+            if (!result.microacao || result.microacao.trim() === "") {
+                if (itemMicroacao) itemMicroacao.style.display = "none";
+            } else {
+                if (itemMicroacao) itemMicroacao.style.display = "block";
+                if (outputMicroacao) outputMicroacao.innerText = result.microacao;
+            }
             
             showScreen("step3");
             startPracticeTimer();
@@ -1932,6 +1987,14 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFamilyYesSentimento.classList.remove("active");
         btnFamilyYesPensamento.classList.remove("active");
         btnFamilyYesComportamento.classList.remove("active");
+        
+        state.selectedLevel = "avancado";
+        if (levelCards) {
+            levelCards.forEach(c => c && c.classList.remove("active"));
+        }
+        if (btnLevelAvancado) {
+            btnLevelAvancado.classList.add("active");
+        }
         
         inputPhrase.value = "";
         themeChips.forEach(c => c.classList.remove("selected"));
