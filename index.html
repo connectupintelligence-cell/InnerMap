@@ -11,7 +11,7 @@
     <meta name="author" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=31">
+    <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
 
@@ -218,6 +218,13 @@
                             <label class="label-text" style="margin-bottom: 0.75rem; display: block; font-weight: 600;">🎭 Selecione os sentimentos ativos neste fato:</label>
                             <div id="sentiment-fact-tags-grid" style="display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 160px; overflow-y: auto; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; background: rgba(0,0,0,0.2);">
                                 <!-- sentiment tags loaded dynamically -->
+                            </div>
+
+                            <!-- Botão de Copiar do Anterior (Visível apenas a partir do fato 2) -->
+                            <div id="copy-prev-sentiments-container" style="margin-top: 1rem; display: none; text-align: right;">
+                                <button type="button" id="btn-copy-prev-sentiments" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; border-radius: 6px; background: rgba(255,255,255,0.02);">
+                                    <span>📋</span> Repetir sentimentos do fato anterior
+                                </button>
                             </div>
                         </div>
                         
@@ -871,7 +878,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=31"></script>
+    <script src="app.js?v=32"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

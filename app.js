@@ -1075,6 +1075,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const sentimentFactTagsGrid = document.getElementById("sentiment-fact-tags-grid");
     const sentimentStepCount = document.getElementById("sentiment-step-count");
     const btnSentimentSave = document.getElementById("btn-sentiment-save");
+    const copyPrevSentimentsContainer = document.getElementById("copy-prev-sentiments-container");
+    const btnCopyPrevSentiments = document.getElementById("btn-copy-prev-sentiments");
     
     // Tela 2
     const outputAjuste = document.getElementById("output-ajuste");
@@ -1879,6 +1881,15 @@ document.addEventListener("DOMContentLoaded", () => {
         sentimentStepCount.innerText = `Processando fato ${state.sentimentFactIdx + 1} de ${state.addedFacts.length}`;
         sentimentFactTagsGrid.innerHTML = "";
 
+        // Exibe ou esconde o botão de copiar sentimentos do fato anterior
+        if (copyPrevSentimentsContainer) {
+            if (state.sentimentFactIdx > 0) {
+                copyPrevSentimentsContainer.style.display = "block";
+            } else {
+                copyPrevSentimentsContainer.style.display = "none";
+            }
+        }
+
         const activeSentiments = new Set(fact.sentiments || []);
 
         SENTIMENTS_LIST.forEach(s => {
@@ -1912,6 +1923,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderSentimentSelectStep();
             } else {
                 triggerFinalGeneration();
+            }
+        });
+    }
+
+    if (btnCopyPrevSentiments) {
+        btnCopyPrevSentiments.addEventListener("click", () => {
+            if (state.sentimentFactIdx > 0) {
+                const prevFact = state.addedFacts[state.sentimentFactIdx - 1];
+                const currentFact = state.addedFacts[state.sentimentFactIdx];
+                if (prevFact && currentFact) {
+                    currentFact.sentiments = [...(prevFact.sentiments || [])];
+                    renderSentimentSelectStep();
+                }
             }
         });
     }
