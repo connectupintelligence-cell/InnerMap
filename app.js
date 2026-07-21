@@ -453,7 +453,7 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
         sList.forEach(s => {
             block += `Alma, ${s} que senti ${formattedFact} acabaram!\n`;
         });
-        block += `Alma, todos sentimentos que senti ${formattedFact} acabaram!\n`;
+        block += `Alma, todos sentimentos que recebi ${formattedFact} acabaram!\n`;
         block += `ESPÍRITO, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
         block += `ESPÍRITO, todas as informações negativas que gerei ${formattedFact} acabou!`;
         
@@ -544,23 +544,23 @@ class ReorganizationEngine {
                                 .replace(/medo de/gi, 'medo de ')
                                 .trim();
 
-        let mdi = `ESPÍRITO, pensamento de "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, condicionamento de manifestar "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, condicionamento de observar "${cleanConcept.toLowerCase()}" acabou!\n`;
+        let mdi = `ESPÍRITO, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `ESPÍRITO, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, crença de "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, crença sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
-        let finalEspecifica = declarations.mfi;
+        let finalEspecifica = "";
         let finalNaoEspecifica = "";
         let finalMicroacao = "";
 
         if (selectedLevel === "iniciante") {
-            finalEspecifica = ""; // Sem MFI
+            finalEspecifica = ""; // Sem MSI/MFI
             finalNaoEspecifica = cleanMRI; // Apenas MRI
             finalMicroacao = ""; // Sem microações
         } else if (selectedLevel === "intermediario") {
-            finalEspecifica = ""; // Sem MFI
+            finalEspecifica = ""; // Sem MSI/MFI
             finalNaoEspecifica = cleanMRI + "\n\n" + mdi; // Apenas MRI + MDI
             
             // Ativa microações
@@ -578,12 +578,12 @@ class ReorganizationEngine {
             }
         } else {
             // Avançado (Todos)
-            finalEspecifica = declarations.mfi;
-            if (declarations.msi) {
-                finalNaoEspecifica += declarations.msi + "\n\n";
-            }
-            finalNaoEspecifica += cleanMRI + "\n\n";
-            finalNaoEspecifica += mdi;
+            const especificaList = [];
+            if (declarations.msi) especificaList.push(declarations.msi);
+            if (declarations.mfi) especificaList.push(declarations.mfi);
+            finalEspecifica = especificaList.join("\n\n");
+
+            finalNaoEspecifica = cleanMRI + "\n\n" + mdi;
 
             finalMicroacao = microacao;
             if (category === "Prosperidade") {
@@ -1361,6 +1361,64 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================================================
     // Motor do Rastreamento Guiado - MFI (Telas 2.1.0 a 2.1.8)
     // ==========================================================================
+    // Mapa de Sistemas do Corpo Humano (Ferramenta de Apoio no MFI)
+    const BODY_SYSTEMS_MAP = [
+        {
+            name: "Digestório e Hepático",
+            icon: "🤢",
+            sentiments: ["inferioridade", "incapacidade", "incompetência", "insegurança", "impotência"],
+            description: "Inferioridade, incapacidade, incompetência ou impotência"
+        },
+        {
+            name: "Circulatório e Respiratório",
+            icon: "🫀",
+            sentiments: ["troca", "pressão"],
+            description: "Troca com a vida ou pressão emocional/física"
+        },
+        {
+            name: "Urinário e Renal",
+            icon: "🩺",
+            sentiments: ["quebra de laços", "medo"],
+            description: "Quebra de laços com pessoas queridas ou medos profundos"
+        },
+        {
+            name: "Genital e Reprodutor",
+            icon: "🧬",
+            sentiments: ["sexualidade", "maternidade", "paternidade"],
+            description: "Conflitos de sexualidade, maternidade ou paternidade"
+        },
+        {
+            name: "Tegumentar (Pele)",
+            icon: "🖐️",
+            sentiments: ["contato físico", "carência", "rejeição"],
+            description: "Falta ou excesso de contato físico e toque (carinho/convivência)"
+        },
+        {
+            name: "Imunológico e Linfático",
+            icon: "🛡️",
+            sentiments: ["invasão", "manipulada", "usada", "desrespeitada", "ser controlada"],
+            description: "Sensação de ser invadido(a), manipulado(a), usado(a) ou controlado(a)"
+        },
+        {
+            name: "Endócrino",
+            icon: "⚖️",
+            sentiments: ["culpa", "injustiça"],
+            description: "Sentimento constante de culpas ou injustiças vivenciadas"
+        },
+        {
+            name: "Nervoso e Cinco Sentidos",
+            icon: "🧠",
+            sentiments: ["perder o controle", "não controlar", "ser controlada"],
+            description: "Sensação de perda de controle ou ser controlado(a)"
+        },
+        {
+            name: "Esquelético e Muscular",
+            icon: "🦴",
+            sentiments: ["sensação de estar ou ser feia", "inferioridade"],
+            description: "Sensação de desvalorização física, vergonhas ou sentir-se feio(a)"
+        }
+    ];
+
     const QUESTIONNAIRE_STEPS = {
         "triagem": {
             text: (state) => `O tema <strong>'${state.tempTheme}'</strong> está diretamente ligado a alguma pessoa específica (ex.: pai, mãe, parceiro, ex, chefe, amigo)?`,
@@ -1381,6 +1439,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     state.addedFacts.push({ phrase: val, sentiments: [] });
                     return "P1.2";
                 }
+                return "P1.body"; // Transição para o Mapa de Sistemas do Corpo quando o cliente trava!
+            }
+        },
+        "P1.body": {
+            text: (state) => `O tema <strong>'${state.tempTheme}'</strong> possui alguma manifestação física ou sintoma no corpo associado? Selecione o sistema:`,
+            type: "body-systems",
+            onNext: (val, state) => {
                 if (state.triagemNaoSei) {
                     state.triagemNaoSei = false;
                     return "P1.4_triagemNaoSei";
@@ -1420,7 +1485,8 @@ document.addEventListener("DOMContentLoaded", () => {
             type: "closed",
             options: [
                 { text: "Sim, adicionar outro fato", next: "P1.1" },
-                { text: "Não, é só isso", next: "2.1.9" }
+                { text: "Não, explorar sintomas físicos", next: "P1.body" },
+                { text: "Não, ir para revisão de fatos", next: "2.1.9" }
             ],
             dynamicNext: (state) => {
                 if (state.triagemNaoSei) {
@@ -1661,7 +1727,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (questInputWrapper) questInputWrapper.style.display = "none";
         if (questOptionsWrapper) questOptionsWrapper.style.display = "none";
         if (btnQuestNext) btnQuestNext.style.display = "none";
-        if (btnQuestSkip) btnQuestSkip.style.display = "none";
+        if (btnQuestSkip) {
+            btnQuestSkip.style.display = "none";
+            btnQuestSkip.innerText = "Avançar / Não sei";
+        }
 
         if (stepDef.type === "open" || stepDef.type === "open-or-skip") {
             if (questInputWrapper) {
@@ -1680,6 +1749,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (stepDef.type === "closed") {
             if (questOptionsWrapper) {
                 questOptionsWrapper.style.display = "flex";
+                questOptionsWrapper.style.flexDirection = "column";
+                questOptionsWrapper.style.gridTemplateColumns = "none";
                 questOptionsWrapper.innerHTML = "";
                 
                 stepDef.options.forEach(opt => {
@@ -1705,6 +1776,44 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     questOptionsWrapper.appendChild(btn);
                 });
+            }
+        } else if (stepDef.type === "body-systems") {
+            if (questOptionsWrapper) {
+                questOptionsWrapper.style.display = "grid";
+                questOptionsWrapper.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
+                questOptionsWrapper.style.gap = "0.6rem";
+                questOptionsWrapper.innerHTML = "";
+                
+                BODY_SYSTEMS_MAP.forEach(sys => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "btn btn-secondary";
+                    btn.style.padding = "0.65rem 0.85rem";
+                    btn.style.fontSize = "0.82rem";
+                    btn.style.textAlign = "left";
+                    btn.style.display = "flex";
+                    btn.style.flexDirection = "column";
+                    btn.style.gap = "0.2rem";
+
+                    btn.innerHTML = `<span style="font-weight: 600; color: var(--color-primary);">${sys.icon} ${sys.name}</span><span style="font-size: 0.72rem; color: var(--color-text-muted);">${sys.description}</span>`;
+
+                    btn.addEventListener("click", () => {
+                        state.addedFacts.push({
+                            phrase: `Sintoma no sistema ${sys.name}: ${sys.description}`,
+                            sentiments: [...sys.sentiments]
+                        });
+                        state.questHistory.push(state.currentQuestId);
+                        
+                        let nextId = stepDef.onNext ? stepDef.onNext("", state) : "2.1.9";
+                        transitionToNextQuestStep(nextId);
+                    });
+
+                    questOptionsWrapper.appendChild(btn);
+                });
+            }
+            if (btnQuestSkip) {
+                btnQuestSkip.style.display = "block";
+                btnQuestSkip.innerText = "Não associar a sintoma físico →";
             }
         }
     }

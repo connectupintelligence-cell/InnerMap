@@ -11,7 +11,7 @@
     <meta name="author" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=32">
+    <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
 
@@ -270,19 +270,25 @@
                         
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                                <span>Liberação de Registros</span>
+                                <span>Liberação de Registros Específicos (MSI / MFI)</span>
                                 <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(234, 67, 53, 0.12); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">⚠️ Emitir 1x na vida!</span>
                             </span>
                             <p id="output-declaracao" class="hqi-text-box"></p>
                         </div>
 
                         <div class="hqi-item">
-                            <span class="hqi-item-title">Atualização Interna</span>
+                            <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                                <span>Liberação dos Não Específicos (MRI / MDI)</span>
+                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(102, 252, 241, 0.12); color: var(--color-primary); border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">🔄 1x por dia durante 15 dias</span>
+                            </span>
                             <p id="output-fortalecimento" class="hqi-text-box-fortify"></p>
                         </div>
 
                         <div class="hqi-item">
-                            <span class="hqi-item-title">Ação e Integração</span>
+                            <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                                <span>Ação e Integração</span>
+                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(255, 255, 255, 0.08); color: var(--color-text-main); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">💡 Prática Diária</span>
+                            </span>
                             <p id="output-microacao" class="action-card"></p>
                         </div>
                     </div>
@@ -878,7 +884,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=32"></script>
+    <script src="app.js?v=33"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
