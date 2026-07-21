@@ -11,7 +11,7 @@
     <meta name="author" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=33">
+    <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
 
@@ -139,6 +139,57 @@
                         <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                             <button id="btn-confirm-adjust" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">✍️ Ajustar texto</button>
                             <button id="btn-confirm-next" class="btn btn-primary" style="flex: 2; padding: 0.75rem;">Sim, seguir →</button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-screen 1A-MFPI: Falso Positivo -->
+                    <div id="sub-step-1a-mfpi" class="sub-screen-container" style="display: none;">
+                        <h2 class="step-title">Ganhos Aparentes (MFPI)</h2>
+                        <p class="step-subtitle">Existe algo na situação que você vê como uma força ou vantagem, mas que está te atrapalhando a chegar no equilíbrio?</p>
+                        
+                        <div class="input-group">
+                            <label for="input-mfpi-item" class="label-text">✍️ Descreva a força ou ganho secundário</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="input-mfpi-item" class="textarea-quantum" style="height: 48px; flex: 1;" placeholder="Ex: Exercer o protagonismo, tomar as rédeas de tudo...">
+                                <button type="button" id="btn-mfpi-add" class="btn btn-outline" style="height: 48px; padding: 0 1rem; white-space: nowrap;">➕ Adicionar</button>
+                            </div>
+                        </div>
+
+                        <!-- Lista de MFPIs adicionados -->
+                        <div id="mfpi-list-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; margin-bottom: 2rem;">
+                            <!-- Items loaded dynamically -->
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button type="button" id="btn-mfpi-back" class="btn btn-text">← Voltar</button>
+                            <button type="button" id="btn-mfpi-next" class="btn btn-primary" style="padding: 0.6rem 1.5rem;">Sim, prosseguir →</button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-screen 1A-MDI-Cond: Comportamento Repetitivo -->
+                    <div id="sub-step-1a-mdi-cond" class="sub-screen-container" style="display: none;">
+                        <h2 class="step-title">Comportamentos Repetitivos (MDI)</h2>
+                        <p class="step-subtitle">Tem algo que você faça repetidamente e/ou te gere sentimentos por conta desse tema?</p>
+                        
+                        <div style="display: flex; gap: 1rem; margin: 1.5rem 0;" id="mdi-cond-choice-buttons">
+                            <button type="button" id="btn-mdi-cond-yes" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">Sim, possuo</button>
+                            <button type="button" id="btn-mdi-cond-no" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">Não possuo</button>
+                        </div>
+
+                        <div id="mdi-cond-inputs-container" style="display: none; margin-top: 1.5rem;">
+                            <div class="input-group">
+                                <label for="input-mdi-behavior" class="label-text">✍️ O que você faz repetidamente?</label>
+                                <input type="text" id="input-mdi-behavior" class="textarea-quantum" style="height: 48px;" placeholder="Ex: dar atenção para as crises, tentar controlar tudo...">
+                            </div>
+                            <div class="input-group" style="margin-top: 1rem;">
+                                <label for="input-mdi-sentiment" class="label-text">🎭 Qual sentimento associado isso te gera?</label>
+                                <input type="text" id="input-mdi-sentiment" class="textarea-quantum" style="height: 48px;" placeholder="Ex: culpa, medo, frustração...">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button type="button" id="btn-mdi-cond-back" class="btn btn-text">← Voltar</button>
+                            <button type="button" id="btn-mdi-cond-next" class="btn btn-primary" style="padding: 0.6rem 1.5rem;" disabled>Prosseguir →</button>
                         </div>
                     </div>
 
@@ -787,7 +838,7 @@
                     <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; color: var(--color-primary); font-weight: 600;">Objetivo Ativo</p>
                     <h4 id="agenda-title" style="margin: 0 0 1.25rem 0; font-size: 1.15rem; color: var(--color-text-main);"></h4>
                     
-                    <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; color: var(--color-primary); font-weight: 600;">Comando de Liberação (Repetir diariamente)</p>
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; color: var(--color-primary); font-weight: 600;">Liberação dos Não Específicos (1x por dia durante 15 dias)</p>
                     <p id="agenda-command" class="hqi-text-box-fortify" style="font-size: 0.95rem; margin: 0 0 1.25rem 0; max-height: 150px; overflow-y: auto; padding: 0.75rem; background: rgba(102, 252, 241, 0.03); border: 1px solid rgba(102, 252, 241, 0.1); border-radius: 6px; line-height: 1.6; font-family: monospace; white-space: pre-wrap;"></p>
                     
                     <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; text-transform: uppercase; color: var(--color-primary); font-weight: 600;">Sua Microação e Melhoria Diária</p>
@@ -884,7 +935,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=33"></script>
+    <script src="app.js?v=34"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
