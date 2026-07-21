@@ -1843,8 +1843,9 @@ body.mode-therapist .main-content {
     
     .level-card span {
         margin: 0 !important;
-        font-size: 0.68rem !important; /* Tamanho reduzido para caber sem cortar */
-        font-weight: 600;
+        font-size: 9px !important; /* Tamanho reduzido para caber 100% sem cortar */
+        letter-spacing: -0.4px !important;
+        font-weight: 500 !important;
         white-space: nowrap !important;
         display: block !important;
         text-align: center;
