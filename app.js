@@ -1183,10 +1183,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Lógica Centralizada de Tabs
     function switchTab(activeNav, activeSection) {
-        [navApp, navAgenda, navLib, navNav, navTherapist].forEach(el => el && el.classList.remove("active"));
+        // Mobile bottom nav references
+        const mApp = document.getElementById("mobile-nav-app");
+        const mAgenda = document.getElementById("mobile-nav-agenda");
+        const mLib = document.getElementById("mobile-nav-lib");
+        const mTherapist = document.getElementById("mobile-nav-therapist");
+
+        [navApp, navAgenda, navLib, navNav, navTherapist, mApp, mAgenda, mLib, mTherapist].forEach(el => el && el.classList.remove("active"));
         [sectionApp, sectionAgenda, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
         
-        if (activeNav) activeNav.classList.add("active");
+        if (activeNav) {
+            activeNav.classList.add("active");
+            if (activeNav === navApp && mApp) mApp.classList.add("active");
+            if (activeNav === mApp && navApp) navApp.classList.add("active");
+            
+            if (activeNav === navAgenda && mAgenda) mAgenda.classList.add("active");
+            if (activeNav === mAgenda && navAgenda) navAgenda.classList.add("active");
+            
+            if (activeNav === navLib && mLib) mLib.classList.add("active");
+            if (activeNav === mLib && navLib) navLib.classList.add("active");
+            
+            if (activeNav === navTherapist && mTherapist) mTherapist.classList.add("active");
+            if (activeNav === mTherapist && navTherapist) navTherapist.classList.add("active");
+        }
         if (activeSection) activeSection.style.display = "block";
     }
 
@@ -1275,6 +1294,80 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             switchTab(navNav, sectionRag);
             renderVectorList();
+        });
+    }
+
+    // Event Listeners para a Barra de Navegação Mobile
+    const mApp = document.getElementById("mobile-nav-app");
+    const mAgenda = document.getElementById("mobile-nav-agenda");
+    const mLib = document.getElementById("mobile-nav-lib");
+    const mTherapist = document.getElementById("mobile-nav-therapist");
+
+    if (mApp) {
+        mApp.addEventListener("click", (e) => {
+            e.preventDefault();
+            switchTab(mApp, sectionApp);
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else if (state.currentStep === 0) {
+                showScreen("step1");
+            }
+        });
+    }
+
+    if (mAgenda) {
+        mAgenda.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver sua agenda.");
+                switchTab(mApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription && state.currentUser.role !== "therapist") {
+                showToast("Assine um plano para ver sua agenda.");
+                switchTab(mApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(mAgenda, sectionAgenda);
+            if (window.renderAgenda) window.renderAgenda();
+        });
+    }
+
+    if (mLib) {
+        mLib.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver suas Reorganizações.");
+                switchTab(mApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription) {
+                showToast("Assine um plano para ver suas Reorganizações.");
+                switchTab(mApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(mLib, sectionLib);
+            renderLibrary();
+            renderStats();
+        });
+    }
+
+    if (mTherapist) {
+        mTherapist.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser || state.currentUser.role !== "therapist") {
+                showToast("Acesso restrito a terapeutas.");
+                return;
+            }
+            switchTab(mTherapist, sectionApp);
+            showScreen("therapist");
+            loadTherapistDashboardData();
         });
     }
 
@@ -2519,8 +2612,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (navTherapist) {
                 if (state.currentUser.role === "therapist") {
                     navTherapist.style.display = "inline-block";
+                    if (mTherapist) mTherapist.style.display = "flex";
                 } else {
                     navTherapist.style.display = "none";
+                    if (mTherapist) mTherapist.style.display = "none";
                 }
             }
 
@@ -2569,6 +2664,7 @@ document.addEventListener("DOMContentLoaded", () => {
             userNavContainer.style.display = "none";
             document.body.classList.remove("user-logged-in");
             if (navTherapist) navTherapist.style.display = "none";
+            if (mTherapist) mTherapist.style.display = "none";
             const agendaContainer = document.getElementById("agenda-container");
             if (agendaContainer) agendaContainer.style.display = "none";
         }
