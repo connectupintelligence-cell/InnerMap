@@ -1762,17 +1762,24 @@ body.mode-therapist .main-content {
     gap: 0.25rem;
 }
 
-.mobile-nav-icon {
-    font-size: 1.25rem;
-    transition: transform 0.2s ease;
+.mobile-nav-svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .mobile-nav-item:hover, .mobile-nav-item.active {
     color: var(--color-primary-glow);
 }
 
-.mobile-nav-item.active .mobile-nav-icon {
-    transform: scale(1.2);
+.mobile-nav-item:hover .mobile-nav-svg, .mobile-nav-item.active .mobile-nav-svg {
+    color: var(--color-primary-glow);
+}
+
+.mobile-nav-item.active .mobile-nav-svg {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 5px var(--color-primary));
 }
 
 @media (max-width: 768px) {
