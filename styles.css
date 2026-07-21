@@ -1763,15 +1763,60 @@ body.mode-therapist .main-content {
         display: flex;
     }
     
-    header.header-nav nav {
+    header.header-nav .desktop-nav-only {
         display: none !important;
     }
     
     header.header-nav {
-        justify-content: center !important;
-        padding: 0.8rem 0.5rem;
+        justify-content: space-between !important;
+        padding: 0.8rem 1rem !important;
         background: rgba(10, 12, 22, 0.95);
         border-bottom: 1px solid var(--color-border);
+    }
+
+    header.header-nav .user-nav-container {
+        display: flex !important;
+        gap: 0.4rem !important;
+        align-items: center;
+    }
+    
+    header.header-nav .user-email, header.header-nav .user-status-badge {
+        display: none !important; /* Esconde email e badge no celular para economizar espaço */
+    }
+    
+    header.header-nav .btn-logout {
+        font-size: 0.78rem !important;
+        padding: 0.35rem 0.65rem !important;
+        background: rgba(234, 67, 53, 0.1) !important;
+        border: 1px solid rgba(234, 67, 53, 0.25) !important;
+        color: #EA4335 !important;
+        border-radius: 6px !important;
+        cursor: pointer;
+        display: inline-block !important;
+    }
+    
+    /* Layout Vertical para evitar corte de palavras nos Níveis de Profundidade no mobile */
+    .level-cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+    
+    .level-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 0.75rem !important;
+        padding: 0.6rem 1rem !important;
+    }
+    
+    .level-card span {
+        margin: 0 !important;
+        display: inline-block !important;
+    }
+    
+    .level-card span[style*="font-size: 1.25rem"] {
+        font-size: 1.15rem !important;
     }
     
     .main-content {
