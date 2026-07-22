@@ -155,3 +155,25 @@ CREATE POLICY "Permitir leitura pública do método" ON public.patterns_kb
 CREATE POLICY "Permitir modificações apenas para terapeutas" ON public.patterns_kb
     FOR ALL USING (public.is_therapist(auth.uid()))
     WITH CHECK (public.is_therapist(auth.uid()));
+
+-- 7. TABELA DE CONFIGURAÇÃO DO SISTEMA (system_config)
+CREATE TABLE IF NOT EXISTS public.system_config (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Ativar RLS em system_config
+ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;
+
+-- Remover políticas antigas de system_config se existirem
+DROP POLICY IF EXISTS "Permitir leitura pública de configurações" ON public.system_config;
+DROP POLICY IF EXISTS "Permitir modificações apenas para terapeutas na config" ON public.system_config;
+
+-- Políticas de RLS para system_config
+CREATE POLICY "Permitir leitura pública de configurações" ON public.system_config
+    FOR SELECT USING (true);
+
+CREATE POLICY "Permitir modificações apenas para terapeutas na config" ON public.system_config
+    FOR ALL USING (public.is_therapist(auth.uid()))
+    WITH CHECK (public.is_therapist(auth.uid()));

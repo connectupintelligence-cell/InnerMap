@@ -1425,58 +1425,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAiConfirmWizard = document.getElementById("btn-ai-confirm-wizard");
     const btnAiConfirmGenerate = document.getElementById("btn-ai-confirm-generate");
 
-    // Controle da Chave de API local
-    const aiKeyConfigBlock = document.getElementById("ai-key-config-block");
-    const aiKeyConfiguredBlock = document.getElementById("ai-key-configured-block");
-    const inputGeminiKey = document.getElementById("input-gemini-key");
-    const btnSaveGeminiKey = document.getElementById("btn-save-gemini-key");
-    const btnChangeGeminiKey = document.getElementById("btn-change-gemini-key");
-
-    function updateGeminiUi() {
-        const key = localStorage.getItem("innermap_gemini_key");
-        if (key) {
-            if (aiKeyConfigBlock) aiKeyConfigBlock.style.display = "none";
-            if (aiKeyConfiguredBlock) aiKeyConfiguredBlock.style.display = "flex";
-        } else {
-            if (aiKeyConfigBlock) aiKeyConfigBlock.style.display = "block";
-            if (aiKeyConfiguredBlock) aiKeyConfiguredBlock.style.display = "none";
-        }
-    }
-    updateGeminiUi();
-
-    if (btnSaveGeminiKey && inputGeminiKey) {
-        btnSaveGeminiKey.addEventListener("click", () => {
-            const key = inputGeminiKey.value.trim();
-            if (!key) {
-                alert("Por favor, cole uma chave de API válida.");
-                return;
-            }
-            localStorage.setItem("innermap_gemini_key", key);
-            inputGeminiKey.value = "";
-            updateGeminiUi();
-            showToast("Chave de API Gemini salva com sucesso!");
-        });
-    }
-
-    if (btnChangeGeminiKey) {
-        btnChangeGeminiKey.addEventListener("click", () => {
-            localStorage.removeItem("innermap_gemini_key");
-            updateGeminiUi();
-        });
-    }
-
     if (btnRunAiAnalysis && inputAiRelato) {
         btnRunAiAnalysis.addEventListener("click", async () => {
-            const apiKey = localStorage.getItem("innermap_gemini_key");
+            let apiKey = "";
+            
+            // Tentar obter a chave de forma segura no Supabase
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from("system_config")
+                        .select("value")
+                        .eq("key", "gemini_api_key")
+                        .single();
+                    
+                    if (data && data.value) {
+                        apiKey = data.value;
+                    }
+                } catch (err) {
+                    console.warn("Erro ao buscar chave Gemini no Supabase:", err);
+                }
+            }
+
+            // Fallback para localStorage secundário
             if (!apiKey) {
-                alert("Por favor, configure e salve sua Chave de API do Gemini antes de continuar.");
-                if (inputGeminiKey) inputGeminiKey.focus();
+                apiKey = localStorage.getItem("innermap_gemini_key");
+            }
+
+            if (!apiKey) {
+                alert("Erro de sistema: A chave de API do Gemini não foi encontrada nas configurações do banco de dados.");
                 return;
             }
 
             const relato = inputAiRelato.value.trim();
             if (!relato) {
-                alert("Por favor, digite ou cole o relato da sessão.");
+                alert("Por favor, digite com suas próprias palavras o que está acontecendo.");
                 return;
             }
 
