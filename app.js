@@ -487,20 +487,23 @@ class ReorganizationEngine {
                                 .replace(/medo de/gi, 'medo de ')
                                 .trim();
 
-        let mdi = `ESPÃRITO, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÃRITO, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÃRITO, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÃRITO, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÃRITO, crenÃ§a sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÃRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
+        const masculineConcepts = ["medo", "conflito", "desentendimento", "orgulho", "ciúme", "estresse", "vazio", "apego", "controle", "pânico"];
+        const connector = masculineConcepts.includes(cleanConcept.toLowerCase().trim()) ? "pelo" : "pela";
+
+        let mdi = `ESPÍRITO, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, crença sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
         // MDI Condicional extra lines
         if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
             addedMdiBehaviors.forEach(item => {
                 if (item.behavior) {
-                    mdi += `\nESPÃRITO, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
+                    mdi += `\nESPÍRITO, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
                     if (item.sentiment) {
-                        mdi += `\nESPÃRITO, condicionamento de me sentir ${item.sentiment.toLowerCase()} pelo ${cleanConcept.toLowerCase()} acabou!`;
+                        mdi += `\nESPÍRITO, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
                     }
                 }
             });
@@ -528,13 +531,15 @@ class ReorganizationEngine {
             if (selectedLevel === "avancado") {
                 if (declarations.msi) especificaList.push(declarations.msi);
                 if (declarations.mfi) especificaList.push(declarations.mfi);
-                
+            }
+            
+            if (selectedLevel === "avancado" || selectedLevel === "intermediario") {
                 if (addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
                     addedPositivosAtrapalham.forEach(item => {
                         let mfpiBlock = `Alma, prazer que senti ao ${item.toLowerCase()} acabou!\n`;
                         mfpiBlock += `Alma, desejo que senti ao ${item.toLowerCase()} acabou!\n`;
                         mfpiBlock += `Alma, apego que senti ao ${item.toLowerCase()} acabou!\n`;
-                        mfpiBlock += `Alma, dependÃªncia que senti ao ${item.toLowerCase()} acabou!`;
+                        mfpiBlock += `Alma, dependência que senti ao ${item.toLowerCase()} acabou!`;
                         especificaList.push(mfpiBlock);
                     });
                 }
