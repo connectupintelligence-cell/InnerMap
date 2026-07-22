@@ -466,7 +466,7 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
 }
 
 class ReorganizationEngine {
-    static analyzeInput(inputPhrase, isHereditary, hereditaryType, addedFacts, factDetail, selectedLevel = "avancado", addedPositivosAtrapalham = [], hasMdiCondicional = false, comportamentoRepetitivo = "", sentimentoMdiCondicional = "") {
+    static analyzeInput(inputPhrase, isHereditary, hereditaryType, addedFacts, factDetail, selectedLevel = "avancado", addedPositivosAtrapalham = [], hasMdiCondicional = false, addedMdiBehaviors = []) {
         const text = inputPhrase.toLowerCase().trim();
         if (!text) return null;
 
@@ -552,11 +552,15 @@ class ReorganizationEngine {
         mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
         // MDI Condicional extra lines
-        if (hasMdiCondicional && comportamentoRepetitivo) {
-            mdi += `\nESPÍRITO, condicionamento de ${comportamentoRepetitivo.toLowerCase()} acabou!`;
-            if (sentimentoMdiCondicional) {
-                mdi += `\nESPÍRITO, condicionamento de me sentir ${sentimentoMdiCondicional.toLowerCase()} pelo ${cleanConcept.toLowerCase()} acabou!`;
-            }
+        if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
+            addedMdiBehaviors.forEach(item => {
+                if (item.behavior) {
+                    mdi += `\nESPÍRITO, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
+                    if (item.sentiment) {
+                        mdi += `\nESPÍRITO, condicionamento de me sentir ${item.sentiment.toLowerCase()} pelo ${cleanConcept.toLowerCase()} acabou!`;
+                    }
+                }
+            });
         }
 
         let finalEspecifica = "";
@@ -598,23 +602,25 @@ class ReorganizationEngine {
             finalNaoEspecifica = cleanMRI + "\n\n" + mdi;
 
             // --- Lógica de Geração de Microações Personalizadas (Seção 6) ---
-            if (hasMdiCondicional && comportamentoRepetitivo && addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
+            const firstMdiBehavior = (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) ? addedMdiBehaviors[0].behavior : "";
+
+            if (hasMdiCondicional && firstMdiBehavior && addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
                 // Ambos comportamentos e falsos positivos
                 if (category === "Relacionamentos") {
-                    finalMicroacao = `Na próxima situação envolvendo seu tema, evite "${comportamentoRepetitivo.toLowerCase()}" e pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}", observando o equilíbrio retornar.`;
+                    finalMicroacao = `Na próxima situação envolvendo seu tema, evite "${firstMdiBehavior.toLowerCase()}" e pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}", observando o equilíbrio retornar.`;
                 } else if (category === "Prosperidade" || category === "Trabalho") {
-                    finalMicroacao = `Ao lidar com dinheiro ou trabalho, interrompa o hábito de "${comportamentoRepetitivo.toLowerCase()}" e desapegue da necessidade de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
+                    finalMicroacao = `Ao lidar com dinheiro ou trabalho, interrompa o hábito de "${firstMdiBehavior.toLowerCase()}" e desapegue da necessidade de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
                 } else {
-                    finalMicroacao = `Ao perceber o desconforto, evite "${comportamentoRepetitivo.toLowerCase()}" e solte a dependência de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
+                    finalMicroacao = `Ao perceber o desconforto, evite "${firstMdiBehavior.toLowerCase()}" e solte a dependência de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
                 }
-            } else if (hasMdiCondicional && comportamentoRepetitivo) {
+            } else if (hasMdiCondicional && firstMdiBehavior) {
                 // Apenas comportamento repetitivo
                 if (category === "Relacionamentos") {
-                    finalMicroacao = `Na próxima situação envolvendo seu tema ou pessoas próximas, pratique o oposto de "${comportamentoRepetitivo.toLowerCase()}" para romper o ciclo automático.`;
+                    finalMicroacao = `Na próxima situação envolvendo seu tema ou pessoas próximas, pratique o oposto de "${firstMdiBehavior.toLowerCase()}" para romper o ciclo automático.`;
                 } else if (category === "Prosperidade" || category === "Trabalho") {
-                    finalMicroacao = `Diante de desafios ligados a dinheiro/trabalho, crie um espaço de reflexão de 10 minutos antes de "${comportamentoRepetitivo.toLowerCase()}".`;
+                    finalMicroacao = `Diante de desafios ligados a dinheiro/trabalho, crie um espaço de reflexão de 10 minutos antes de "${firstMdiBehavior.toLowerCase()}".`;
                 } else {
-                    finalMicroacao = `Quando notar o padrão do tema se manifestando, em vez de "${comportamentoRepetitivo.toLowerCase()}", faça uma pausa consciente e ancore o MRI.`;
+                    finalMicroacao = `Quando notar o padrão do tema se manifestando, em vez de "${firstMdiBehavior.toLowerCase()}", faça uma pausa consciente e ancore o MRI.`;
                 }
             } else if (addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
                 // Apenas falso positivo (MFPI)
@@ -825,8 +831,7 @@ class AppStateManager {
         // MFPI & MDI Condicional
         this.addedPositivosAtrapalham = [];
         this.hasMdiCondicional = false;
-        this.comportamentoRepetitivo = "";
-        this.sentimentoMdiCondicional = "";
+        this.addedMdiBehaviors = []; // [{ behavior: "...", sentiment: "..." }]
         
         // Autenticação e Assinatura persistidas
         this.currentUser = this.loadUser();
@@ -1104,6 +1109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputMdiSentiment = document.getElementById("input-mdi-sentiment");
     const btnMdiCondBack = document.getElementById("btn-mdi-cond-back");
     const btnMdiCondNext = document.getElementById("btn-mdi-cond-next");
+    const btnMdiAddItem = document.getElementById("btn-mdi-add-item");
+    const mdiListContainer = document.getElementById("mdi-list-container");
 
     const subStep1b = document.getElementById("sub-step-1b");
     const btnFamilyNo = document.getElementById("btn-family-no");
@@ -1453,8 +1460,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (state.selectedLevel === "intermediario") {
                 // Reset MDI Condicional
                 state.hasMdiCondicional = false;
-                state.comportamentoRepetitivo = "";
-                state.sentimentoMdiCondicional = "";
+                state.addedMdiBehaviors = [];
+                renderMdiList();
                 if (btnMdiCondYes) btnMdiCondYes.classList.remove("active");
                 if (btnMdiCondNo) btnMdiCondNo.classList.remove("active");
                 if (mdiCondInputsContainer) mdiCondInputsContainer.style.display = "none";
@@ -1469,8 +1476,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderMfpiList();
                 
                 state.hasMdiCondicional = false;
-                state.comportamentoRepetitivo = "";
-                state.sentimentoMdiCondicional = "";
+                state.addedMdiBehaviors = [];
+                renderMdiList();
                 if (btnMdiCondYes) btnMdiCondYes.classList.remove("active");
                 if (btnMdiCondNo) btnMdiCondNo.classList.remove("active");
                 if (mdiCondInputsContainer) mdiCondInputsContainer.style.display = "none";
@@ -1538,6 +1545,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Helper to render MDI list items
+    function renderMdiList() {
+        if (!mdiListContainer) return;
+        mdiListContainer.innerHTML = "";
+        state.addedMdiBehaviors.forEach((item, index) => {
+            const row = document.createElement("div");
+            row.style.display = "flex";
+            row.style.justifyContent = "space-between";
+            row.style.alignItems = "center";
+            row.style.padding = "0.5rem 0.75rem";
+            row.style.background = "rgba(255, 255, 255, 0.03)";
+            row.style.border = "1px solid rgba(255, 255, 255, 0.08)";
+            row.style.borderRadius = "6px";
+            
+            const sentimentText = item.sentiment ? ` | Sentimento: ${item.sentiment}` : "";
+            row.innerHTML = `
+                <span style="font-size: 0.85rem; color: var(--color-text-main); font-weight: 500;">🔹 Faz: ${item.behavior}${sentimentText}</span>
+                <button type="button" class="btn-delete-mdi" data-index="${index}" style="background: none; border: none; color: #EA4335; cursor: pointer; font-size: 0.85rem; padding: 0.25rem;">❌</button>
+            `;
+            
+            row.querySelector(".btn-delete-mdi").addEventListener("click", (e) => {
+                const idx = parseInt(e.target.dataset.index || e.target.closest("button").dataset.index);
+                state.addedMdiBehaviors.splice(idx, 1);
+                renderMdiList();
+                if (btnMdiCondNext) btnMdiCondNext.disabled = (state.addedMdiBehaviors.length === 0);
+            });
+            
+            mdiListContainer.appendChild(row);
+        });
+    }
+
     // MDI Condicional Choice Buttons (Yes/No)
     if (btnMdiCondYes) {
         btnMdiCondYes.addEventListener("click", () => {
@@ -1545,18 +1583,36 @@ document.addEventListener("DOMContentLoaded", () => {
             btnMdiCondYes.classList.add("active");
             btnMdiCondNo.classList.remove("active");
             if (mdiCondInputsContainer) mdiCondInputsContainer.style.display = "block";
-            if (btnMdiCondNext) btnMdiCondNext.disabled = false;
+            // Disable next button until they add at least one behavior
+            if (btnMdiCondNext) btnMdiCondNext.disabled = (state.addedMdiBehaviors.length === 0);
         });
     }
 
     if (btnMdiCondNo) {
         btnMdiCondNo.addEventListener("click", () => {
             state.hasMdiCondicional = false;
-            state.comportamentoRepetitivo = "";
-            state.sentimentoMdiCondicional = "";
+            state.addedMdiBehaviors = [];
+            renderMdiList();
             btnMdiCondNo.classList.add("active");
             btnMdiCondYes.classList.remove("active");
             if (mdiCondInputsContainer) mdiCondInputsContainer.style.display = "none";
+            if (btnMdiCondNext) btnMdiCondNext.disabled = false;
+        });
+    }
+
+    // Add MDI item button
+    if (btnMdiAddItem) {
+        btnMdiAddItem.addEventListener("click", () => {
+            const behavior = inputMdiBehavior ? inputMdiBehavior.value.trim() : "";
+            const sentiment = inputMdiSentiment ? inputMdiSentiment.value.trim() : "";
+            if (!behavior) {
+                alert("Por favor, preencha o seu comportamento repetitivo.");
+                return;
+            }
+            state.addedMdiBehaviors.push({ behavior, sentiment });
+            if (inputMdiBehavior) inputMdiBehavior.value = "";
+            if (inputMdiSentiment) inputMdiSentiment.value = "";
+            renderMdiList();
             if (btnMdiCondNext) btnMdiCondNext.disabled = false;
         });
     }
@@ -1578,12 +1634,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (state.hasMdiCondicional) {
                 const behaviorVal = inputMdiBehavior ? inputMdiBehavior.value.trim() : "";
                 const sentimentVal = inputMdiSentiment ? inputMdiSentiment.value.trim() : "";
-                if (!behaviorVal) {
-                    alert("Por favor, preencha o seu comportamento repetitivo.");
+                if (behaviorVal) {
+                    state.addedMdiBehaviors.push({ behavior: behaviorVal, sentiment: sentimentVal });
+                    if (inputMdiBehavior) inputMdiBehavior.value = "";
+                    if (inputMdiSentiment) inputMdiSentiment.value = "";
+                    renderMdiList();
+                }
+                
+                if (state.addedMdiBehaviors.length === 0) {
+                    alert("Por favor, adicione pelo menos um comportamento repetitivo.");
                     return;
                 }
-                state.comportamentoRepetitivo = behaviorVal;
-                state.sentimentoMdiCondicional = sentimentVal;
             }
             
             if (state.selectedLevel === "intermediario") {
@@ -2353,7 +2414,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         setTimeout(() => {
-            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.comportamentoRepetitivo, state.sentimentoMdiCondicional);
+            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
             state.currentData = result;
             
             // Popula Tela 2 (Consciência)
@@ -2408,8 +2469,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset MFPI & MDI Condicional
         state.addedPositivosAtrapalham = [];
         state.hasMdiCondicional = false;
-        state.comportamentoRepetitivo = "";
-        state.sentimentoMdiCondicional = "";
+        state.addedMdiBehaviors = [];
+        renderMdiList();
         if (inputMfpiItem) inputMfpiItem.value = "";
         if (inputMdiBehavior) inputMdiBehavior.value = "";
         if (inputMdiSentiment) inputMdiSentiment.value = "";
