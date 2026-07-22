@@ -1411,7 +1411,208 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 150);
     }
 
-    // Tela 1A -> Tela 1A-Confirm (ConfirmaÃ§Ã£o do Tema)
+    // ==========================================================================
+    // INTEGRAÇÃO COM GEMINI AI (ASSISTENTE DE SESSÃO)
+    // ==========================================================================
+    const btnRunAiAnalysis = document.getElementById("btn-run-ai-analysis");
+    const inputAiRelato = document.getElementById("input-ai-relato");
+    const aiSpinner = document.getElementById("ai-spinner");
+    const aiExtractionSummary = document.getElementById("ai-extraction-summary");
+    const summaryAiTema = document.getElementById("summary-ai-tema");
+    const summaryAiFatos = document.getElementById("summary-ai-fatos");
+    const summaryAiMdi = document.getElementById("summary-ai-mdi");
+    const summaryAiMfpi = document.getElementById("summary-ai-mfpi");
+    const btnAiConfirmWizard = document.getElementById("btn-ai-confirm-wizard");
+    const btnAiConfirmGenerate = document.getElementById("btn-ai-confirm-generate");
+
+    // Controle da Chave de API local
+    const aiKeyConfigBlock = document.getElementById("ai-key-config-block");
+    const aiKeyConfiguredBlock = document.getElementById("ai-key-configured-block");
+    const inputGeminiKey = document.getElementById("input-gemini-key");
+    const btnSaveGeminiKey = document.getElementById("btn-save-gemini-key");
+    const btnChangeGeminiKey = document.getElementById("btn-change-gemini-key");
+
+    function updateGeminiUi() {
+        const key = localStorage.getItem("innermap_gemini_key");
+        if (key) {
+            if (aiKeyConfigBlock) aiKeyConfigBlock.style.display = "none";
+            if (aiKeyConfiguredBlock) aiKeyConfiguredBlock.style.display = "flex";
+        } else {
+            if (aiKeyConfigBlock) aiKeyConfigBlock.style.display = "block";
+            if (aiKeyConfiguredBlock) aiKeyConfiguredBlock.style.display = "none";
+        }
+    }
+    updateGeminiUi();
+
+    if (btnSaveGeminiKey && inputGeminiKey) {
+        btnSaveGeminiKey.addEventListener("click", () => {
+            const key = inputGeminiKey.value.trim();
+            if (!key) {
+                alert("Por favor, cole uma chave de API válida.");
+                return;
+            }
+            localStorage.setItem("innermap_gemini_key", key);
+            inputGeminiKey.value = "";
+            updateGeminiUi();
+            showToast("Chave de API Gemini salva com sucesso!");
+        });
+    }
+
+    if (btnChangeGeminiKey) {
+        btnChangeGeminiKey.addEventListener("click", () => {
+            localStorage.removeItem("innermap_gemini_key");
+            updateGeminiUi();
+        });
+    }
+
+    if (btnRunAiAnalysis && inputAiRelato) {
+        btnRunAiAnalysis.addEventListener("click", async () => {
+            const apiKey = localStorage.getItem("innermap_gemini_key");
+            if (!apiKey) {
+                alert("Por favor, configure e salve sua Chave de API do Gemini antes de continuar.");
+                if (inputGeminiKey) inputGeminiKey.focus();
+                return;
+            }
+
+            const relato = inputAiRelato.value.trim();
+            if (!relato) {
+                alert("Por favor, digite ou cole o relato da sessão.");
+                return;
+            }
+
+            btnRunAiAnalysis.disabled = true;
+            if (aiSpinner) aiSpinner.style.display = "inline-block";
+            btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando Relato com Gemini...';
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+                const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
+Sua tarefa é analisar o relato bruto de um cliente (pode ser uma transcrição de fala ou anotações) e extrair os elementos estruturados de acordo com o método.
+
+Definições de conceitos do método:
+- TEMA: O assunto/categoria central, abstrato e atemporal. É o "rótulo" do problema. Não pode conter "quando" ou "com quem". Exemplos: Escassez, Timidez, Rejeição, Ansiedade, Medo de crescer.
+- FATO: Recorte específico, datável e ancorado (um evento vivido em um momento). Deve responder quem estava envolvido, quando e o que aconteceu. Exemplos: "mãe ser agressiva na infância", "pai gritar quando tirei nota baixa aos 10 anos".
+- COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa (ex: "tentar controlar tudo", "agradar a todos") e o sentimento gerado por isso.
+- GANHOS APARENTES (MFPI): Forças aparentes ou comportamentos que o cliente acha que são positivos mas o aprisionam (ex: "ser forte o tempo todo", "exercer o protagonismo", "resolver tudo sozinha").
+- MICROAÇÃO: Uma orientação comportamental empática e prática sob medida para o cliente começar a aplicar hoje na sua rotina.
+
+Relato do Cliente:
+"${relato}"
+
+Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
+{
+  "tema": "substantivo abstrato singular (ex: Escassez)",
+  "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
+  "fatos": [
+    {
+      "phrase": "mãe/pai/etc. [ação ou característica]: [detalhe do que aconteceu]",
+      "sentiments": ["lista de sentimentos (em minúsculas) extraídos de: culpa, injustiça, dor, tristeza, solidão, rejeição, desaprovação, carência, raiva, medo"]
+    }
+  ],
+  "comportamentos": [
+    {
+      "behavior": "o que faz repetidamente",
+      "sentiment": "sentimento associado"
+    }
+  ],
+  "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
+  "microacao": "orientação comportamental prática baseada no relato"
+}`;
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            responseMimeType: "application/json"
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API do Gemini: ${response.statusText}`);
+                }
+
+                const responseData = await response.json();
+                const textResponse = responseData.candidates[0].content.parts[0].text;
+                const aiData = JSON.parse(textResponse);
+
+                console.log("Dados extraídos pela IA:", aiData);
+
+                // Popular estado global com os dados extraídos
+                state.tempTheme = aiData.tema;
+                inputPhrase.value = aiData.tema;
+                state.addedFacts = aiData.fatos || [];
+                state.addedMdiBehaviors = aiData.comportamentos || [];
+                state.hasMdiCondicional = state.addedMdiBehaviors.length > 0;
+                state.addedPositivosAtrapalham = aiData.ganhos_aparentes || [];
+                state.customLlmMicroaction = aiData.microacao;
+                state.isHereditary = true; // Por padrão ativa MSI para máxima profundidade
+
+                // Atualizar listas e UIs correspondentes
+                renderMfpiList();
+                renderMdiList();
+
+                // Atualizar o resumo visual da IA
+                if (summaryAiTema) summaryAiTema.innerText = aiData.tema;
+                if (summaryAiFatos) {
+                    summaryAiFatos.innerText = aiData.fatos && aiData.fatos.length > 0 
+                        ? aiData.fatos.map(f => f.phrase).join("; ") 
+                        : "Nenhum";
+                }
+                if (summaryAiMdi) {
+                    summaryAiMdi.innerText = aiData.comportamentos && aiData.comportamentos.length > 0 
+                        ? aiData.comportamentos.map(c => `${c.behavior} (${c.sentiment})`).join("; ") 
+                        : "Nenhum";
+                }
+                if (summaryAiMfpi) {
+                    summaryAiMfpi.innerText = aiData.ganhos_aparentes && aiData.ganhos_aparentes.length > 0 
+                        ? aiData.ganhos_aparentes.join(", ") 
+                        : "Nenhum";
+                }
+
+                if (aiExtractionSummary) aiExtractionSummary.style.display = "block";
+                showToast("Triagem por IA realizada com sucesso!");
+
+            } catch (err) {
+                console.error("Erro na triagem por IA:", err);
+                alert("Não foi possível realizar a triagem automática. Por favor, preencha manualmente.\nDetalhe do erro: " + err.message);
+            } finally {
+                btnRunAiAnalysis.disabled = false;
+                if (aiSpinner) aiSpinner.style.display = "none";
+                btnRunAiAnalysis.innerHTML = "🪄 Triagem Inteligente por IA";
+            }
+        });
+    }
+
+    if (btnAiConfirmWizard) {
+        btnAiConfirmWizard.addEventListener("click", () => {
+            // Esconder caixa da IA para deixar o terapeuta ver/ajustar os campos preenchidos
+            const aiAssistantCard = document.getElementById("ai-assistant-card");
+            if (aiAssistantCard) aiAssistantCard.style.display = "none";
+            
+            // Focar no input do tema para revisão
+            if (inputPhrase) inputPhrase.focus();
+            showToast("Dados populados! Você pode revisar o Tema e seguir o fluxo normal.");
+        });
+    }
+
+    if (btnAiConfirmGenerate) {
+        btnAiConfirmGenerate.addEventListener("click", () => {
+            // Gerar os decretos direto pulando as telas de perguntas
+            triggerFinalGeneration();
+        });
+    }
+
+    // Tela 1A -> Tela 1A-Confirm (Confirmação do Tema)
     btnSubNext1.addEventListener("click", () => {
         const val = inputPhrase.value.trim();
         if (!val) {
@@ -2395,6 +2596,9 @@ document.addEventListener("DOMContentLoaded", () => {
         
         setTimeout(() => {
             const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
+            if (state.customLlmMicroaction) {
+                result.microacao = state.customLlmMicroaction;
+            }
             state.currentData = result;
             
             // Popula Tela 2 (ConsciÃªncia)
@@ -2472,6 +2676,14 @@ document.addEventListener("DOMContentLoaded", () => {
             btnLevelAvancado.classList.add("active");
         }
         
+        state.customLlmMicroaction = null;
+        const inputAiRelato = document.getElementById("input-ai-relato");
+        if (inputAiRelato) inputAiRelato.value = "";
+        const aiExtractionSummary = document.getElementById("ai-extraction-summary");
+        if (aiExtractionSummary) aiExtractionSummary.style.display = "none";
+        const aiAssistantCard = document.getElementById("ai-assistant-card");
+        if (aiAssistantCard) aiAssistantCard.style.display = "block";
+
         inputPhrase.value = "";
         themeChips.forEach(c => c.classList.remove("selected"));
         

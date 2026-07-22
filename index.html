@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=44">
+    <link rel="stylesheet" href="styles.css?v=45">
 </head>
 <body>
 
@@ -116,6 +116,58 @@
                                         <circle cx="12" cy="12" r="2" fill="currentColor" />
                                     </svg>
                                     <span style="font-weight: 600; font-size: 0.85rem; display: block; color: var(--color-text-main);">Avançado</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caixa do Assistente de IA -->
+                        <div id="ai-assistant-card" class="glass-card" style="padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; border: 1px dashed var(--color-primary); background: rgba(255,255,255,0.01); text-align: left;">
+                            <h3 style="margin-top: 0; font-size: 1rem; color: var(--color-primary); display: flex; align-items: center; gap: 0.4rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                                Assistente de IA (Gemini)
+                            </h3>
+                            <p style="font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--color-text-muted);">Cole o relato bruto do cliente ou a transcrição da sessão para extrair o tema, fatos e comportamentos automaticamente.</p>
+                            
+                            <!-- Configuração da Chave Gemini -->
+                            <div id="ai-key-config-block" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--color-border);">
+                                <label class="label-text" style="font-size: 0.75rem; color: var(--color-primary); display: block; margin-bottom: 0.35rem; font-weight: 600;">Chave de API do Gemini:</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="password" id="input-gemini-key" class="input-quantum" style="height: 38px; font-size: 0.8rem; flex: 1; padding: 0 0.5rem;" placeholder="Cole sua API Key (AQ... ou AIza...)">
+                                    <button type="button" id="btn-save-gemini-key" class="btn" style="height: 38px; font-size: 0.75rem; background: var(--color-primary); color: white; padding: 0 1rem; min-width: 80px;">Salvar</button>
+                                </div>
+                                <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block; margin-top: 0.35rem;">Consiga uma chave gratuita no <a href="https://aistudio.google.com/" target="_blank" style="color: var(--color-primary); text-decoration: underline;">Google AI Studio</a>. Armazenada localmente e de forma 100% segura no seu navegador.</span>
+                            </div>
+
+                            <div id="ai-key-configured-block" style="display: none; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 1rem; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; border-radius: 6px; background: rgba(52, 168, 83, 0.05); border: 1px solid rgba(52, 168, 83, 0.2);">
+                                <span style="display: flex; align-items: center; gap: 0.35rem;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; color: #34A853;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                    Chave de API Gemini ativa
+                                </span>
+                                <button type="button" id="btn-change-gemini-key" style="background: none; border: none; color: var(--color-primary); text-decoration: underline; cursor: pointer; padding: 0;">Alterar</button>
+                            </div>
+                            
+                            <textarea id="input-ai-relato" class="textarea-quantum" style="height: 80px; font-size: 0.85rem; margin-bottom: 0.75rem;" placeholder="Ex: Cliente relata que sente muita escassez financeira. Reclama que a mãe sempre controlava tudo na infância por medo de passar fome. Hoje ela tenta trabalhar em esforço extremo e sente culpa ao descansar..."></textarea>
+                            
+                            <button type="button" id="btn-run-ai-analysis" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 40px; font-size: 0.85rem;">
+                                <span class="spinner" id="ai-spinner" style="display: none; width: 14px; height: 14px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
+                                🪄 Triagem Inteligente por IA
+                            </button>
+
+                            <!-- Resumo da Extração por IA (inicialmente oculto) -->
+                            <div id="ai-extraction-summary" style="display: none; border-top: 1px solid var(--color-border); margin-top: 1rem; padding-top: 1rem;">
+                                <h4 style="color: #34A853; margin-top: 0; font-size: 0.9rem; display: flex; align-items: center; gap: 0.35rem;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; color: #34A853;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                    Extração Concluída!
+                                </h4>
+                                <ul style="font-size: 0.8rem; padding-left: 1.2rem; margin: 0.5rem 0; line-height: 1.4; list-style-type: none;">
+                                    <li style="margin-bottom: 0.25rem;"><strong>Tema Central:</strong> <span id="summary-ai-tema" style="color: var(--color-primary); font-weight: bold;"></span></li>
+                                    <li style="margin-bottom: 0.25rem;"><strong>Fatos Identificados:</strong> <span id="summary-ai-fatos" style="color: var(--color-text-main);"></span></li>
+                                    <li style="margin-bottom: 0.25rem;"><strong>Comportamentos (MDI):</strong> <span id="summary-ai-mdi" style="color: var(--color-text-main);"></span></li>
+                                    <li style="margin-bottom: 0.25rem;"><strong>Ganhos (MFPI):</strong> <span id="summary-ai-mfpi" style="color: var(--color-text-main);"></span></li>
+                                </ul>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <button type="button" id="btn-ai-confirm-wizard" class="btn btn-outline" style="flex: 1; font-size: 0.75rem; height: 36px; padding: 0;">Revisar Dados</button>
+                                    <button type="button" id="btn-ai-confirm-generate" class="btn" style="flex: 1; font-size: 0.75rem; height: 36px; padding: 0; background: var(--color-primary); color: white;">Gerar Decretos Direto</button>
                                 </div>
                             </div>
                         </div>
@@ -1013,7 +1065,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=44"></script>
+    <script src="app.js?v=45"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
