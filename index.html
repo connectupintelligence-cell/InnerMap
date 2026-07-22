@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=43">
+    <link rel="stylesheet" href="styles.css?v=44">
 </head>
 <body>
 
@@ -120,15 +120,19 @@
                             </div>
                         </div>
 
-                        <h2 class="step-title">O que você quer reorganizar?</h2>
-                        <p class="step-subtitle">Escreva uma frase que represente um conflito, medo, sintoma ou padrão limitante atual.</p>
+                        <h2 class="step-title">Defina o Tema Central</h2>
+                        <p class="step-subtitle">Insira um tema abrangente, abstrato e atemporal (o "rótulo" do conflito). Depois iremos afunilar e detalhar o fato concreto.</p>
                         
                         <div class="input-group">
                             <label for="input-phrase" class="label-text" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
                                 <svg class="label-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                Digite seu objetivo ou tema limitante
+                                Tema Central (abstrato e abrangente)
                             </label>
-                            <textarea id="input-phrase" class="textarea-quantum" placeholder="Ex: Sinto dificuldade para cobrar pelo meu trabalho ou vender..."></textarea>
+                            <textarea id="input-phrase" class="textarea-quantum" style="height: 64px;" placeholder="Ex: Escassez, Timidez, Ansiedade, Rejeição, Medo de crescer..."></textarea>
+                            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px; color: var(--color-primary);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span><strong>Formato recomendado:</strong> Use conceitos simples (uma ou duas palavras), sem detalhar pessoas ou datas agora.</span>
+                            </div>
                         </div>
                         
                         <!-- Temas sugeridos / Chips -->
@@ -1009,7 +1013,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=43"></script>
+    <script src="app.js?v=44"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

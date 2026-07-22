@@ -1415,7 +1415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSubNext1.addEventListener("click", () => {
         const val = inputPhrase.value.trim();
         if (!val) {
-            alert("Por favor, digite seu objetivo ou tema limitante.");
+            alert("Por favor, insira o tema central abrangente.");
             return;
         }
         state.tempTheme = val;
