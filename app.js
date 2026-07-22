@@ -287,26 +287,58 @@ function formatFactForSentence(fact) {
         return `no ${clean}`;
     }
 
-    // Ajuste de preposiÃ§Ã£o/contraÃ§Ã£o para fluxo natural
-    let prefix = "em relaÃ§Ã£o a ";
+    // Ajuste de preposição/contração para fluxo natural
+    let prefix = "em relação a ";
     let cleanTrimmed = clean;
     const cleanLowerTrimmed = cleanLower.trim();
 
-    if (cleanLowerTrimmed.startsWith("mÃ£e ")) {
-        prefix = "em relaÃ§Ã£o Ã  ";
+    if (cleanLowerTrimmed.startsWith("mãe ")) {
+        prefix = "em relação à ";
         cleanTrimmed = clean.substring(4);
-    } else if (cleanLowerTrimmed.startsWith("minha mÃ£e ")) {
-        prefix = "em relaÃ§Ã£o Ã  ";
+    } else if (cleanLowerTrimmed.startsWith("minha mãe ")) {
+        prefix = "em relação à ";
         cleanTrimmed = clean.substring(10);
     } else if (cleanLowerTrimmed.startsWith("pai ")) {
-        prefix = "em relaÃ§Ã£o ao ";
+        prefix = "em relação ao ";
         cleanTrimmed = clean.substring(4);
     } else if (cleanLowerTrimmed.startsWith("meu pai ")) {
-        prefix = "em relaÃ§Ã£o ao ";
+        prefix = "em relação ao ";
         cleanTrimmed = clean.substring(8);
     }
 
-    return `${prefix}${cleanTrimmed}`;
+    let result = `${prefix}${cleanTrimmed}`;
+    const lowerResult = result.toLowerCase();
+
+    if (lowerResult.includes("mãe")) {
+        const firstMaeIdx = lowerResult.indexOf("mãe");
+        const beforeMae = result.substring(0, firstMaeIdx + 3);
+        let afterMae = result.substring(firstMaeIdx + 3);
+
+        afterMae = afterMae.replace(/da minha mãe/gi, "dela")
+                           .replace(/de minha mãe/gi, "dela")
+                           .replace(/da mãe/gi, "dela")
+                           .replace(/de mãe/gi, "dela")
+                           .replace(/minha mãe/gi, "ela")
+                           .replace(/a mãe/gi, "ela");
+        result = beforeMae + afterMae;
+    }
+
+    if (result.toLowerCase().includes("pai")) {
+        const lowerResult2 = result.toLowerCase();
+        const firstPaiIdx = lowerResult2.indexOf("pai");
+        const beforePai = result.substring(0, firstPaiIdx + 3);
+        let afterPai = result.substring(firstPaiIdx + 3);
+
+        afterPai = afterPai.replace(/do meu pai/gi, "dele")
+                           .replace(/de meu pai/gi, "dele")
+                           .replace(/do pai/gi, "dele")
+                           .replace(/de pai/gi, "dele")
+                           .replace(/meu pai/gi, "ele")
+                           .replace(/o pai/gi, "ele");
+        result = beforePai + afterPai;
+    }
+
+    return result;
 }
 
 
