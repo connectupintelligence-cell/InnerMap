@@ -504,7 +504,7 @@ class ReorganizationEngine {
         // MRI - Movimento de ReinterpretaÃ§Ã£o
         let cleanMRI = "";
         if (matchedKey && maxMatches > 0) {
-            cleanMRI = rawMRI.replace(/3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\n?/gi, "").trim();
+            cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
         } else {
             const mriSuggest = this.suggestMriRessignificacao(inputPhrase);
             cleanMRI = `EspÃ­rito, eu escolho ${mriSuggest.es}.\nAlma, eu jÃ¡ ${mriSuggest.al}.`;
@@ -519,14 +519,17 @@ class ReorganizationEngine {
                                 .replace(/medo de/gi, 'medo de ')
                                 .trim();
 
-        const masculineConcepts = ["medo", "conflito", "desentendimento", "orgulho", "ciúme", "estresse", "vazio", "apego", "controle", "pânico"];
-        const connector = masculineConcepts.includes(cleanConcept.toLowerCase().trim()) ? "pelo" : "pela";
+        const masculineConcepts = ["medo", "conflito", "desentendimento", "orgulho", "ciúme", "estresse", "vazio", "apego", "controle", "pânico", "abandono", "bloqueio", "sofrimento", "trauma", "fracasso", "julgamento", "desapego"];
+        const isMasc = masculineConcepts.some(w => cleanConcept.toLowerCase().trim() === w);
+        const connector = isMasc ? "pelo" : "pela";
+        const artigo = isMasc ? "o" : "a";
+        const prepArtigo = isMasc ? "ao" : "à";
 
-        let mdi = `Espírito, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, crença sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        let mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, crença sobre ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
         // MDI Condicional extra lines
@@ -1049,8 +1052,18 @@ class AppStateManager {
 }
 
 // InicializaÃ§Ã£o da UI e Event Listeners
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const state = new AppStateManager();
+
+    // Carregar chave de API no startup para concordância funcionar em todos os fluxos
+    if (supabaseClient) {
+        try {
+            const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
+            if (data && data.value) state.apiKey = data.value;
+        } catch(e) { console.warn("Chave de API não carregada no startup:", e); }
+    }
+    if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_gemini_key") || null;
+    
     
     const screens = {
         step1: document.getElementById("screen-step1"),
