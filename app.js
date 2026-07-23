@@ -1489,7 +1489,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando Relato com Gemini...';
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
 
                 const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 Sua tarefa é analisar o relato bruto de um cliente (pode ser uma transcrição de fala ou anotações) e extrair os elementos estruturados de acordo com o método.
