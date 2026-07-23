@@ -1542,7 +1542,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro na API do Gemini: ${response.statusText}`);
+                    let errBody = "";
+                    try { errBody = await response.text(); } catch(e) {}
+                    throw new Error(`Erro na API do Gemini [HTTP ${response.status}]: ${errBody || response.statusText}`);
                 }
 
                 const responseData = await response.json();
