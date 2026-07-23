@@ -50,7 +50,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "VocÃª pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidÃ£o.",
         movimento: "Desenvolver uma expansÃ£o sustentÃ¡vel, delegando com confianÃ§a e acolhendo novas oportunidades.",
         objetivo: "Crescer de forma leve, segura e alinhada.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de que crescer Ã© arriscado ou perigoso que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao encarar novas responsabilidades e crescimento nos negÃ³cios acabaram!\nAlma, todos os sentimentos que senti em relaÃ§Ã£o ao medo de crescer acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi sobre crescer acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei sobre crescer acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de que crescer Ã© arriscado ou perigoso que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao encarar novas responsabilidades e crescimento nos negÃ³cios acabaram!\nAlma, todos os sentimentos que senti em relaÃ§Ã£o ao medo de crescer acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre crescer acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre crescer acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho acolher a expansÃ£o com seguranÃ§a, leveza e consistÃªncia.\nAlma, eu jÃ¡ construo crescimento seguro e delego tarefas com total tranquilidade e merecimento.",
         pergunta: "Qual o menor passo de crescimento que vocÃª pode dar hoje que nÃ£o assuste sua percepÃ§Ã£o racional?",
         microacao: "Escrever uma meta de crescimento para o prÃ³ximo mÃªs e listar duas tarefas que vocÃª pode delegar ou simplificar."
@@ -63,7 +63,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A percepÃ§Ã£o de que seu valor pessoal depende exclusivamente do seu nÃ­vel de produtividade diÃ¡ria.",
         movimento: "Reconhecer que a pausa Ã© essencial para a criatividade e a sustentabilidade de suas realizaÃ§Ãµes.",
         objetivo: "Descansar sem culpa e com paz interna profunda.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e crenÃ§as de que preciso trabalhar em esforÃ§o extremo para ter valor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi sobre descansar acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei sobre descansar acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e crenÃ§as de que preciso trabalhar em esforÃ§o extremo para ter valor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre descansar acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre descansar acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho silenciar minha mente e restabelecer minha energia vital.\nAlma, eu jÃ¡ descanso com tranquilidade e paz, reconhecendo que a pausa potencializa minha prosperidade.",
         pergunta: "O que vocÃª estaria evitando encarar se decidisse silenciar e descansar agora?",
         microacao: "Bloquear 30 minutos na sua agenda hoje para fazer algo puramente por lazer, sem fins produtivos."
@@ -76,7 +76,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A associaÃ§Ã£o da venda e da cobranÃ§a a importunar os outros, medo da rejeiÃ§Ã£o ou sensaÃ§Ã£o sutil de nÃ£o merecimento.",
         movimento: "Enxergar a venda como uma troca justa de valor, onde vocÃª apoia genuinamente a resoluÃ§Ã£o de uma necessidade real.",
         objetivo: "Fluidez, valorizaÃ§Ã£o e seguranÃ§a na entrega de suas soluÃ§Ãµes.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preÃ§os ou vender acabaram!\nAlma, rejeiÃ§Ã£o que senti quando clientes disseram nÃ£o acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi sobre vendas acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei sobre vendas acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preÃ§os ou vender acabaram!\nAlma, rejeiÃ§Ã£o que senti quando clientes disseram nÃ£o acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre vendas acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre vendas acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho ver a venda como uma troca justa de valor e auxÃ­lio mÃºtuo.\nAlma, eu jÃ¡ recebo dinheiro com fluidez, merecimento e autoconfianÃ§a plena em minha entrega.",
         pergunta: "Se o seu produto ou serviÃ§o pudesse transformar positivamente a vida de alguÃ©m hoje, vocÃª ainda teria vergonha de oferecÃª-lo?",
         microacao: "Enviar uma mensagem para um cliente antigo perguntando como ele estÃ¡ ou fazer uma oferta direta para um potencial cliente."
@@ -89,7 +89,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "O receio do fracasso ou da perda de controle organizando suas decisÃµes sob um viÃ©s de paralisaÃ§Ã£o e autoproteÃ§Ã£o.",
         movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptaÃ§Ã£o.",
         objetivo: "DecisÃ£o consciente, resiliÃªncia e clareza profissional.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de falÃªncia e quebra nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisÃµes de negÃ³cios acabaram!\nAlma, frustraÃ§Ã£o que senti com resultados insatisfatÃ³rios acabaram!\nAlma, todos os sentimentos de inseguranÃ§a e medo de falhar nos negÃ³cios acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi nos negÃ³cios acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei nos negÃ³cios acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de falÃªncia e quebra nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisÃµes de negÃ³cios acabaram!\nAlma, frustraÃ§Ã£o que senti com resultados insatisfatÃ³rios acabaram!\nAlma, todos os sentimentos de inseguranÃ§a e medo de falhar nos negÃ³cios acabaram!\nEspÃ­rito, todas as informações negativas que recebi nos negÃ³cios acabou!\nEspÃ­rito, todas as informações negativas que gerei nos negÃ³cios acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho focar em soluÃ§Ãµes estratÃ©gicas, aprendizado constante e resiliÃªncia.\nAlma, eu jÃ¡ decido com clareza profissional, guiando meus negÃ³cios rumo Ã  solidez e prosperidade.",
         pergunta: "Qual decisÃ£o importante vocÃª estÃ¡ adiando ou evitando por medo do que pode acontecer depois?",
         microacao: "Tomar hoje uma decisÃ£o simples que vocÃª vem adiando nos Ãºltimos 7 dias."
@@ -102,7 +102,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A busca externa pela validaÃ§Ã£o, seguranÃ§a e afeto que vocÃª sente faltar em sua prÃ³pria organizaÃ§Ã£o interna.",
         movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua prÃ³pria base de seguranÃ§a afetiva.",
         objetivo: "Autonomia afetiva, amor-prÃ³prio e conexÃµes saudÃ¡veis.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de dependÃªncia afetiva e medo da solidÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carÃªncia que senti pela falta de atenÃ§Ã£o ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carÃªncia e solidÃ£o acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi em minhas relaÃ§Ãµes acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei em minhas relaÃ§Ãµes acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de dependÃªncia afetiva e medo da solidÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carÃªncia que senti pela falta de atenÃ§Ã£o ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carÃªncia e solidÃ£o acabaram!\nEspÃ­rito, todas as informações negativas que recebi em minhas relaÃ§Ãµes acabou!\nEspÃ­rito, todas as informações negativas que gerei em minhas relaÃ§Ãµes acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho nutrir meu amor-prÃ³prio e encontrar estabilidade dentro de mim.\nAlma, eu jÃ¡ me sinto pleno(a) e seguro(a), me relacionando com liberdade e maturidade emocional.",
         pergunta: "Que tipo de atenÃ§Ã£o ou validaÃ§Ã£o vocÃª estÃ¡ esperando dos outros que vocÃª mesmo(a) nÃ£o estÃ¡ se dando?",
         microacao: "Escrever uma pequena lista com 3 qualidades reais suas ou preparar um momento especial de autocuidado hoje."
@@ -115,7 +115,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "A necessidade de aprovaÃ§Ã£o externa atuando como um filtro limitador da sua expressÃ£o e do seu potencial autÃªntico.",
         movimento: "Acolher sua verdade interna e compreender que a percepÃ§Ã£o do outro reflete a realidade dele, nÃ£o o seu valor real.",
         objetivo: "Liberdade de expressÃ£o e seguranÃ§a pessoal profunda.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de autoanulaÃ§Ã£o e vergonha de me expor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de desaprovaÃ§Ã£o e crÃ­ticas dos outros que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao falar em pÃºblico ou me expor acabaram!\nAlma, rejeiÃ§Ã£o que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi da opiniÃ£o pÃºblica acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei sobre me expressar acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de autoanulaÃ§Ã£o e vergonha de me expor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de desaprovaÃ§Ã£o e crÃ­ticas dos outros que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao falar em pÃºblico ou me expor acabaram!\nAlma, rejeiÃ§Ã£o que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nEspÃ­rito, todas as informações negativas que recebi da opiniÃ£o pÃºblica acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre me expressar acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho expressar minha verdade interna com liberdade e seguranÃ§a.\nAlma, eu jÃ¡ me exponho com autovalorizaÃ§Ã£o e reconheÃ§o o real valor de minha prÃ³pria voz.",
         pergunta: "O que vocÃª comeÃ§aria a criar ou fazer hoje mesmo se soubesse que nÃ£o seria criticado ou julgado?",
         microacao: "Expressar uma opiniÃ£o autÃªntica ou compartilhar um pensamento pessoal com alguÃ©m de confianÃ§a."
@@ -128,7 +128,7 @@ const INFORMATIONAL_DATABASE = {
         ajuste: "Assumir responsabilidades e demandas que nÃ£o sÃ£o suas como uma forma inconsciente de buscar utilidade ou aceitaÃ§Ã£o.",
         movimento: "Estabelecer limites claros e saudÃ¡veis, preservando seu estado interno e sua energia para o que Ã© essencial.",
         objetivo: "EquilÃ­brio emocional, leveza e clareza de prioridades pessoais.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer nÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaÃ§o e pressÃ£o que senti por excesso de responsabilidades acabaram!\nAlma, invasÃ£o que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que recebi por carregar pesos alheios acabou!\nEspÃ­rito, todas as informaÃ§Ãµes negativas que gerei no excesso de tarefas acabou!",
+        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer nÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaÃ§o e pressÃ£o que senti por excesso de responsabilidades acabaram!\nAlma, invasÃ£o que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nEspÃ­rito, todas as informações negativas que recebi por carregar pesos alheios acabou!\nEspÃ­rito, todas as informações negativas que gerei no excesso de tarefas acabou!",
         fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho respeitar os limites do meu corpo e priorizar meu bem-estar.\nAlma, eu jÃ¡ estabeleÃ§o limites saudÃ¡veis e gerencio minhas responsabilidades com total leveza.",
         pergunta: "De quem Ã© a responsabilidade que vocÃª estÃ¡ carregando hoje alÃ©m da sua prÃ³pria?",
         microacao: "Dizer um 'nÃ£o' gentil, mas firme, a uma tarefa secundÃ¡ria que nÃ£o seja de sua real responsabilidade."
@@ -429,8 +429,8 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
             block += `Alma, ${s} que senti ${formattedFact} acabou!\n`;
         });
         block += `Alma, todos os sentimentos que recebi ${formattedFact} acabaram!\n`;
-        block += `ESPÃRITO, todas as informaÃ§Ãµes negativas que recebi ${formattedFact} acabou!\n`;
-        block += `ESPÃRITO, todas as informaÃ§Ãµes negativas que gerei ${formattedFact} acabou!`;
+        block += `Espírito, todas as informações negativas que recebi ${formattedFact} acabou!\n`;
+        block += `Espírito, todas as informações negativas que gerei ${formattedFact} acabou!`;
         
         mfiBlocks.push(block);
     });
@@ -522,20 +522,20 @@ class ReorganizationEngine {
         const masculineConcepts = ["medo", "conflito", "desentendimento", "orgulho", "ciúme", "estresse", "vazio", "apego", "controle", "pânico"];
         const connector = masculineConcepts.includes(cleanConcept.toLowerCase().trim()) ? "pelo" : "pela";
 
-        let mdi = `ESPÍRITO, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, crença sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `ESPÍRITO, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
+        let mdi = `Espírito, pensamento que gerou o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de manifestar o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de observar o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de dar utilidade a(o) "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, crença sobre o "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
         // MDI Condicional extra lines
         if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
             addedMdiBehaviors.forEach(item => {
                 if (item.behavior) {
-                    mdi += `\nESPÍRITO, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
+                    mdi += `\nEspírito, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
                     if (item.sentiment) {
-                        mdi += `\nESPÍRITO, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
+                        mdi += `\nEspírito, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
                     }
                 }
             });
@@ -764,8 +764,8 @@ class ReorganizationEngine {
             mfiText += `Alma, ${s} que senti na "${cleanConcept.toLowerCase()}" acabou!\n`;
         });
         mfiText += `Alma, todos os sentimentos que senti na "${cleanConcept.toLowerCase()}" acabaram!\n`;
-        mfiText += `EspÃ­rito, todas as informaÃ§Ãµes negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mfiText += `EspÃ­rito, todas as informaÃ§Ãµes negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
+        mfiText += `EspÃ­rito, todas as informações negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mfiText += `EspÃ­rito, todas as informações negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
 
         const finalDeclaracao = `${msiText}\n${mfiText}`;
 
@@ -1462,6 +1462,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     
                     if (data && data.value) {
                         apiKey = data.value;
+                        state.apiKey = apiKey; // salva para reutilizar na concordância
                     }
                 } catch (err) {
                     console.warn("Erro ao buscar chave Gemini no Supabase:", err);
@@ -1609,27 +1610,61 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     // ==========================================================================
 
 
+    // ✨ Corrige concordância gramatical das frases usando a IA (Groq/Gemini)
+    async function correctConcordance(rawText) {
+        if (!state.apiKey || !rawText || !rawText.trim()) return rawText;
+        try {
+            const prompt = `Você é um especialista em língua portuguesa. Corrija apenas a concordância gramatical e as preposições do texto abaixo. NÃO altere palavras, não parafraseie, não adicione nem remova frases. Mantenha exatamente a mesma estrutura e conteúdo, apenas ajuste concordância gramatical (gênero, número, preposições como "ao/à", "pelo/pela", etc.). Retorne apenas o texto corrigido, sem explicações nem formatação extra.\n\nTexto:\n${rawText}`;
+
+            let response;
+            if (state.apiKey.startsWith("gsk_")) {
+                response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }] })
+                });
+                if (!response.ok) return rawText;
+                const data = await response.json();
+                return data.choices[0].message.content.trim();
+            } else {
+                const isLegacy = state.apiKey.startsWith("AIza");
+                const url = isLegacy
+                    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${state.apiKey}`
+                    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent`;
+                const hdrs = { "Content-Type": "application/json" };
+                if (!isLegacy) hdrs["x-goog-api-key"] = state.apiKey;
+                response = await fetch(url, { method: "POST", headers: hdrs, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+                if (!response.ok) return rawText;
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text.trim();
+            }
+        } catch (e) {
+            console.warn("Concordância IA falhou, usando texto original:", e);
+            return rawText;
+        }
+    }
+
     function triggerFinalGeneration() {
         const phrase = state.tempTheme || inputPhrase.value.trim();
         
         if (btnSentimentSave) btnSentimentSave.disabled = true;
         if (btnGenerate) {
             btnGenerate.disabled = true;
-            btnGenerate.innerHTML = '<span class="spinner"></span> Analisando padrÃµes...';
+            btnGenerate.innerHTML = '<span class="spinner"></span> Analisando padrões...';
         }
         
-        setTimeout(() => {
+        setTimeout(async () => {
             const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
             if (state.customLlmMicroaction) {
                 result.microacao = state.customLlmMicroaction;
             }
             state.currentData = result;
             
-            // Popula Tela 2 (ConsciÃªncia)
+            // Popula Tela 2 (Consciência)
             outputAjuste.innerText = result.ajuste;
             outputMovimento.innerText = result.movimento;
             
-            // Popula Tela 3 (PrÃ¡ticas Guiadas)
+            // Popula Tela 3 (Práticas Guiadas)
             outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
             outputObjetivo.innerText = result.objetivo;
             
@@ -3520,7 +3555,7 @@ Pergunta atual: "${query}"
         if (emptyPlaceholder) emptyPlaceholder.style.display = "none";
         agendaContainer.style.display = "block";
 
-        // Popula as informaÃ§Ãµes da agenda
+        // Popula as informações da agenda
         const agendaTitle = document.getElementById("agenda-title");
         const agendaCommand = document.getElementById("agenda-command");
         const agendaMicroaction = document.getElementById("agenda-microaction");
