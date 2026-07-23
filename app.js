@@ -1489,7 +1489,11 @@ document.addEventListener("DOMContentLoaded", () => {
             btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando Relato com Gemini...';
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`;
+                // Suporte aos dois formatos de chave do Google: AIza... (?key=) e AQ... (header)
+                const isLegacyKey = apiKey.startsWith("AIza");
+                const url = isLegacyKey
+                    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`
+                    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent`;
 
                 const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 Sua tarefa é analisar o relato bruto de um cliente (pode ser uma transcrição de fala ou anotações) e extrair os elementos estruturados de acordo com o método.
@@ -1524,11 +1528,13 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "microacao": "orientação comportamental prática baseada no relato"
 }`;
 
+                const fetchHeaders = { "Content-Type": "application/json" };
+                if (!isLegacyKey) {
+                    fetchHeaders["x-goog-api-key"] = apiKey;
+                }
                 const response = await fetch(url, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: fetchHeaders,
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
