@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>
+        window.addEventListener('error', function(e) {
+            var errDiv = document.getElementById('debug-error-console');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'debug-error-console';
+                errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#ff4d4d;color:#fff;padding:15px;z-index:99999;font-family:monospace;font-size:12px;box-shadow:0 4px 10px rgba(0,0,0,0.3);box-sizing:border-box;display:flex;flex-direction:column;gap:5px;';
+                
+                var closeBtn = document.createElement('button');
+                closeBtn.innerText = 'Fechar ✕';
+                closeBtn.style.cssText = 'align-self:flex-end;background:rgba(255,255,255,0.2);color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:10px;margin-bottom:5px;';
+                closeBtn.onclick = function() { errDiv.style.display = 'none'; };
+                errDiv.appendChild(closeBtn);
+                
+                document.body.insertBefore(errDiv, document.body.firstChild);
+            }
+            var errLine = document.createElement('div');
+            errLine.innerHTML = '❌ ' + e.message + ' em ' + e.filename + ':' + e.lineno;
+            errDiv.appendChild(errLine);
+        });
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -18,7 +39,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=46">
+    <link rel="stylesheet" href="styles.css?v=51">
 </head>
 <body>
 
@@ -56,10 +77,13 @@
             </ul>
         </nav>
         
-        <div class="user-nav-container" id="user-nav-container" style="display: none; align-items: center; gap: 0.75rem;">
-            <span class="user-email" id="user-email-display" style="font-size: 0.85rem; color: var(--color-text-muted);"></span>
-            <span class="user-status-badge" id="user-status-display" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(102, 252, 241, 0.15); border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: 100px; font-weight: 600;"></span>
-            <button id="btn-logout" class="btn-logout" title="Sair da Conta" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 0.85rem; padding: 0.25rem 0.5rem; border-radius: 4px; transition: var(--transition-smooth); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">Sair <svg class="btn-logout-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; display: inline-block; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="user-nav-container" id="user-nav-container" style="display: none; align-items: center; gap: 0.75rem;">
+                <span class="user-email" id="user-email-display" style="font-size: 0.85rem; color: var(--color-text-muted);"></span>
+                <span class="user-status-badge" id="user-status-display" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(102, 252, 241, 0.15); border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: 100px; font-weight: 600;"></span>
+                <button id="btn-logout" class="btn-logout" title="Sair da Conta" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 0.85rem; padding: 0.25rem 0.5rem; border-radius: 4px; transition: var(--transition-smooth); white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">Sair <svg class="btn-logout-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; display: inline-block; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
+            </div>
+            <button id="btn-login-trigger" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">Acessar Conta</button>
         </div>
     </header>
 
@@ -78,9 +102,10 @@
                 <p class="hero-subtitle">
                     Toda mudança começa pela forma como a realidade é organizada internamente. Identifique registros emocionais limitantes e atualize seus padrões de forma consciente.
                 </p>
-                <div class="hero-actions">
+                <div class="hero-actions" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;">
                     <a href="#reorganizer-tool" class="btn btn-primary">Iniciar Reorganização</a>
                     <a href="#como-funciona" class="btn btn-outline">Como funciona?</a>
+                    <button id="btn-hero-login" class="btn btn-text" style="color: var(--color-primary); font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0.5rem 1rem; transition: var(--transition-smooth); display: none;">Já tenho conta (Acessar)</button>
                 </div>
             </div>
 
@@ -89,290 +114,22 @@
                 
                 <!-- STEP 1: Entrada -->
                 <div id="screen-step1" class="app-screen">
-                    <!-- Sub-screen 1A: Objetivo Principal -->
                     <div id="sub-step-1a" class="sub-screen-container active">
-                        <!-- Selector de Nível de Profundidade -->
-                        <div style="margin-bottom: 2rem; text-align: left;">
-                            <label class="label-text" style="margin-bottom: 0.75rem; display: block; font-weight: 600; color: var(--color-primary);">Escolha o nível de profundidade:</label>
-                            <div class="level-cards-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
-                                <div id="btn-level-iniciante" class="glass-card level-card" data-level="iniciante" style="padding: 0.75rem; border-radius: 10px; cursor: pointer; text-align: center; border: 1px solid var(--color-border); transition: var(--transition-smooth);">
-                                    <svg class="level-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 22V12" />
-                                        <path d="M12 12C12 12 7.5 9.5 7.5 5.5C7.5 3.5 9 2 11 2C13 2 12 5.5 12 5.5" />
-                                        <path d="M12 12C12 12 16.5 9.5 16.5 5.5C16.5 3.5 15 2 13 2C11 2 12 5.5 12 5.5" />
-                                    </svg>
-                                    <span style="font-weight: 600; font-size: 0.85rem; display: block; color: var(--color-text-main);">Iniciante</span>
-                                </div>
-                                <div id="btn-level-intermediario" class="glass-card level-card" data-level="intermediario" style="padding: 0.75rem; border-radius: 10px; cursor: pointer; text-align: center; border: 1px solid var(--color-border); transition: var(--transition-smooth);">
-                                    <svg class="level-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                                    </svg>
-                                    <span style="font-weight: 600; font-size: 0.85rem; display: block; color: var(--color-text-main);">Intermediário</span>
-                                </div>
-                                <div id="btn-level-avancado" class="glass-card level-card active" data-level="avancado" style="padding: 0.75rem; border-radius: 10px; cursor: pointer; text-align: center; border: 1px solid var(--color-border); transition: var(--transition-smooth);">
-                                    <svg class="level-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10" stroke-dasharray="4 2" />
-                                        <circle cx="12" cy="12" r="6" />
-                                        <circle cx="12" cy="12" r="2" fill="currentColor" />
-                                    </svg>
-                                    <span style="font-weight: 600; font-size: 0.85rem; display: block; color: var(--color-text-main);">Avançado</span>
-                                </div>
-                            </div>
-                                 <!-- Caixa do Assistente de IA -->
-                        <div id="ai-assistant-card" class="glass-card" style="padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem; border: 1px dashed var(--color-primary); background: rgba(255,255,255,0.01); text-align: left;">
-                            <h3 style="margin-top: 0; font-size: 1rem; color: var(--color-primary); display: flex; align-items: center; gap: 0.4rem;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-                                Descrever História Livre (IA)
+                        <div class="glass-card" style="padding: 2rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid var(--color-border); background: rgba(255,255,255,0.01); text-align: left;">
+                            <h3 style="margin-top: 0; font-size: 1.25rem; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                                Descreva sua História
                             </h3>
-                            <p style="font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--color-text-muted);">Conte o que você está vivenciando (seus medos, conflitos, sentimentos) com suas próprias palavras para preencher o processo automaticamente.</p>
+                            <p style="font-size: 0.9rem; margin-bottom: 1.25rem; color: var(--color-text-muted); line-height: 1.5;">
+                                Conte com suas próprias palavras o que você está sentindo ou vivenciando (seus medos, conflitos, sentimentos, situações financeiras ou de relacionamento) e, se possível, lembranças da infância ou comportamentos ligados a isso. Nossa inteligência ajudará a construir sua prática de liberação.
+                            </p>
                             
-                            <textarea id="input-ai-relato" class="textarea-quantum" style="height: 80px; font-size: 0.85rem; margin-bottom: 0.75rem;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas...)"></textarea>
+                            <textarea id="input-ai-relato" class="textarea-quantum" style="height: 150px; font-size: 0.95rem; margin-bottom: 1.25rem; line-height: 1.6;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas. Hoje sinto que preciso ser forte o tempo todo e resolver tudo sozinha, e me sinto culpada ao descansar...)"></textarea>
                             
-                            <button type="button" id="btn-run-ai-analysis" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 40px; font-size: 0.85rem;">
-                                <span class="spinner" id="ai-spinner" style="display: none; width: 14px; height: 14px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
-                                🪄 Identificar Meus Padrões
+                            <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem;">
+                                <span class="spinner" id="ai-spinner" style="display: none; width: 18px; height: 18px; border: 3px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
+                                🪄 Descobrir Minha Reorganização Informacional
                             </button>
-
-                            <!-- Resumo da Extração por IA (inicialmente oculto) -->
-                            <div id="ai-extraction-summary" style="display: none; border-top: 1px solid var(--color-border); margin-top: 1rem; padding-top: 1rem;">
-                                <h4 style="color: #34A853; margin-top: 0; font-size: 0.9rem; display: flex; align-items: center; gap: 0.35rem;">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; color: #34A853;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                    Padrões Identificados com Sucesso!
-                                </h4>
-                                <ul style="font-size: 0.8rem; padding-left: 1.2rem; margin: 0.5rem 0; line-height: 1.4; list-style-type: none;">
-                                    <li style="margin-bottom: 0.25rem;"><strong>Tema Central:</strong> <span id="summary-ai-tema" style="color: var(--color-primary); font-weight: bold;"></span></li>
-                                    <li style="margin-bottom: 0.25rem;"><strong>Fatos Identificados:</strong> <span id="summary-ai-fatos" style="color: var(--color-text-main);"></span></li>
-                                    <li style="margin-bottom: 0.25rem;"><strong>Comportamentos (MDI):</strong> <span id="summary-ai-mdi" style="color: var(--color-text-main);"></span></li>
-                                    <li style="margin-bottom: 0.25rem;"><strong>Ganhos (MFPI):</strong> <span id="summary-ai-mfpi" style="color: var(--color-text-main);"></span></li>
-                                </ul>
-                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                                    <button type="button" id="btn-ai-confirm-wizard" class="btn btn-outline" style="flex: 1; font-size: 0.75rem; height: 36px; padding: 0;">Revisar Detalhes</button>
-                                    <button type="button" id="btn-ai-confirm-generate" class="btn" style="flex: 1; font-size: 0.75rem; height: 36px; padding: 0; background: var(--color-primary); color: white;">Gerar Decretos Direto</button>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <h2 class="step-title">Defina o Tema Central</h2>
-                        <p class="step-subtitle">Insira um tema abrangente, abstrato e atemporal (o "rótulo" do conflito). Depois iremos afunilar e detalhar o fato concreto.</p>
-                        
-                        <div class="input-group">
-                            <label for="input-phrase" class="label-text" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
-                                <svg class="label-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                Tema Central (abstrato e abrangente)
-                            </label>
-                            <textarea id="input-phrase" class="textarea-quantum" style="height: 64px;" placeholder="Ex: Escassez, Timidez, Ansiedade, Rejeição, Medo de crescer..."></textarea>
-                            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px; color: var(--color-primary);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                <span><strong>Formato recomendado:</strong> Use conceitos simples (uma ou duas palavras), sem detalhar pessoas ou datas agora.</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Temas sugeridos / Chips -->
-                        <div style="margin-top: 1rem; margin-bottom: 2rem; text-align: left;">
-                            <span style="font-size: 0.8rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem; font-weight: 500;">
-                                <svg class="label-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>
-                                Sugestões de temas comuns (clique para escolher):
-                            </span>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" id="theme-suggestions-chips">
-                                <span class="sentiment-tag" data-value="Dificuldade Financeira / Escassez" style="border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                    <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--color-primary);"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                                    Escassez Financeira
-                                </span>
-                                <span class="sentiment-tag" data-value="Problemas de Relacionamento" style="border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                    <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--color-primary);"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                                    Relacionamentos
-                                </span>
-                                <span class="sentiment-tag" data-value="Ansiedade e Insegurança" style="border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                    <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--color-primary);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                                    Ansiedade
-                                </span>
-                                <span class="sentiment-tag" data-value="Autoestima e Sentir-se incapaz" style="border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                    <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--color-primary);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                    Autoestima
-                                </span>
-                                <span class="sentiment-tag" data-value="Sintomas e Doenças Físicas" style="border-radius: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
-                                    <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--color-primary);"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path><circle cx="12" cy="12" r="10" stroke-opacity="0.15"></circle></svg>
-                                    Saúde do Corpo
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <button id="btn-sub-next1" class="btn btn-primary btn-block">Próximo Passo →</button>
-                    </div>
-
-                    <!-- Sub-screen 1A-Confirm: Confirmação do Tema -->
-                    <div id="sub-step-1a-confirm" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Confirmar Tema</h2>
-                        <p class="step-subtitle">Verifique se o tema resume bem o seu conflito ou objetivo atual.</p>
-                        
-                        <div class="glass-card" style="padding: 2rem; margin: 2rem 0; text-align: center; border-radius: 12px; border: 1px solid var(--color-primary-glow);">
-                            <span style="font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; font-weight: 600; letter-spacing: 1px; display: block; margin-bottom: 0.75rem;">Você quer trabalhar o tema:</span>
-                            <h3 id="confirm-theme-text" style="font-size: 1.4rem; color: var(--color-text-main); font-weight: 600; line-height: 1.4;"></h3>
-                        </div>
-                        
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                            <button id="btn-confirm-adjust" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">✍️ Ajustar texto</button>
-                            <button id="btn-confirm-next" class="btn btn-primary" style="flex: 2; padding: 0.75rem;">Sim, seguir →</button>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 1A-MFPI: Falso Positivo -->
-                    <div id="sub-step-1a-mfpi" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Ganhos Aparentes (MFPI)</h2>
-                        <p class="step-subtitle">Existe algo na situação que você vê como uma força ou vantagem, mas que está te atrapalhando a chegar no equilíbrio?</p>
-                        
-                        <div class="input-group">
-                            <label for="input-mfpi-item" class="label-text">✍️ Descreva a força ou ganho secundário</label>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="input-mfpi-item" class="textarea-quantum" style="height: 48px; flex: 1;" placeholder="Ex: Exercer o protagonismo, tomar as rédeas de tudo...">
-                                <button type="button" id="btn-mfpi-add" class="btn btn-outline" style="height: 48px; padding: 0 1rem; white-space: nowrap;">➕ Adicionar</button>
-                            </div>
-                        </div>
-
-                        <!-- Lista de MFPIs adicionados -->
-                        <div id="mfpi-list-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; margin-bottom: 2rem;">
-                            <!-- Items loaded dynamically -->
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
-                            <button type="button" id="btn-mfpi-back" class="btn btn-text">← Voltar</button>
-                            <button type="button" id="btn-mfpi-next" class="btn btn-primary" style="padding: 0.6rem 1.5rem;">Sim, prosseguir →</button>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 1A-MDI-Cond: Comportamento Repetitivo -->
-                    <div id="sub-step-1a-mdi-cond" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Comportamentos Repetitivos (MDI)</h2>
-                        <p class="step-subtitle">Tem algo que você faça repetidamente e/ou te gere sentimentos por conta desse tema?</p>
-                        
-                        <div style="display: flex; gap: 1rem; margin: 1.5rem 0;" id="mdi-cond-choice-buttons">
-                            <button type="button" id="btn-mdi-cond-yes" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">Sim, possuo</button>
-                            <button type="button" id="btn-mdi-cond-no" class="btn btn-secondary" style="flex: 1; padding: 0.75rem;">Não possuo</button>
-                        </div>
-
-                        <div id="mdi-cond-inputs-container" style="display: none; margin-top: 1.5rem;">
-                            <div class="input-group">
-                                <label for="input-mdi-behavior" class="label-text" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
-                                    <svg class="label-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                    O que você faz repetidamente?
-                                </label>
-                                <input type="text" id="input-mdi-behavior" class="textarea-quantum" style="height: 48px;" placeholder="Ex: dar atenção para as crises, tentar controlar tudo...">
-                            </div>
-                            <div class="input-group" style="margin-top: 1rem;">
-                                <label for="input-mdi-sentiment" class="label-text" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
-                                    <svg class="label-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
-                                    Qual sentimento associado isso te gera?
-                                </label>
-                                <input type="text" id="input-mdi-sentiment" class="textarea-quantum" style="height: 48px;" placeholder="Ex: culpa, medo, frustração...">
-                            </div>
-                            
-                            <button type="button" id="btn-mdi-add-item" class="btn btn-outline" style="margin-top: 1rem; width: 100%; height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                                <svg class="chip-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                Adicionar Comportamento
-                            </button>
-
-                            <!-- Lista de MDI adicionados -->
-                            <div id="mdi-list-container" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
-                                <!-- Items loaded dynamically -->
-                            </div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
-                            <button type="button" id="btn-mdi-cond-back" class="btn btn-text">← Voltar</button>
-                            <button type="button" id="btn-mdi-cond-next" class="btn btn-primary" style="padding: 0.6rem 1.5rem;" disabled>Prosseguir →</button>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 1B: Pergunta Familiar -->
-                    <div id="sub-step-1b" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Padrão Familiar (MSI)</h2>
-                        <p class="step-subtitle">Precisamos identificar se esta informação possui influência hereditária.</p>
-                        
-                        <div class="input-group" style="text-align: center; margin: 2rem 0;">
-                            <p class="label-text" style="font-size: 1.1rem; margin-bottom: 1.5rem; line-height: 1.5;">Isso já aconteceu na sua família? (Com seus pais, avós ou outros antepassados?)</p>
-                            <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 420px; margin: 0 auto;">
-                                <button id="btn-family-no" class="btn btn-secondary" style="padding: 0.75rem; font-size: 0.9rem;">Não (Sem influência hereditária)</button>
-                                <button id="btn-family-yes-sentimento" class="btn btn-secondary" style="padding: 0.75rem; font-size: 0.9rem; text-align: left; padding-left: 1.25rem;">Sim, Sentimento Herdado (ex: angústia, raiva)</button>
-                                <button id="btn-family-yes-pensamento" class="btn btn-secondary" style="padding: 0.75rem; font-size: 0.9rem; text-align: left; padding-left: 1.25rem;">Sim, Pensamento Herdado (ex: crenças, ideias)</button>
-                                <button id="btn-family-yes-comportamento" class="btn btn-secondary" style="padding: 0.75rem; font-size: 0.9rem; text-align: left; padding-left: 1.25rem;">Sim, Comportamento Herdado (ex: ciclos repetitivos)</button>
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: flex-start; margin-top: 2rem;">
-                            <button id="btn-family-back" class="btn btn-text">← Voltar</button>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 2A: Rastreamento Guiado dos Fatos -->
-                    <div id="sub-step-2a" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Investigação de Fatos (MFI)</h2>
-                        <p class="step-subtitle">Responda as perguntas a seguir para rastrear a origem da dor no plano físico e emocional.</p>
-                        
-                        <div id="guided-quest-container" class="glass-card" style="padding: 1.75rem; text-align: left; margin: 1.5rem 0; border-radius: 12px; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between;">
-                            <div id="quest-question-text" style="font-size: 1.05rem; line-height: 1.5; color: var(--color-text-main); font-weight: 500; margin-bottom: 1.25rem;"></div>
-                            
-                            <!-- Resposta Livre -->
-                            <div id="quest-input-wrapper" style="display: none; margin-bottom: 1.25rem;">
-                                <textarea id="quest-open-input" class="textarea-quantum" style="height: 80px;" placeholder="Digite aqui a sua resposta com o máximo de detalhes que lembrar..."></textarea>
-                            </div>
-
-                            <!-- Botões de Opções -->
-                            <div id="quest-options-wrapper" style="display: none; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
-                                <!-- Botões gerados via JS -->
-                            </div>
-
-                            <!-- Controles -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem; margin-top: 1rem;">
-                                <button type="button" id="btn-quest-back" class="btn btn-text" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">← Voltar</button>
-                                <div id="quest-action-right-buttons" style="display: flex; gap: 0.5rem;">
-                                    <button type="button" id="btn-quest-skip" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.4rem 1rem; display: none;">Avançar / Não sei</button>
-                                    <button type="button" id="btn-quest-next" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.4rem 1.25rem; display: none;">Avançar →</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 2B: Revisão de Fatos -->
-                    <div id="sub-step-2b" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Revisão de Fatos (MFI)</h2>
-                        <p class="step-subtitle">Estes são os fatos levantados que sustentam a sua reorganização. Você pode editar ou excluir cada um antes de prosseguir.</p>
-                        
-                        <div id="revision-facts-list" style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left; margin: 1.5rem 0; max-height: 250px; overflow-y: auto; padding: 0.25rem;">
-                            <!-- Carregado via JS -->
-                        </div>
-
-                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                            <button type="button" id="btn-revision-add-more" class="btn btn-outline" style="flex: 1; padding: 0.75rem;">➕ Adicionar Outro Fato</button>
-                            <button type="button" id="btn-revision-next" class="btn btn-primary" style="flex: 1; padding: 0.75rem;">Seguir para Sentimentos →</button>
-                        </div>
-                    </div>
-
-                    <!-- Sub-screen 2C: Escolha de Sentimentos por Fato -->
-                    <div id="sub-step-2c" class="sub-screen-container" style="display: none;">
-                        <h2 class="step-title">Sentimentos Associados (MFI)</h2>
-                        <p class="step-subtitle">Identifique quais sentimentos limitantes estão gravados no fato indicado abaixo.</p>
-                        
-                        <div class="glass-card" style="padding: 1.5rem; text-align: left; margin: 1.5rem 0; border-radius: 12px; border: 1px solid var(--color-border);">
-                            <span style="font-size: 0.80rem; color: var(--color-primary); font-weight: 600; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Fato Marcante Rasteado:</span>
-                            <p id="sentiment-current-fact-text" style="font-size: 1.05rem; font-weight: 500; color: var(--color-text-main); margin-bottom: 1.5rem; line-height: 1.45;"></p>
-                            
-                            <label class="label-text" style="margin-bottom: 0.75rem; display: block; font-weight: 600;">🎭 Selecione os sentimentos ativos neste fato:</label>
-                            <div id="sentiment-fact-tags-grid" style="display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 160px; overflow-y: auto; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; background: rgba(0,0,0,0.2);">
-                                <!-- sentiment tags loaded dynamically -->
-                            </div>
-
-                            <!-- Botão de Copiar do Anterior (Visível apenas a partir do fato 2) -->
-                            <div id="copy-prev-sentiments-container" style="margin-top: 1rem; display: none; text-align: right;">
-                                <button type="button" id="btn-copy-prev-sentiments" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; border-radius: 6px; background: rgba(255,255,255,0.02);">
-                                    <span>📋</span> Repetir sentimentos do fato anterior
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
-                            <span id="sentiment-step-count" style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 500;">Processando fato 1 de 1</span>
-                            <button type="button" id="btn-sentiment-save" class="btn btn-primary" style="padding: 0.6rem 1.5rem;">Salvar e Continuar →</button>
                         </div>
                     </div>
                 </div>
@@ -1046,7 +803,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=46"></script>
+    <script src="app.js?v=51"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
