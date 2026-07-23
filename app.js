@@ -1489,11 +1489,9 @@ document.addEventListener("DOMContentLoaded", () => {
             btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando Relato com Gemini...';
 
             try {
-                // Suporte aos dois formatos de chave do Google: AIza... (?key=) e AQ... (header)
-                const isLegacyKey = apiKey.startsWith("AIza");
-                const url = isLegacyKey
-                    ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`
-                    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent`;
+                // Detecta o provedor pela chave: gsk_ = Groq, AIza = Gemini legado, AQ. = Gemini novo
+                const isGroq = apiKey.startsWith("gsk_");
+                const isLegacyGemini = apiKey.startsWith("AIza");
 
                 const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 Sua tarefa é analisar o relato bruto de um cliente (pode ser uma transcrição de fala ou anotações) e extrair os elementos estruturados de acordo com o método.
@@ -1528,33 +1526,54 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "microacao": "orientação comportamental prática baseada no relato"
 }`;
 
-                const fetchHeaders = { "Content-Type": "application/json" };
-                if (!isLegacyKey) {
-                    fetchHeaders["x-goog-api-key"] = apiKey;
+                let response;
+
+                if (isGroq) {
+                    // === GROQ (Llama 4 Scout — free tier, sem faturamento) ===
+                    response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+                            response_format: { type: "json_object" },
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
+                } else {
+                    // === GEMINI (Google AI) ===
+                    const geminiUrl = isLegacyGemini
+                        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`
+                        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent`;
+                    const geminiHeaders = { "Content-Type": "application/json" };
+                    if (!isLegacyGemini) geminiHeaders["x-goog-api-key"] = apiKey;
+                    response = await fetch(geminiUrl, {
+                        method: "POST",
+                        headers: geminiHeaders,
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
                 }
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: fetchHeaders,
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: prompt
-                            }]
-                        }],
-                        generationConfig: {
-                            responseMimeType: "application/json"
-                        }
-                    })
-                });
 
                 if (!response.ok) {
                     let errBody = "";
                     try { errBody = await response.text(); } catch(e) {}
-                    throw new Error(`Erro na API do Gemini [HTTP ${response.status}]: ${errBody || response.statusText}`);
+                    throw new Error(`Erro na API de IA [HTTP ${response.status}]: ${errBody || response.statusText}`);
                 }
 
                 const responseData = await response.json();
-                const textResponse = responseData.candidates[0].content.parts[0].text;
+
+                // Extrai o texto da resposta (formato diferente entre Groq e Gemini)
+                let textResponse;
+                if (isGroq) {
+                    textResponse = responseData.choices[0].message.content;
+                } else {
+                    textResponse = responseData.candidates[0].content.parts[0].text;
+                }
                 const aiData = JSON.parse(textResponse);
 
                 console.log("Dados extraídos pela IA:", aiData);
@@ -1566,8 +1585,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.hasMdiCondicional = state.addedMdiBehaviors.length > 0;
                 state.addedPositivosAtrapalham = aiData.ganhos_aparentes || [];
                 state.customLlmMicroaction = aiData.microacao;
-                state.isHereditary = true; // Por padrão ativa MSI para máxima profundidade
-                state.selectedLevel = "avancado"; // Nível avançado fixado por padrão
+                state.isHereditary = true;
+                state.selectedLevel = "avancado";
 
                 showToast("Triagem por IA realizada com sucesso!");
                 triggerFinalGeneration();
