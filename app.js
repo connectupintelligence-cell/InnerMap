@@ -1508,14 +1508,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const isLegacyGemini = apiKey.startsWith("AIza");
 
                 const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
-Sua tarefa é analisar o relato bruto de um cliente (pode ser uma transcrição de fala ou anotações) e extrair os elementos estruturados de acordo com o método.
+Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estruturados do método, com sensibilidade e profundidade.
 
 Definições de conceitos do método:
 - TEMA: O assunto/categoria central, abstrato e atemporal. É o "rótulo" do problema. Não pode conter "quando" ou "com quem". Exemplos: Escassez, Timidez, Rejeição, Ansiedade, Medo de crescer.
 - FATO: Recorte específico, datável e ancorado (um evento vivido em um momento). Deve responder quem estava envolvido, quando e o que aconteceu. Exemplos: "mãe ser agressiva na infância", "pai gritar quando tirei nota baixa aos 10 anos".
-- COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa (ex: "tentar controlar tudo", "agradar a todos") e o sentimento gerado por isso.
-- GANHOS APARENTES (MFPI): Forças aparentes ou comportamentos que o cliente acha que são positivos mas o aprisionam (ex: "ser forte o tempo todo", "exercer o protagonismo", "resolver tudo sozinha").
-- MICROAÇÃO: Uma orientação comportamental empática e prática sob medida para o cliente começar a aplicar hoje na sua rotina.
+- COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa e o sentimento gerado por isso.
+- GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
+- MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
+- REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente, como se fosse um terapeuta respondendo com presença. Use primeira pessoa do plural ("Ouço que você...").
+- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta, terapêutica e profunda, que instiga o cliente a explorar mais um aspecto importante ainda não mencionado ou pouco desenvolvido no relato. A pergunta deve ser gentil, específica e convidativa.
 
 Relato do Cliente:
 "${relato}"
@@ -1527,7 +1529,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "fatos": [
     {
       "phrase": "mãe/pai/etc. [ação ou característica]: [detalhe do que aconteceu]",
-      "sentiments": ["lista de sentimentos (em minúsculas) extraídos de: culpa, injustiça, dor, tristeza, solidão, rejeição, desaprovação, carência, raiva, medo"]
+      "sentiments": ["lista de sentimentos em minúsculas de: culpa, injustiça, dor, tristeza, solidão, rejeição, desaprovação, carência, raiva, medo"]
     }
   ],
   "comportamentos": [
@@ -1537,7 +1539,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     }
   ],
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
-  "microacao": "orientação comportamental prática baseada no relato"
+  "microacao": "orientação comportamental prática baseada no relato",
+  "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
+  "pergunta_aprofundamento": "uma única pergunta aberta e profunda para explorar mais"
 }`;
 
                 let response;
@@ -1589,8 +1593,10 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                     textResponse = responseData.candidates[0].content.parts[0].text;
                 }
                 const aiData = JSON.parse(textResponse);
-
                 console.log("Dados extraídos pela IA:", aiData);
+
+                // Salvar o relato original para concordância com contexto de gênero
+                state.relatoOriginal = relato;
 
                 // Popular estado global com os dados extraídos
                 state.tempTheme = aiData.tema;
@@ -1602,8 +1608,17 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.isHereditary = true;
                 state.selectedLevel = "avancado";
 
-                showToast("Triagem por IA realizada com sucesso!");
-                triggerFinalGeneration();
+                // Mostrar tela de exploração (reflexão + pergunta)
+                const subExplore = document.getElementById("sub-step-ai-explore");
+                const subStep1a = document.getElementById("sub-step-1a");
+                const elReflexao = document.getElementById("ai-reflexao");
+                const elPergunta = document.getElementById("ai-pergunta");
+
+                if (aiData.reflexao && elReflexao) elReflexao.textContent = aiData.reflexao;
+                if (aiData.pergunta_aprofundamento && elPergunta) elPergunta.textContent = aiData.pergunta_aprofundamento;
+
+                if (subStep1a) { subStep1a.style.display = "none"; subStep1a.classList.remove("active"); }
+                if (subExplore) { subExplore.style.display = "block"; setTimeout(() => subExplore.classList.add("active"), 50); }
 
             } catch (err) {
                 console.error("Erro na triagem por IA:", err);
@@ -1616,6 +1631,66 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         });
     }
 
+    // Lógica dos botões da tela de exploração AI
+    const btnAiContinuar = document.getElementById("btn-ai-continuar");
+    const btnAiPular = document.getElementById("btn-ai-pular");
+    const inputAprofundamento = document.getElementById("input-ai-aprofundamento");
+    const aiExploreSpinner = document.getElementById("ai-explore-spinner");
+
+    if (btnAiPular) {
+        btnAiPular.addEventListener("click", () => {
+            triggerFinalGeneration();
+        });
+    }
+
+    if (btnAiContinuar) {
+        btnAiContinuar.addEventListener("click", async () => {
+            const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
+
+            if (!respostaExtra) {
+                // Sem texto adicional → gerar direto
+                triggerFinalGeneration();
+                return;
+            }
+
+            // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
+            btnAiContinuar.disabled = true;
+            if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
+            btnAiContinuar.querySelector("span:last-child") && (btnAiContinuar.lastChild.textContent = " Analisando...");
+
+            try {
+                const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
+
+                const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
+
+                let mergeResponse;
+                if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+                    mergeResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                        body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                    });
+                    if (mergeResponse.ok) {
+                        const mergeData = await mergeResponse.json();
+                        const merged = JSON.parse(mergeData.choices[0].message.content);
+                        if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
+                        if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
+                        if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
+                        if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
+                        // Atualizar relato original para concordância incluir resposta extra
+                        state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
+                    }
+                }
+            } catch(e) {
+                console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
+            }
+
+            triggerFinalGeneration();
+        });
+    }
+
+
+
 
 
     // ==========================================================================
@@ -1627,7 +1702,11 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     async function correctConcordance(rawText) {
         if (!state.apiKey || !rawText || !rawText.trim()) return rawText;
         try {
-            const prompt = `Você é um especialista em língua portuguesa. Corrija apenas a concordância gramatical e as preposições do texto abaixo. NÃO altere palavras, não parafraseie, não adicione nem remova frases. Mantenha exatamente a mesma estrutura e conteúdo, apenas ajuste concordância gramatical (gênero, número, preposições como "ao/à", "pelo/pela", etc.). Retorne apenas o texto corrigido, sem explicações nem formatação extra.\n\nTexto:\n${rawText}`;
+            const contextoGenero = state.relatoOriginal
+                ? `\n\nContexto do relato original do cliente (use para inferir o gênero da pessoa e corrigir palavras entre parênteses como "pleno(a)", "seguro(a)", "criticado(a)" para a forma adequada):\n"${state.relatoOriginal.substring(0, 300)}"`
+                : "";
+
+            const prompt = `Você é um especialista em língua portuguesa. Corrija apenas a concordância gramatical e as preposições do texto abaixo. Regras:\n1. NÃO altere palavras, não parafraseie, não adicione nem remova frases.\n2. Ajuste concordância gramatical (gênero, número, preposições como "ao/à", "pelo/pela").\n3. Resolva palavras entre parênteses como "pleno(a)", "seguro(a)", "criticado(a)" escolhendo a forma correta de acordo com o gênero inferido do contexto.\n4. Retorne apenas o texto corrigido, sem explicações nem formatação extra.${contextoGenero}\n\nTexto a corrigir:\n${rawText}`;
 
             let response;
             if (state.apiKey.startsWith("gsk_")) {

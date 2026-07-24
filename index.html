@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <script>
@@ -130,6 +130,48 @@
                                 <span class="spinner" id="ai-spinner" style="display: none; width: 18px; height: 18px; border: 3px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
                                 🪄 Descobrir Minha Reorganização Informacional
                             </button>
+                        </div>
+
+                    <!-- Sub-tela: Exploração AI (aparece após análise inicial) -->
+                    <div id="sub-step-ai-explore" class="sub-screen-container" style="display: none;">
+                        <div class="glass-card" style="padding: 2rem; border-radius: 16px; margin-bottom: 1.25rem; border: 1px solid var(--color-border); background: rgba(255,255,255,0.01); text-align: left;">
+
+                            <!-- Reflexão empática da IA -->
+                            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; align-items: flex-start;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                                    <span style="font-size: 1rem;">💬</span>
+                                </div>
+                                <div>
+                                    <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.4rem 0;">O que ouvi da sua história</p>
+                                    <p id="ai-reflexao" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0; font-style: italic;"></p>
+                                </div>
+                            </div>
+
+                            <!-- Separador -->
+                            <div style="height: 1px; background: var(--color-border); margin: 0 0 1.5rem 0;"></div>
+
+                            <!-- Pergunta de aprofundamento -->
+                            <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem; align-items: flex-start;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(99,102,241,0.12); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                                    <span style="font-size: 1rem;">✨</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.4rem 0;">Uma pergunta para você</p>
+                                    <p id="ai-pergunta" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0 0 1rem 0; font-weight: 500;"></p>
+                                    <textarea id="input-ai-aprofundamento" class="textarea-quantum" style="height: 100px; font-size: 0.9rem; line-height: 1.5;" placeholder="Escreva aqui o que quiser compartilhar... (opcional)"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Botões de ação -->
+                            <div style="display: flex; gap: 0.75rem; flex-direction: column;">
+                                <button type="button" id="btn-ai-continuar" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem;">
+                                    <span class="spinner" id="ai-explore-spinner" style="display: none; width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></span>
+                                    Continuar com mais detalhes →
+                                </button>
+                                <button type="button" id="btn-ai-pular" class="btn btn-secondary btn-block" style="height: 44px; font-size: 0.9rem; opacity: 0.75;">
+                                    Pular e gerar agora
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
