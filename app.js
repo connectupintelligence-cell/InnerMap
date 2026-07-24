@@ -2877,6 +2877,15 @@ Pergunta atual: "${query}"
         }
     }
 
+    // 🔐 Segurança: se após 3s nenhuma tela estiver visível, força auth
+    setTimeout(() => {
+        const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
+        if (!anyActive) {
+            console.warn("Nenhuma tela ativa detectada após 3s — forçando tela de autenticação");
+            if (screens["auth"]) screens["auth"].classList.add("active");
+        }
+    }, 3000);
+
     // Verificar retorno de pagamento da InfinitePay na URL
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("payment") === "success") {
