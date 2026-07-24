@@ -1052,15 +1052,15 @@ class AppStateManager {
 }
 
 // InicializaÃ§Ã£o da UI e Event Listeners
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const state = new AppStateManager();
 
     // Carregar chave de API no startup para concordância funcionar em todos os fluxos
     if (supabaseClient) {
-        try {
-            const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
-            if (data && data.value) state.apiKey = data.value;
-        } catch(e) { console.warn("Chave de API não carregada no startup:", e); }
+        // Carregar chave de API em background (não-bloqueante) para concordância funcionar em todos os fluxos
+        supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single()
+            .then(({ data }) => { if (data && data.value) state.apiKey = data.value; })
+            .catch(e => console.warn("Chave de API não carregada no startup:", e));
     }
     if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_gemini_key") || null;
     
