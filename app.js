@@ -1,4 +1,4 @@
-// Global Error Debugging Handler
+﻿// Global Error Debugging Handler
 window.onerror = function(message, source, lineno, colno, error) {
     const errorMsg = `Erro JavaScript: ${message}\nFonte: ${source}:${lineno}:${colno}`;
     console.error(errorMsg);
@@ -2774,17 +2774,13 @@ Pergunta atual: "${query}"
             const daysRemaining = 15 - daysElapsed;
             
             if (daysRemaining <= 0) {
-                alert("Seu perÃ­odo de teste de 15 dias acabou! Por favor, assine um plano para continuar.");
+                alert("Seu período de teste de 15 dias acabou! Por favor, assine um plano para continuar.");
                 state.saveSubscription(null);
-                state.saveUser(null);
-                if (supabaseClient) {
-                    supabaseClient.auth.signOut();
-                }
                 updateUserUI();
-                showScreen("auth");
+                showScreen("paywall");
                 return false;
             } else if ([10, 5, 3, 1].includes(daysRemaining)) {
-                showToast(`AtenÃ§Ã£o: Restam ${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'} do seu perÃ­odo de teste! Assine o plano Mensal ou Anual para continuar.`);
+                showToast(`Atenção: Restam ${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'} do seu período de teste! Assine o plano Mensal ou Anual para continuar.`);
             }
         }
         return true;
