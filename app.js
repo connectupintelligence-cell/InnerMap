@@ -1,4 +1,4 @@
-﻿// Global Error Debugging Handler
+// Global Error Debugging Handler
 window.onerror = function(message, source, lineno, colno, error) {
     const errorMsg = `Erro JavaScript: ${message}\nFonte: ${source}:${lineno}:${colno}`;
     console.error(errorMsg);
@@ -1867,18 +1867,20 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     btnFinish.addEventListener("click", () => {
         let ratingValue = selectedRating;
         if (selectedRating === "Outro") {
-            const customVal = inputRatingCustom.value.trim();
+            const customVal = inputRatingCustom ? inputRatingCustom.value.trim() : "";
             ratingValue = customVal ? customVal : "Outro";
         }
 
-        state.addReorganization(inputPhrase.value.trim(), state.currentData, ratingValue);
+        const phraseText = state.tempTheme || state.relatoOriginal || (inputPhrase ? inputPhrase.value.trim() : "") || "Reorganização Informacional";
+
+        state.addReorganization(phraseText, state.currentData, ratingValue);
         
         // Criar e salvar Agenda de 15 dias
         if (state.currentUser && state.currentData) {
             const agenda = {
                 reorgId: Date.now().toString(),
                 title: state.currentData.title,
-                phrase: inputPhrase.value.trim(),
+                phrase: phraseText,
                 command: state.currentData.declaracaoNaoEspecifica,
                 microaction: state.currentData.microacao,
                 startDate: new Date().toISOString(),
@@ -1889,10 +1891,13 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         }
 
         ratingOptions.forEach(o => o.classList.remove("selected"));
-        document.querySelector('[data-value="Mais leve"]').classList.add("selected");
+        const defaultRating = document.querySelector('[data-value="Mais leve"]');
+        if (defaultRating) defaultRating.classList.add("selected");
         selectedRating = "Mais leve";
-        inputRatingCustom.style.display = "none";
-        inputRatingCustom.value = "";
+        if (inputRatingCustom) {
+            inputRatingCustom.style.display = "none";
+            inputRatingCustom.value = "";
+        }
         
         resetStep1Wizard();
         showScreen("step1");
