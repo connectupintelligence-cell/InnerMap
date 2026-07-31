@@ -1373,17 +1373,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // LÃ³gica de NavegaÃ§Ã£o e TransiÃ§Ã£o dos Sub-Passos da Tela 1
-    function switchSubStep(hideEl, showEl) {
-        hideEl.classList.remove("active");
-        setTimeout(() => {
-            hideEl.style.display = "none";
-            showEl.style.display = "block";
-            setTimeout(() => {
-                showEl.classList.add("active");
-            }, 50);
-        }, 150);
-    }
+
 
     // SeleÃ§Ã£o de NÃ­vel de Profundidade (Tela 1A)
     const btnLevelIniciante = document.getElementById("btn-level-iniciante");
@@ -1812,6 +1802,11 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         if (subStep1a) {
             subStep1a.style.display = "block";
             subStep1a.classList.add("active");
+        }
+        const subExplore = document.getElementById("sub-step-ai-explore");
+        if (subExplore) {
+            subExplore.style.display = "none";
+            subExplore.classList.remove("active");
         }
     }
 
