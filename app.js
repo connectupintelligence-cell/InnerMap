@@ -2026,15 +2026,205 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         showToast("Processo salvo na sua biblioteca!");
     });
 
-    // Helper: Mostrar tela especÃ­fica com interceptaÃ§Ãµes de autenticaÃ§Ã£o e paywall
+    // ==========================================================================
+    // MÓDULO DE ÁUDIO (ENTRADA POR VOZ E SAÍDA POR VOZ / SÍNTESE)
+    // ==========================================================================
+    const VoiceManager = {
+        activeRecognition: null,
+        activeRecognitionBtn: null,
+        speechSynthesis: window.speechSynthesis,
+        currentUtterance: null,
+
+        // 1. DITADO POR VOZ (SPEECH-TO-TEXT)
+        toggleSpeechRecognition: function(inputId, buttonEl) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast("Ditado por voz não é suportado neste navegador. Recomendamos o Google Chrome.");
+                return;
+            }
+
+            const targetInput = document.getElementById(inputId);
+            if (!targetInput) return;
+
+            if (this.activeRecognition && this.activeRecognitionBtn === buttonEl) {
+                this.stopSpeechRecognition();
+                return;
+            }
+
+            this.stopSpeechRecognition();
+
+            try {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'pt-BR';
+                recognition.continuous = true;
+                recognition.interimResults = false;
+
+                recognition.onstart = () => {
+                    this.activeRecognition = recognition;
+                    this.activeRecognitionBtn = buttonEl;
+                    buttonEl.classList.add("listening");
+                    buttonEl.innerHTML = "🔴";
+                    buttonEl.title = "Ouvindo... Clique para parar";
+                    showToast("🎤 Ouvindo... Fale normalmente em português.");
+                };
+
+                recognition.onresult = (event) => {
+                    let transcript = "";
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            transcript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (transcript) {
+                        const currentVal = targetInput.value;
+                        targetInput.value = currentVal ? (currentVal + " " + transcript) : transcript;
+                        targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.warn("Erro no ditado por voz:", event.error);
+                    this.stopSpeechRecognition();
+                };
+
+                recognition.onend = () => {
+                    this.stopSpeechRecognition();
+                };
+
+                recognition.start();
+
+            } catch (err) {
+                console.error("Falha ao iniciar reconhecimento de voz:", err);
+                this.stopSpeechRecognition();
+            }
+        },
+
+        stopSpeechRecognition: function() {
+            if (this.activeRecognition) {
+                try { this.activeRecognition.stop(); } catch(e) {}
+                this.activeRecognition = null;
+            }
+            if (this.activeRecognitionBtn) {
+                this.activeRecognitionBtn.classList.remove("listening");
+                this.activeRecognitionBtn.innerHTML = "🎤";
+                this.activeRecognitionBtn.title = "Ditado por voz";
+                this.activeRecognitionBtn = null;
+            }
+        },
+
+        // 2. LEITURA POR VOZ (TEXT-TO-SPEECH)
+        speakText: function(text, buttonEl) {
+            if (!this.speechSynthesis) {
+                showToast("Síntese de voz não disponível no navegador.");
+                return;
+            }
+
+            if (this.speechSynthesis.speaking && buttonEl && buttonEl.classList.contains("speaking")) {
+                this.stopSpeaking();
+                return;
+            }
+
+            this.stopSpeaking();
+
+            if (!text || !text.trim()) return;
+
+            const cleanText = text.replace(/<[^>]*>/g, '').trim();
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+
+            const voices = this.speechSynthesis.getVoices();
+            const ptVoice = voices.find(v => v.lang === 'pt-BR' || v.lang === 'pt_BR') || voices.find(v => v.lang.startsWith('pt'));
+            if (ptVoice) utterance.voice = ptVoice;
+
+            if (buttonEl) {
+                buttonEl.classList.add("speaking");
+                const origHtml = buttonEl.innerHTML;
+                buttonEl.innerHTML = "⏹️ Parar";
+
+                utterance.onend = () => {
+                    buttonEl.classList.remove("speaking");
+                    buttonEl.innerHTML = origHtml;
+                    this.currentUtterance = null;
+                };
+
+                utterance.onerror = () => {
+                    buttonEl.classList.remove("speaking");
+                    buttonEl.innerHTML = origHtml;
+                    this.currentUtterance = null;
+                };
+            }
+
+            this.currentUtterance = utterance;
+            this.speechSynthesis.speak(utterance);
+        },
+
+        stopSpeaking: function() {
+            if (this.speechSynthesis) {
+                this.speechSynthesis.cancel();
+            }
+            document.querySelectorAll(".btn-tts-speak.speaking").forEach(btn => {
+                btn.classList.remove("speaking");
+                btn.innerHTML = "🔊 Ouvir";
+            });
+            this.currentUtterance = null;
+        }
+    };
+
+    // Event listeners para botões de Microfone (Speech-to-Text)
+    document.querySelectorAll(".btn-mic-input").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.dataset.target;
+            if (targetId) VoiceManager.toggleSpeechRecognition(targetId, btn);
+        });
+    });
+
+    // Event listeners para botões de Síntese de Voz (Text-to-Speech)
+    document.querySelectorAll(".btn-tts-speak").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.dataset.target;
+            if (targetId) {
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    VoiceManager.speakText(targetEl.innerText || targetEl.value, btn);
+                }
+            }
+        });
+    });
+
+    // Botão de Prática Guiada Completa na Tela 3
+    const btnTtsFullPractice = document.getElementById("btn-tts-full-practice");
+    if (btnTtsFullPractice) {
+        btnTtsFullPractice.addEventListener("click", () => {
+            const elObj = document.getElementById("output-objetivo");
+            const elDec = document.getElementById("output-declaracao");
+            const elFort = document.getElementById("output-fortalecimento");
+            const elMic = document.getElementById("output-microacao");
+
+            let fullText = "Iniciando Prática Guiada de Ajustes Informacionais. ";
+            if (elObj && elObj.innerText) fullText += "Objetivo do Processo: " + elObj.innerText + ". ";
+            if (elDec && elDec.innerText) fullText += "Liberação de Registros Específicos: " + elDec.innerText + ". ";
+            if (elFort && elFort.innerText) fullText += "Liberação dos Não Específicos e Fortalecimento: " + elFort.innerText + ". ";
+            if (elMic && elMic.innerText) fullText += "Prática Diária de Ação e Integração: " + elMic.innerText + ". ";
+
+            VoiceManager.speakText(fullText, btnTtsFullPractice);
+        });
+    }
+
+    // Helper: Mostrar tela específica com interceptações de autenticação e paywall
     function showScreen(screenId) {
+        VoiceManager.stopSpeaking();
+        VoiceManager.stopSpeechRecognition();
+
         Object.keys(screens).forEach(key => {
             if (screens[key]) {
                 screens[key].classList.remove("active");
             }
         });
         
-        // InterceptaÃ§Ã£o de seguranÃ§a e faturamento
+        // Interceptação de segurança e faturamento
         if (!state.currentUser) {
             if (screens["auth"]) screens["auth"].classList.add("active");
             state.currentStep = 0;
@@ -2043,7 +2233,6 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         }
         
         if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
-            // Se o usuÃ¡rio logado for terapeuta, nÃ£o precisa de assinatura ativa e pode acessar qualquer tela
             if (state.currentUser && state.currentUser.role === "therapist") {
                 // Acesso liberado
             } else {
@@ -2063,7 +2252,6 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             }
         }
 
-        // Se a tela ativa for o painel do terapeuta, adiciona classe ao body para limpar o layout
         if (screenId === "therapist") {
             document.body.classList.add("mode-therapist");
         } else {

@@ -155,9 +155,12 @@
                                 Conte com suas próprias palavras o que você está sentindo ou vivenciando (seus medos, conflitos, sentimentos, situações financeiras ou de relacionamento). Nossa inteligência ajudará a construir sua prática de liberação.
                             </p>
                             
-                            <textarea id="input-ai-relato" class="textarea-quantum" style="height: 140px; font-size: 0.95rem; margin-bottom: 1.25rem; line-height: 1.6;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas. Hoje sinto que preciso ser forte o tempo todo...)"></textarea>
+                            <div class="input-with-mic-container">
+                                <textarea id="input-ai-relato" class="textarea-quantum" style="height: 140px; font-size: 0.95rem; margin-bottom: 0; line-height: 1.6; padding-right: 50px;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas. Hoje sinto que preciso ser forte o tempo todo...)"></textarea>
+                                <button type="button" class="btn-mic-input" data-target="input-ai-relato" title="Ditado por voz (falar relato)">🎤</button>
+                            </div>
                             
-                            <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem;">
+                            <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem; margin-top: 1.25rem;">
                                 <span class="spinner" id="ai-spinner" style="display: none; width: 18px; height: 18px; border: 3px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
                                 🪄 Descobrir Minha Reorganização Informacional
                             </button>
@@ -173,8 +176,11 @@
                                 <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
                                     <span style="font-size: 1rem;">💬</span>
                                 </div>
-                                <div>
-                                    <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.4rem 0;">O que ouvi da sua história</p>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                                        <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">O que ouvi da sua história</p>
+                                        <button type="button" class="btn-tts-speak" data-target="ai-reflexao" title="Ouvir reflexão da IA">🔊 Ouvir</button>
+                                    </div>
                                     <p id="ai-reflexao" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0; font-style: italic;"></p>
                                 </div>
                             </div>
@@ -188,9 +194,16 @@
                                     <span style="font-size: 1rem;">✨</span>
                                 </div>
                                 <div style="flex: 1;">
-                                    <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.4rem 0;">Uma pergunta para você</p>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                                        <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Uma pergunta para você</p>
+                                        <button type="button" class="btn-tts-speak" data-target="ai-pergunta" title="Ouvir pergunta">🔊 Ouvir</button>
+                                    </div>
                                     <p id="ai-pergunta" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0 0 1rem 0; font-weight: 500;"></p>
-                                    <textarea id="input-ai-aprofundamento" class="textarea-quantum" style="height: 100px; font-size: 0.9rem; line-height: 1.5;" placeholder="Escreva aqui o que quiser compartilhar... (opcional)"></textarea>
+                                    
+                                    <div class="input-with-mic-container">
+                                        <textarea id="input-ai-aprofundamento" class="textarea-quantum" style="height: 100px; font-size: 0.9rem; line-height: 1.5; padding-right: 50px;" placeholder="Escreva aqui o que quiser compartilhar... (opcional)"></textarea>
+                                        <button type="button" class="btn-mic-input" data-target="input-ai-aprofundamento" title="Ditado por voz">🎤</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -228,12 +241,18 @@
                     <p class="step-subtitle">A consciência do padrão é o primeiro passo para a sua reorganização.</p>
                     
                     <div class="response-block">
-                        <h3 class="response-label">🔍 Ajuste observado</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <h3 class="response-label" style="margin: 0;">🔍 Ajuste observado</h3>
+                            <button type="button" class="btn-tts-speak" data-target="output-ajuste" title="Ouvir ajuste observado">🔊 Ouvir</button>
+                        </div>
                         <p id="output-ajuste" class="response-text">Carregando leitura do padrão informacional...</p>
                     </div>
 
                     <div class="response-block-accent">
-                        <h3 class="response-label">💡 Movimento sugerido</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <h3 class="response-label" style="margin: 0;">💡 Movimento sugerido</h3>
+                            <button type="button" class="btn-tts-speak" data-target="output-movimento" title="Ouvir movimento sugerido">🔊 Ouvir</button>
+                        </div>
                         <p id="output-movimento" class="response-text">Carregando movimento sugerido...</p>
                     </div>
 
@@ -242,7 +261,12 @@
 
                 <!-- STEP 3: Ajustes Informacionais (Comandos) -->
                 <div id="screen-step3" class="app-screen">
-                    <h2 class="step-title">AJUSTES INFORMACIONAIS</h2>
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <h2 class="step-title" style="margin: 0;">AJUSTES INFORMACIONAIS</h2>
+                        <button type="button" id="btn-tts-full-practice" class="btn-tts-speak" style="padding: 0.45rem 0.9rem; font-size: 0.85rem; font-weight: 600;" title="Ouvir prática guiada completa">
+                            🔊 Ouvir Prática Completa
+                        </button>
+                    </div>
                     <p class="step-subtitle">Prática guiada de escolha consciente para reorganizar o seu estado interno.</p>
                     
                     <div id="output-category">
@@ -258,7 +282,10 @@
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                                 <span>Liberação de Registros Específicos (MSI / MFI)</span>
-                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(234, 67, 53, 0.12); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">⚠️ Emitir 1x na vida!</span>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button type="button" class="btn-tts-speak" data-target="output-declaracao" title="Ouvir comandos específicos">🔊 Ouvir</button>
+                                    <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(234, 67, 53, 0.12); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">⚠️ Emitir 1x na vida!</span>
+                                </div>
                             </span>
                             <p id="output-declaracao" class="hqi-text-box"></p>
                         </div>
@@ -266,7 +293,10 @@
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                                 <span>Liberação dos Não Específicos (MRI / MDI)</span>
-                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(102, 252, 241, 0.12); color: var(--color-primary); border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">🔄 1x por dia durante 15 dias</span>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button type="button" class="btn-tts-speak" data-target="output-fortalecimento" title="Ouvir fortalecimento">🔊 Ouvir</button>
+                                    <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(102, 252, 241, 0.12); color: var(--color-primary); border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">🔄 1x por dia durante 15 dias</span>
+                                </div>
                             </span>
                             <p id="output-fortalecimento" class="hqi-text-box-fortify"></p>
                         </div>
@@ -274,7 +304,10 @@
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                                 <span>Ação e Integração</span>
-                                <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(255, 255, 255, 0.08); color: var(--color-text-main); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">💡 Prática Diária</span>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button type="button" class="btn-tts-speak" data-target="output-microacao" title="Ouvir microação">🔊 Ouvir</button>
+                                    <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(255, 255, 255, 0.08); color: var(--color-text-main); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">💡 Prática Diária</span>
+                                </div>
                             </span>
                             <p id="output-microacao" class="action-card"></p>
                         </div>
