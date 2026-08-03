@@ -1620,7 +1620,14 @@ Definições de conceitos do método:
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
 - REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente.
-- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta, terapêutica e profunda, para explorar mais.
+- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta e profunda focada em CONSTATAR os desmembramentos e impactos reais do primeiro FATO apresentado.
+  REGRAS OBRIGATÓRIAS PARA A PERGUNTA:
+  1. JAMAIS pergunte hipóteses ou "como a vida seria diferente" (NUNCA faça perguntas como "Como você acha que sua vida seria se...").
+  2. A pergunta DEVE CONSTATAR A REALIDADE VIVIDA a partir do fato relatado, investigando o que mais faltou, em que momento específico o impacto foi mais sentido, ou se o cliente culpa alguém ou compensa essa falta hoje.
+  3. Modelos de inspiração (adapte diretamente ao fato do relato):
+     - "Por você ter vivenciado [fato relatado], o que mais te faltou na prática?"
+     - "Me explique mais: na sua visão, em qual momento você mais sentiu o impacto disso?"
+     - "Você culpa alguém por isso? Ou nos dias de hoje, tenta compensar isso com algo ou alguém?"
 
 Relato do Cliente:
 "${relato}"
@@ -1644,7 +1651,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
   "microacao": "orientação comportamental prática baseada no relato",
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
-  "pergunta_aprofundamento": "uma única pergunta aberta e profunda para explorar mais"
+  "pergunta_aprofundamento": "uma única pergunta concreta investigando os impactos reais do fato (sem hipóteses)"
 }`;
                 }
 
