@@ -1390,6 +1390,113 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     });
+    // ==========================================================================
+    // SELETOR DE OBJETIVO (MODOS 1, 2 E 3) & INTEGRAÇÃO COM GEMINI/GROQ AI
+    // ==========================================================================
+    state.selectedMode = 1; // 1: Desconforto Recente, 2: História/Passado, 3: Motivação Rápida
+    const objCards = document.querySelectorAll(".objective-card");
+    const step1Title = document.getElementById("step1-title");
+    const step1Desc = document.getElementById("step1-desc");
+    const inputAiRelato = document.getElementById("input-ai-relato");
+
+    objCards.forEach(card => {
+        card.addEventListener("click", () => {
+            objCards.forEach(c => c.classList.remove("active"));
+            card.classList.add("active");
+            state.selectedMode = parseInt(card.dataset.mode || "1");
+
+            if (state.selectedMode === 1) {
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
+                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
+                if (inputAiRelato) inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
+            } else if (state.selectedMode === 2) {
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
+                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
+                if (inputAiRelato) inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+            } else if (state.selectedMode === 3) {
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
+                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
+                if (inputAiRelato) inputAiRelato.placeholder = "Digite o foco desejado (Ex: Quero motivação e foco para finalizar meu projeto esta semana, com serenidade e autoconfiança...)";
+            }
+        });
+    });
+
+    // Editor Interativo de Fatos e Sentimentos (MFI)
+    const AVAILABLE_SENTIMENTS = [
+        "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", 
+        "carência", "raiva", "ódio", "decepção", "incompetência", "incapacidade", 
+        "inferioridade", "pressão", "invasão", "medo", "frustração", "insegurança", "angústia"
+    ];
+
+    function renderFactsEditor() {
+        const editorSection = document.getElementById("ai-mfi-editor-section");
+        const listContainer = document.getElementById("ai-facts-list-container");
+        if (!editorSection || !listContainer) return;
+
+        if (!state.addedFacts || state.addedFacts.length === 0 || state.selectedMode === 3) {
+            editorSection.style.display = "none";
+            return;
+        }
+
+        editorSection.style.display = "block";
+        listContainer.innerHTML = "";
+
+        state.addedFacts.forEach((factObj, factIndex) => {
+            const card = document.createElement("div");
+            card.className = "fact-edit-card";
+
+            const label = document.createElement("label");
+            label.style.cssText = "display: block; font-size: 0.75rem; font-weight: 600; color: var(--color-primary); margin-bottom: 4px;";
+            label.textContent = `Fato ${factIndex + 1} (editável):`;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "fact-edit-input";
+            input.value = factObj.phrase || "";
+            input.placeholder = "Descreva o fato...";
+            input.addEventListener("input", (e) => {
+                state.addedFacts[factIndex].phrase = e.target.value.trim();
+            });
+
+            const sTitle = document.createElement("p");
+            sTitle.style.cssText = "font-size: 0.73rem; color: var(--color-text-muted); margin: 0 0 6px 0;";
+            sTitle.textContent = "Sentimentos marcados (clique para marcar/desmarcar):";
+
+            const tagsContainer = document.createElement("div");
+            tagsContainer.className = "sentiment-tags-container";
+
+            const currentSentiments = (factObj.sentiments || []).map(s => s.toLowerCase());
+            const allOptions = Array.from(new Set([...currentSentiments, ...AVAILABLE_SENTIMENTS]));
+
+            allOptions.forEach(sentiment => {
+                const isSelected = currentSentiments.includes(sentiment.toLowerCase());
+                const tag = document.createElement("span");
+                tag.className = `sentiment-tag-toggle ${isSelected ? "active" : ""}`;
+                tag.innerHTML = `${isSelected ? "✓ " : "+ "}${sentiment}`;
+
+                tag.addEventListener("click", () => {
+                    const idx = state.addedFacts[factIndex].sentiments.findIndex(s => s.toLowerCase() === sentiment.toLowerCase());
+                    if (idx >= 0) {
+                        state.addedFacts[factIndex].sentiments.splice(idx, 1);
+                        tag.classList.remove("active");
+                        tag.innerHTML = `+ ${sentiment}`;
+                    } else {
+                        state.addedFacts[factIndex].sentiments.push(sentiment);
+                        tag.classList.add("active");
+                        tag.innerHTML = `✓ ${sentiment}`;
+                    }
+                });
+
+                tagsContainer.appendChild(tag);
+            });
+
+            card.appendChild(label);
+            card.appendChild(input);
+            card.appendChild(sTitle);
+            card.appendChild(tagsContainer);
+            listContainer.appendChild(card);
+        });
+    }
 
     // Chips de SugestÃµes de Temas na Tela 1A
     const themeChips = document.querySelectorAll("#theme-suggestions-chips .sentiment-tag");
@@ -1440,7 +1547,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // INTEGRAÇÃO COM GEMINI AI (ASSISTENTE DE SESSÃO)
     // ==========================================================================
     const btnRunAiAnalysis = document.getElementById("btn-run-ai-analysis");
-    const inputAiRelato = document.getElementById("input-ai-relato");
     const aiSpinner = document.getElementById("ai-spinner");
     const aiExtractionSummary = document.getElementById("ai-extraction-summary");
     const summaryAiTema = document.getElementById("summary-ai-tema");
@@ -1452,52 +1558,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnRunAiAnalysis && inputAiRelato) {
         btnRunAiAnalysis.addEventListener("click", async () => {
-            let apiKey = "";
-            
-            // Tentar obter a chave de forma segura no Supabase
-            if (supabaseClient) {
+            let apiKey = state.apiKey || "";
+
+            if (!apiKey) {
                 try {
-                    const { data, error } = await supabaseClient
-                        .from("system_config")
-                        .select("value")
-                        .eq("key", "gemini_api_key")
-                        .single();
-                    
-                    if (data && data.value) {
-                        apiKey = data.value;
-                        state.apiKey = apiKey; // salva para reutilizar na concordância
+                    if (supabaseClient) {
+                        const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
+                        if (data && data.value) apiKey = data.value;
                     }
-                } catch (err) {
-                    console.warn("Erro ao buscar chave Gemini no Supabase:", err);
-                }
-            }
-
-            // Fallback para localStorage secundário
-            if (!apiKey) {
-                apiKey = localStorage.getItem("innermap_gemini_key");
+                } catch (e) {}
             }
 
             if (!apiKey) {
-                alert("Erro de sistema: A chave de API do Gemini não foi encontrada nas configurações do banco de dados.");
-                return;
+                apiKey = prompt("Por favor, insira sua chave de API Groq (gsk_...) ou Gemini:");
+                if (!apiKey) return;
+                state.apiKey = apiKey;
+                localStorage.setItem("innermap_gemini_key", apiKey);
             }
 
             const relato = inputAiRelato.value.trim();
             if (!relato) {
-                alert("Por favor, digite com suas próprias palavras o que está acontecendo.");
+                alert("Por favor, descreva seu relato ou objetivo para continuar.");
                 return;
             }
 
             btnRunAiAnalysis.disabled = true;
             if (aiSpinner) aiSpinner.style.display = "inline-block";
-            btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando Relato com Gemini...';
+            btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando com IA...';
 
             try {
-                // Detecta o provedor pela chave: gsk_ = Groq, AIza = Gemini legado, AQ. = Gemini novo
                 const isGroq = apiKey.startsWith("gsk_");
                 const isLegacyGemini = apiKey.startsWith("AIza");
 
-                const prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
+                let prompt = "";
+                if (state.selectedMode === 3) {
+                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
+O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (modo rápido, sem foco em traumas passados).
+
+Objetivo/Foco do Cliente:
+"${relato}"
+
+Retorne um objeto JSON válido no formato exato:
+{
+  "tema": "substantivo abstrato de foco (ex: Autoconfiança, Foco, Clareza, Serenidade)",
+  "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
+  "fatos": [],
+  "comportamentos": [],
+  "ganhos_aparentes": [],
+  "microacao": "orientação prática e fortalecedora para aplicar hoje",
+  "reflexao": "mensagem encorajadora e acolhedora de 2-3 linhas celebrando o foco escolhido",
+  "pergunta_aprofundamento": "uma única pergunta motivacional inspirando o cliente a visualizar o resultado"
+}`;
+                } else {
+                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estruturados do método, com sensibilidade e profundidade.
 
 Definições de conceitos do método:
@@ -1506,8 +1619,8 @@ Definições de conceitos do método:
 - COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa e o sentimento gerado por isso.
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
-- REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente, como se fosse um terapeuta respondendo com presença. Use primeira pessoa do plural ("Ouço que você...").
-- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta, terapêutica e profunda, que instiga o cliente a explorar mais um aspecto importante ainda não mencionado ou pouco desenvolvido no relato. A pergunta deve ser gentil, específica e convidativa.
+- REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente.
+- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta, terapêutica e profunda, para explorar mais.
 
 Relato do Cliente:
 "${relato}"
@@ -1533,11 +1646,11 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
   "pergunta_aprofundamento": "uma única pergunta aberta e profunda para explorar mais"
 }`;
+                }
 
                 let response;
 
                 if (isGroq) {
-                    // === GROQ (Llama 4 Scout — free tier, sem faturamento) ===
                     response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
                         headers: {
@@ -1551,7 +1664,6 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                         })
                     });
                 } else {
-                    // === GEMINI (Google AI) ===
                     const geminiUrl = isLegacyGemini
                         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`
                         : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent`;
@@ -1597,6 +1709,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.customLlmMicroaction = aiData.microacao;
                 state.isHereditary = true;
                 state.selectedLevel = "avancado";
+
+                // Renderizar editor interativo de Fatos/Sentimentos (MFI)
+                renderFactsEditor();
 
                 // Mostrar tela de exploração (reflexão + pergunta)
                 const subExplore = document.getElementById("sub-step-ai-explore");

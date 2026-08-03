@@ -1935,3 +1935,107 @@ body.mode-therapist .main-content {
     flex-shrink: 0;
 }
 
+/* Objective Selector Grid & Cards */
+.objective-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.objective-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.objective-card:hover {
+    border-color: rgba(102, 252, 241, 0.4);
+    background: rgba(102, 252, 241, 0.05);
+}
+
+.objective-card.active {
+    border-color: var(--color-primary);
+    background: rgba(102, 252, 241, 0.12);
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.15);
+}
+
+.objective-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.objective-info strong {
+    display: block;
+    font-size: 0.88rem;
+    color: var(--color-text);
+    margin-bottom: 2px;
+}
+
+.objective-info small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    line-height: 1.2;
+}
+
+/* Fact & Sentiment Interactive Editor */
+.fact-edit-card {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.85rem;
+}
+
+.fact-edit-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.6rem;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.fact-edit-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+.sentiment-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.sentiment-tag-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.sentiment-tag-toggle.active {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+}
+
+
