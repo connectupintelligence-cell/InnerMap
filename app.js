@@ -1417,9 +1417,93 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
                 if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
                 if (inputAiRelato) inputAiRelato.placeholder = "Digite o foco desejado (Ex: Quero motivação e foco para finalizar meu projeto esta semana, com serenidade e autoconfiança...)";
+            } else if (state.selectedMode === 4) {
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Completa + MGI Generativo`;
+                if (step1Desc) step1Desc.textContent = "Descreva seu relato ou tema. Este processo envolve todos os passos + os 12 comandos de Movimento Generativo Informacional (MGI).";
+                if (inputAiRelato) inputAiRelato.placeholder = "Escreva ou fale detalhadamente seu relato ou tema para a reorganização completa (Ex: Sinto dificuldades nos meus relacionamentos e ansiedade financeira desde a juventude...)";
             }
         });
     });
+
+    // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
+    async function generateMgiCommands(tema) {
+        if (!tema || !tema.trim()) tema = "esta queixa";
+
+        // Tentar contextualização gramatical via IA (Groq/Gemini)
+        if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+            try {
+                const promptMgi = `Você é um psicoterapeuta especialista no Método InnerMap.
+O cliente forneceu o tema central: "${tema}".
+
+Para alimentar os 12 comandos de limpeza generativa (MGI), precisamos adaptar a palavra/frase do tema para que se encaixe com 100% de sentido gramatical e concordância perfeita em português em cada uma das lacunas abaixo.
+
+Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em cada frase:
+{
+  "causaram_tema": "a causa flexionada (ex: desequilíbrios nos relacionamentos, a escassez financeira, os conflitos no trabalho)",
+  "recebida_de": "da/do tema (ex: desequilíbrios nos relacionamentos, escassez, insegurança)",
+  "manifestar": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)",
+  "geraram_tema": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)",
+  "geradas_pela_pelo": "pela/pelo tema (ex: pelos desequilíbrios nos relacionamentos, pela escassez financeira)",
+  "vivenciei": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)"
+}`;
+
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMgi }] })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const f = JSON.parse(data.choices[0].message.content);
+                    if (f) {
+                        const causaram = f.causaram_tema || tema;
+                        const recebida = f.recebida_de || tema;
+                        const manifestar = f.manifestar || tema;
+                        const geraram = f.geraram_tema || tema;
+                        const geradasPelaPelo = f.geradas_pela_pelo || (`pela(o) ${tema}`);
+                        const vivenciei = f.vivenciei || tema;
+
+                        return [
+                            `Alma, todos os sentimentos negativos que senti e que causaram ${causaram} acabaram!`,
+                            `Alma, todos os sentimentos negativos que recebi e que causaram ${causaram} acabaram!`,
+                            `Espírito, hereditariedade recebida de ${recebida} acabou!`,
+                            `Espírito, condicionamento de manifestar ${manifestar} acabou!`,
+                            `Espírito, crenças que causaram ${causaram} acabaram!`,
+                            `Espírito, pensamentos que causaram ${causaram} acabaram!`,
+                            `Espírito, todas as informações que geraram ${geraram} acabaram!`,
+                            `Alma, todas as informações que geraram ${geraram} acabaram!`,
+                            `Espírito, todas as informações geradas ${geradasPelaPelo} acabaram!`,
+                            `Alma, todas as informações geradas ${geradasPelaPelo} acabaram!`,
+                            `Espírito, todas as informações dos fatos nos quais vivenciei ${vivenciei} acabaram!`,
+                            `Alma, todas as informações dos fatos nos quais vivenciei ${vivenciei} acabaram!`
+                        ].join("\n");
+                    }
+                }
+            } catch(e) {
+                console.warn("Flexão de MGI via IA falhou, usando fallback direto:", e);
+            }
+        }
+
+        // Fallback local com concordância simples
+        const cleanT = tema.toLowerCase().trim();
+        const prepPelaPelo = cleanT.startsWith("a ") || cleanT.startsWith("o ") ? `geradas ${cleanT}` : `geradas pela(o) ${cleanT}`;
+
+        return [
+            `Alma, todos os sentimentos negativos que senti e que causaram ${cleanT} acabaram!`,
+            `Alma, todos os sentimentos negativos que recebi e que causaram ${cleanT} acabaram!`,
+            `Espírito, hereditariedade recebida de ${cleanT} acabou!`,
+            `Espírito, condicionamento de manifestar ${cleanT} acabou!`,
+            `Espírito, crenças que causaram ${cleanT} acabaram!`,
+            `Espírito, pensamentos que causaram ${cleanT} acabaram!`,
+            `Espírito, todas as informações que geraram ${cleanT} acabaram!`,
+            `Alma, todas as informações que geraram ${cleanT} acabaram!`,
+            `Espírito, todas as informações ${prepPelaPelo} acabaram!`,
+            `Alma, todas as informações ${prepPelaPelo} acabaram!`,
+            `Espírito, todas as informações dos fatos nos quais vivenciei ${cleanT} acabaram!`,
+            `Alma, todas as informações dos fatos nos quais vivenciei ${cleanT} acabaram!`
+        ].join("\n");
+    }
 
     // Editor Interativo de Fatos e Sentimentos (MFI)
     const AVAILABLE_SENTIMENTS = [
@@ -1987,6 +2071,20 @@ Retorne JSON no formato exato:
 
             if (outputNaoEspecifico) outputNaoEspecifico.innerText = result.declaracaoNaoEspecifica;
             
+            // Renderizar MGI (Movimento Generativo Informacional - Modo 4)
+            const itemMgi = document.getElementById("item-mgi");
+            const outputMgi = document.getElementById("output-mgi");
+
+            if (state.selectedMode === 4) {
+                const mgiCommands = await generateMgiCommands(result.tema || phrase);
+                result.mgi = mgiCommands;
+                if (itemMgi) itemMgi.style.display = "block";
+                if (outputMgi) outputMgi.innerText = mgiCommands;
+            } else {
+                if (itemMgi) itemMgi.style.display = "none";
+                if (outputMgi) outputMgi.innerText = "";
+            }
+
             const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
             if (!result.microacao || result.microacao.trim() === "") {
                 if (itemMicroacao) itemMicroacao.style.display = "none";
@@ -2421,12 +2519,14 @@ Retorne JSON no formato exato:
             const elObj = document.getElementById("output-objetivo");
             const elDec = document.getElementById("output-declaracao");
             const elFort = document.getElementById("output-fortalecimento");
+            const elMgi = document.getElementById("output-mgi");
             const elMic = document.getElementById("output-microacao");
 
             let fullText = "Iniciando Prática Guiada de Ajustes Informacionais. ";
             if (elObj && elObj.innerText) fullText += "Objetivo do Processo: " + elObj.innerText + ". ";
             if (elDec && elDec.innerText) fullText += "Liberação de Registros Específicos: " + elDec.innerText + ". ";
             if (elFort && elFort.innerText) fullText += "Liberação dos Não Específicos e Fortalecimento: " + elFort.innerText + ". ";
+            if (elMgi && elMgi.innerText) fullText += "Movimento Generativo Informacional MGI: " + elMgi.innerText + ". ";
             if (elMic && elMic.innerText) fullText += "Prática Diária de Ação e Integração: " + elMic.innerText + ". ";
 
             VoiceManager.speakText(fullText, btnTtsFullPractice);
