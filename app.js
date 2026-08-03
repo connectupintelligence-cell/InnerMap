@@ -217,14 +217,15 @@ function formatFactForSentence(fact) {
         'deixei': 'deixado', 'deixou': 'deixado', 'deixar': 'deixado',
         'ajudei': 'ajudado', 'ajudou': 'ajudado', 'ajudar': 'ajudado',
         'cheguei': 'chegado', 'chegou': 'chegado', 'chegar': 'chegado',
-        'sai': 'saÃ­do', 'saiu': 'saÃ­do', 'sair': 'saÃ­do',
-        'cai': 'caÃ­do', 'caiu': 'caÃ­do', 'cair': 'caÃ­do',
-        'entrei': 'entrado', 'entrou': 'entrado', 'entrar': 'entrado'
+        'sai': 'saído', 'saiu': 'saído', 'sair': 'saído',
+        'cai': 'caído', 'caiu': 'caído', 'cair': 'caído',
+        'entrei': 'entrado', 'entrou': 'entrado', 'entrar': 'entrado',
+        'repeti': 'repetido', 'repetiu': 'repetido', 'repetir': 'repetido'
     };
 
     const words = cleanLower.split(/\s+/);
     
-    // SÃ³ reestruturar se o verbo estiver nas primeiras 2 palavras para evitar bagunÃ§ar frases complexas
+    // Só reestruturar se o verbo estiver nas primeiras 2 palavras para evitar bagunçar frases complexas
     let verbIndex = -1;
     let participle = "";
     for (let i = 0; i < Math.min(words.length, 2); i++) {
@@ -237,7 +238,6 @@ function formatFactForSentence(fact) {
     }
 
     if (verbIndex !== -1) {
-        // Se a frase jÃ¡ contiver "ter" ou "tido" ou "por" logo antes, nÃ£o reestrutura
         const prevWord = verbIndex > 0 ? words[verbIndex - 1] : "";
         if (prevWord === "ter" || prevWord === "tido" || prevWord === "por" || prevWord === "eu") {
             return `por ${clean}`;
@@ -252,7 +252,7 @@ function formatFactForSentence(fact) {
         if (wordsBefore) {
             wordsBefore.split(/\s+/).forEach(w => {
                 const low = w.trim().toLowerCase();
-                const isPre = ["eu", "vocÃª", "ele", "ela", "nÃ³s", "a gente", "nÃ£o", "nunca", "jamais", "nem", "ontem", "hoje", "anteontem", "agora", "antes", "depois", "jÃ¡"].includes(low);
+                const isPre = ["eu", "você", "ele", "ela", "nós", "a gente", "não", "nunca", "jamais", "nem", "ontem", "hoje", "anteontem", "agora", "antes", "depois", "já"].includes(low);
                 if (isPre) {
                     preWords.push(w);
                 } else {
@@ -276,7 +276,7 @@ function formatFactForSentence(fact) {
     }
 
     // Caso comece com substantivos de eventos comuns
-    const feminineNouns = ["briga", "discussÃ£o", "conversa", "perda", "demissÃ£o", "reuniÃ£o", "viagem", "morte", "separaÃ§Ã£o", "traiÃ§Ã£o", "crÃ­tica", "fofoca"];
+    const feminineNouns = ["briga", "discussão", "conversa", "perda", "demissão", "reunião", "viagem", "morte", "separação", "traição", "crítica", "fofoca"];
     const masculineNouns = ["conflito", "desentendimento", "erro", "acidente", "assalto", "problema", "gasto", "atraso"];
 
     const firstWord = words[0];
@@ -1615,7 +1615,10 @@ Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estru
 
 Definições de conceitos do método:
 - TEMA: O assunto/categoria central, abstrato e atemporal. É o "rótulo" do problema. Não pode conter "quando" ou "com quem". Exemplos: Escassez, Timidez, Rejeição, Ansiedade, Medo de crescer.
-- FATO: Recorte específico, datável e ancorado (um evento vivido em um momento). Deve responder quem estava envolvido, quando e o que aconteceu. Exemplos: "mãe ser agressiva na infância", "pai gritar quando tirei nota baixa aos 10 anos".
+- FATO (MFI): Recorte específico, datável e sintetizado.
+  REGRAS OBRIGATÓRIAS DE SÍNTESE DO FATO:
+  1. INTERPRETAR E RESOLVER AUTO-CORREÇÕES DO CLIENTE: Se o relato contiver hesitações ou correções do próprio cliente (ex: "era do meu pai, na verdade da minha mãe", "ou melhor...", "digo X"), INTERPRETE A CORREÇÃO E USE APENAS A CONCLUSÃO FINAL CORRIGIDA (ex: "repetir um comportamento da minha mãe"). NUNCA inclua frases de auto-correção cruas na frase do fato.
+  2. FLUIDEZ E ENCAIXE EM DECRETOS: Escreva a frase do fato sem pronomes pessoais iniciais ("Eu"), usando infinitivo ou forma nominal para se encaixar com perfeita concordância gramatical nos decretos de liberação (ex: "repetir comportamento da mãe", "mãe ser agressiva na infância").
 - COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa e o sentimento gerado por isso.
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
@@ -1862,6 +1865,15 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             if (state.customLlmMicroaction) {
                 result.microacao = state.customLlmMicroaction;
             }
+
+            // Aplicar correção de concordância gramatical com a IA
+            if (result.declaracaoEspecifica) {
+                result.declaracaoEspecifica = await correctConcordance(result.declaracaoEspecifica);
+            }
+            if (result.declaracaoNaoEspecifica) {
+                result.declaracaoNaoEspecifica = await correctConcordance(result.declaracaoNaoEspecifica);
+            }
+
             state.currentData = result;
             
             // Popula Tela 2 (Consciência)
