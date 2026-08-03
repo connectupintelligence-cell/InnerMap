@@ -1620,14 +1620,14 @@ Definições de conceitos do método:
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
 - REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente.
-- PERGUNTA_APROFUNDAMENTO: Uma única pergunta aberta e profunda focada em CONSTATAR os desmembramentos e impactos reais do primeiro FATO apresentado.
+- PERGUNTA_APROFUNDAMENTO: Uma única pergunta orgânica, fluida, acolhedora e profunda focada em CONSTATAR os desmembramentos e impactos reais do fato ou queixa relatada.
   REGRAS OBRIGATÓRIAS PARA A PERGUNTA:
-  1. JAMAIS pergunte hipóteses ou "como a vida seria diferente" (NUNCA faça perguntas como "Como você acha que sua vida seria se...").
-  2. A pergunta DEVE CONSTATAR A REALIDADE VIVIDA a partir do fato relatado, investigando o que mais faltou, em que momento específico o impacto foi mais sentido, ou se o cliente culpa alguém ou compensa essa falta hoje.
-  3. Modelos de inspiração (adapte diretamente ao fato do relato):
-     - "Por você ter vivenciado [fato relatado], o que mais te faltou na prática?"
-     - "Me explique mais: na sua visão, em qual momento você mais sentiu o impacto disso?"
-     - "Você culpa alguém por isso? Ou nos dias de hoje, tenta compensar isso com algo ou alguém?"
+  1. GRAMÁTICA E CONCORDÂNCIA IMPECÁVEIS: Escreva uma pergunta em português 100% natural e gramaticalmente perfeita (atenção rigorosa à concordância de gênero: "essa briga", "este conflito", "essa ausência"). NUNCA use modelos de frases prontas ou substituição mecânica de palavras.
+  2. SEM HIPÓTESES ("SE"): JAMAIS pergunte cenários hipotéticos ou como a vida seria se o fato não tivesse acontecido (ex: NUNCA pergunte "como sua vida seria se...").
+  3. POSTURA DE TERAPEUTA HUMANO: Formule a pergunta de forma personalizada com base no contexto específico trazido pelo cliente, investigando suavemente:
+     - O que mais faltou na experiência vivida?
+     - Em qual momento específico essa falta/dor foi mais sentida?
+     - Ou se o cliente sente que culpa alguém por isso ou tenta compensar essa falta hoje.
 
 Relato do Cliente:
 "${relato}"
@@ -1638,7 +1638,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
   "fatos": [
     {
-      "phrase": "mãe/pai/etc. [ação ou característica]: [detalhe do que aconteceu]",
+      "phrase": "mãe/pai/esposa/etc. [ação ou característica]: [detalhe do que aconteceu]",
       "sentiments": ["lista de sentimentos em minúsculas de: culpa, injustiça, dor, tristeza, solidão, rejeição, desaprovação, carência, raiva, medo"]
     }
   ],
@@ -1651,7 +1651,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
   "microacao": "orientação comportamental prática baseada no relato",
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
-  "pergunta_aprofundamento": "uma única pergunta concreta investigando os impactos reais do fato (sem hipóteses)"
+  "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)"
 }`;
                 }
 
