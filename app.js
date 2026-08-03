@@ -1804,6 +1804,99 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         });
     }
 
+    // Botão para extrair a resposta da pergunta de aprofundamento e adicionar aos fatos mapeados
+    const btnAddAnswerFact = document.getElementById("btn-add-answer-fact");
+    const addFactSpinner = document.getElementById("add-fact-spinner");
+
+    if (btnAddAnswerFact) {
+        btnAddAnswerFact.addEventListener("click", async () => {
+            const resposta = inputAprofundamento ? inputAprofundamento.value.trim() : "";
+            if (!resposta) {
+                showToast("Escreva ou fale sua resposta antes de adicionar aos fatos.");
+                return;
+            }
+
+            btnAddAnswerFact.disabled = true;
+            if (addFactSpinner) addFactSpinner.style.display = "inline-block";
+
+            try {
+                let newFact = null;
+
+                // Tentar extração via IA (Groq/Gemini)
+                if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+                    const promptExtract = `Você é um psicoterapeuta sênior do Método InnerMap.
+O cliente respondeu à pergunta de aprofundamento com: "${resposta}"
+Relato anterior: "${state.relatoOriginal || ""}"
+
+Extraia o FATO sintetizado dessa resposta e os SENTIMENTOS associados.
+Regras do fato:
+1. Frase sintetizada, sem pronomes "Eu" no início, pronta para se encaixar nos decretos de liberação (ex: "sentir dor intensa após o acidente").
+2. Se o cliente se corrigiu (ex: "na verdade X"), use apenas a conclusão final.
+
+Retorne JSON no formato exato:
+{
+  "phrase": "descrição concisa do fato",
+  "sentiments": ["culpa", "dor", "tristeza", "raiva", "medo", "insegurança"]
+}`;
+
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                        body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptExtract }] })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        const parsed = JSON.parse(data.choices[0].message.content);
+                        if (parsed && parsed.phrase) {
+                            newFact = { phrase: parsed.phrase, sentiments: parsed.sentiments || ["tristeza"] };
+                        }
+                    }
+                }
+
+                // Fallback local se IA não retornar
+                if (!newFact) {
+                    const text = resposta.toLowerCase();
+                    const matchedSentiments = [];
+                    const SENTIMENTS_LIST = ["culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", "carência", "raiva", "ódio", "decepção", "incompetência", "incapacidade", "inferioridade", "pressão", "invasão", "medo", "frustração", "insegurança", "angústia"];
+                    SENTIMENTS_LIST.forEach(s => {
+                        if (text.includes(s)) matchedSentiments.push(s);
+                    });
+                    newFact = {
+                        phrase: resposta,
+                        sentiments: matchedSentiments.length > 0 ? matchedSentiments : ["dor", "tristeza"]
+                    };
+                }
+
+                // Adicionar o novo fato à lista global do estado
+                state.addedFacts.push(newFact);
+                state.relatoOriginal = (state.relatoOriginal || "") + " " + resposta;
+
+                // Exibir e re-renderizar o editor de fatos/sentimentos
+                const mfiSection = document.getElementById("ai-mfi-editor-section");
+                if (mfiSection) mfiSection.style.display = "block";
+
+                renderFactsEditor();
+
+                // Limpar textarea e notificar usuário
+                inputAprofundamento.value = "";
+                showToast("✨ Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
+
+                // Rolar suavemente até o editor de fatos
+                if (mfiSection) {
+                    mfiSection.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+
+            } catch (err) {
+                console.error("Erro ao adicionar fato da resposta:", err);
+                showToast("Erro ao processar a resposta. Tente novamente.");
+            } finally {
+                btnAddAnswerFact.disabled = false;
+                if (addFactSpinner) addFactSpinner.style.display = "none";
+            }
+        });
+    }
+
 
 
 
