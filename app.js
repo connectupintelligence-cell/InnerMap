@@ -2034,21 +2034,23 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         activeRecognitionBtn: null,
         speechSynthesis: window.speechSynthesis,
         currentUtterance: null,
-
-        // 1. DITADO POR VOZ (SPEECH-TO-TEXT)
         isManuallyStopped: false,
 
-        toggleSpeechRecognition: function(inputId, buttonEl) {
+        // 1. DITADO POR VOZ (SPEECH-TO-TEXT)
+        toggleSpeechRecognition: async function(inputId, buttonEl) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                showToast("Ditado por voz não é suportado neste navegador. Recomendamos o Google Chrome.");
+                showToast("Ditado por voz não é suportado neste navegador. Recomendamos usar o Google Chrome.");
                 return;
             }
 
             const targetInput = document.getElementById(inputId);
-            if (!targetInput) return;
+            if (!targetInput) {
+                console.warn("Input de destino não encontrado:", inputId);
+                return;
+            }
 
-            // Se já estiver gravando neste mesmo botão, interrompe manualmente
+            // Se já estiver gravando neste mesmo botão, interrompe
             if (this.activeRecognition && this.activeRecognitionBtn === buttonEl) {
                 this.isManuallyStopped = true;
                 this.stopSpeechRecognition();
@@ -2058,11 +2060,23 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             this.isManuallyStopped = false;
             this.stopSpeechRecognition();
 
+            // Solicitar permissão de microfone nativa no navegador se disponível
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (micErr) {
+                    console.warn("Permissão de microfone negada:", micErr);
+                    showToast("⚠️ Permissão de microfone negada. Clique no ícone de cadeado ao lado da URL para permitir o microfone.");
+                    return;
+                }
+            }
+
             try {
                 const recognition = new SpeechRecognition();
                 recognition.lang = 'pt-BR';
-                recognition.continuous = false; // continuous=false é MUITO mais estável no Chrome/Android/Safari
-                recognition.interimResults = true; // Exibe as palavras em tempo real na tela conforme a pessoa fala!
+                recognition.continuous = false;
+                recognition.interimResults = true;
 
                 let baseText = targetInput.value ? targetInput.value.trim() + " " : "";
 
@@ -2072,7 +2086,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                     buttonEl.classList.add("listening");
                     buttonEl.innerHTML = "🔴";
                     buttonEl.title = "Ouvindo... Clique para encerrar";
-                    showToast("🎤 Ouvindo... Fale normalmente em português.");
+                    showToast("🎤 Ouvindo... Pode falar em português!");
                 };
 
                 recognition.onresult = (event) => {
@@ -2087,14 +2101,13 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 recognition.onerror = (event) => {
                     console.warn("Erro no ditado por voz:", event.error);
                     if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-                        showToast("Acesso ao microfone foi negado. Permita a permissão de microfone no navegador.");
+                        showToast("⚠️ Acesso ao microfone bloqueado nas configurações do navegador.");
                     } else if (event.error === "no-speech") {
-                        // Silêncio detectado, ignora
+                        // Silêncio detectado
                     }
                 };
 
                 recognition.onend = () => {
-                    // Se o usuário NÃO clicou em parar manualmente, reinicia para permitir ditados longos e contínuos
                     if (!this.isManuallyStopped && this.activeRecognitionBtn === buttonEl) {
                         try {
                             baseText = targetInput.value ? targetInput.value.trim() + " " : "";
@@ -2115,7 +2128,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
             } catch (err) {
                 console.error("Falha ao iniciar reconhecimento de voz:", err);
-                showToast("Erro ao conectar microfone. Verifique as permissões.");
+                showToast("Erro ao abrir microfone.");
                 this.stopSpeechRecognition();
             }
         },
@@ -2195,25 +2208,30 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         }
     };
 
-    // Event listeners para botões de Microfone (Speech-to-Text)
-    document.querySelectorAll(".btn-mic-input").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.dataset.target;
-            if (targetId) VoiceManager.toggleSpeechRecognition(targetId, btn);
-        });
-    });
+    // Event Delegation no documento para capturar cliques nos botões de Microfone e TTS em qualquer lugar da página
+    document.addEventListener("click", (e) => {
+        const micBtn = e.target.closest(".btn-mic-input");
+        if (micBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const targetId = micBtn.dataset.target;
+            if (targetId) VoiceManager.toggleSpeechRecognition(targetId, micBtn);
+            return;
+        }
 
-    // Event listeners para botões de Síntese de Voz (Text-to-Speech)
-    document.querySelectorAll(".btn-tts-speak").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.dataset.target;
+        const ttsBtn = e.target.closest(".btn-tts-speak");
+        if (ttsBtn && ttsBtn.id !== "btn-tts-full-practice") {
+            e.preventDefault();
+            e.stopPropagation();
+            const targetId = ttsBtn.dataset.target;
             if (targetId) {
                 const targetEl = document.getElementById(targetId);
                 if (targetEl) {
-                    VoiceManager.speakText(targetEl.innerText || targetEl.value, btn);
+                    VoiceManager.speakText(targetEl.innerText || targetEl.value, ttsBtn);
                 }
             }
-        });
+            return;
+        }
     });
 
     // Botão de Prática Guiada Completa na Tela 3
