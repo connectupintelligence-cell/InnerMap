@@ -147,8 +147,8 @@
                                     <div class="objective-card" data-mode="4" id="obj-card-4">
                                         <span class="objective-icon">♾️</span>
                                         <div class="objective-info">
-                                            <strong>Reorganização Completa</strong>
-                                            <small>Todos os passos + MGI Generativo</small>
+                                            <strong>Reorganização Profunda</strong>
+                                            <small>Panorama completo e transformação profunda</small>
                                         </div>
                                     </div>
                                 </div>
@@ -165,6 +165,11 @@
                             <div class="input-with-mic-container">
                                 <textarea id="input-ai-relato" class="textarea-quantum" style="height: 140px; font-size: 0.95rem; margin-bottom: 0; line-height: 1.6; padding-right: 50px;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas. Hoje sinto que preciso ser forte o tempo todo...)"></textarea>
                                 <button type="button" class="btn-mic-input" data-target="input-ai-relato" title="Ditado por voz (falar relato)">🎤</button>
+                            </div>
+
+                            <div id="char-counter-container" style="display: none; justify-content: space-between; align-items: center; margin-top: 0.4rem; font-size: 0.78rem; color: var(--color-text-muted);">
+                                <span id="char-counter-text">Mínimo para panorama completo: 100 caracteres</span>
+                                <span id="char-counter-number" style="font-weight: 600; color: #fca5a5;">0 / 100</span>
                             </div>
                             
                             <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem; margin-top: 1.25rem;">
@@ -183,12 +188,9 @@
                                 <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
                                     <span style="font-size: 1rem;">💬</span>
                                 </div>
-                                <div style="flex: 1;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
-                                        <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">O que ouvi da sua história</p>
-                                        <button type="button" class="btn-tts-speak" data-target="ai-reflexao" title="Ouvir reflexão da IA">🔊 Ouvir</button>
-                                    </div>
-                                    <p id="ai-reflexao" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0; font-style: italic;"></p>
+                                <div>
+                                    <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.3rem 0;">Compreensão do seu Momento</p>
+                                    <p id="ai-reflexao" style="font-size: 0.95rem; color: var(--color-text); line-height: 1.6; margin: 0; font-weight: 400;"></p>
                                 </div>
                             </div>
 
@@ -234,42 +236,38 @@
                             </div>
 
                             <!-- Botões de ação -->
-                            <div style="display: flex; gap: 0.75rem; flex-direction: column;">
-                                <button type="button" id="btn-ai-continuar" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem;">
-                                    <span class="spinner" id="ai-explore-spinner" style="display: none; width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></span>
-                                    Continuar com mais detalhes →
+                            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                                <button type="button" id="btn-ai-continuar" class="btn btn-primary" style="flex: 1; height: 46px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                                    <span class="spinner" id="ai-explore-spinner" style="display: none; width: 16px; height: 16px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 4px;"></span>
+                                    <span>Continuar com mais detalhes →</span>
                                 </button>
-                                <button type="button" id="btn-ai-pular" class="btn btn-secondary btn-block" style="height: 44px; font-size: 0.9rem; opacity: 0.75;">
-                                    Pular e gerar agora
-                                </button>
+                                <button type="button" id="btn-ai-pular" class="btn btn-secondary" style="height: 46px; font-size: 0.9rem; border-color: rgba(255,255,255,0.15);">Pular e gerar agora</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- STEP 2: Leitura Informacional (Consciência) -->
-                <div id="screen-step2" class="app-screen">
-                    <h2 class="step-title">Leitura Informacional</h2>
-                    <p class="step-subtitle">A consciência do padrão é o primeiro passo para a sua reorganização.</p>
-                    
-                    <div class="response-block">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <h3 class="response-label" style="margin: 0;">🔍 Ajuste observado</h3>
-                            <button type="button" class="btn-tts-speak" data-target="output-ajuste" title="Ouvir ajuste observado">🔊 Ouvir</button>
-                        </div>
-                        <p id="output-ajuste" class="response-text">Carregando leitura do padrão informacional...</p>
-                    </div>
+                <section id="screen-step2" class="app-screen">
+                    <div class="glass-card screen-card">
+                        <h2 class="step-title">CONSCIÊNCIA INFORMACIONAL</h2>
+                        <p class="step-subtitle">Compreensão profunda das causas raízes e escolhas associadas ao seu relato.</p>
+                        
+                        <div class="response-container">
+                            <div class="hqi-item">
+                                <span class="hqi-item-title">Leitura do Ajuste Necessário</span>
+                                <p id="output-ajuste" class="response-text">Carregando análise...</p>
+                            </div>
+                            
+                            <div class="hqi-item">
+                                <span class="hqi-item-title">Movimento Sugerido</span>
+                                <p id="output-movimento" class="response-text">Carregando movimento sugerido...</p>
+                            </div>
 
-                    <div class="response-block-accent">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <h3 class="response-label" style="margin: 0;">💡 Movimento sugerido</h3>
-                            <button type="button" class="btn-tts-speak" data-target="output-movimento" title="Ouvir movimento sugerido">🔊 Ouvir</button>
+                            <button id="btn-to-step3" class="btn btn-primary btn-block">Prosseguir para Registro & Integração →</button>
                         </div>
-                        <p id="output-movimento" class="response-text">Carregando movimento sugerido...</p>
                     </div>
-
-                    <button id="btn-to-step3" class="btn btn-primary btn-block">Prosseguir para Registro & Integração →</button>
-                </div>
+                </section>
 
                 <!-- STEP 3: Ajustes Informacionais (Comandos) -->
                 <div id="screen-step3" class="app-screen">
@@ -293,7 +291,7 @@
                         
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                                <span>Liberação de Registros Específicos (MSI / MFI)</span>
+                                <span>Liberação de Eventos Específicos</span>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     <button type="button" class="btn-tts-speak" data-target="output-declaracao" title="Ouvir comandos específicos">🔊 Ouvir</button>
                                     <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(234, 67, 53, 0.12); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">⚠️ Emitir 1x na vida!</span>
@@ -304,7 +302,7 @@
 
                         <div class="hqi-item">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                                <span>Liberação dos Não Específicos (MRI / MDI)</span>
+                                <span>Fortalecimento e Mudança de Padrão</span>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                                     <button type="button" class="btn-tts-speak" data-target="output-fortalecimento" title="Ouvir fortalecimento">🔊 Ouvir</button>
                                     <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(102, 252, 241, 0.12); color: var(--color-primary); border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">🔄 1x por dia durante 15 dias</span>
@@ -315,10 +313,10 @@
 
                         <div class="hqi-item" id="item-mgi" style="display: none;">
                             <span class="hqi-item-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                                <span>Movimento Generativo Informacional (MGI)</span>
+                                <span>Limpeza Profunda do Estado Interno</span>
                                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <button type="button" class="btn-tts-speak" data-target="output-mgi" title="Ouvir comandos MGI">🔊 Ouvir</button>
-                                    <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">✨ Limpeza Generativa (12 Comandos)</span>
+                                    <button type="button" class="btn-tts-speak" data-target="output-mgi" title="Ouvir comandos de limpeza profunda">🔊 Ouvir</button>
+                                    <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 4px; font-weight: 600; letter-spacing: 0.2px;">✨ Transformação Profunda (12 Comandos)</span>
                                 </div>
                             </span>
                             <p id="output-mgi" class="hqi-text-box-mgi"></p>

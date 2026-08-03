@@ -1417,13 +1417,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
                 if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
                 if (inputAiRelato) inputAiRelato.placeholder = "Digite o foco desejado (Ex: Quero motivação e foco para finalizar meu projeto esta semana, com serenidade e autoconfiança...)";
+                const cnt = document.getElementById("char-counter-container");
+                if (cnt) cnt.style.display = "none";
             } else if (state.selectedMode === 4) {
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Completa + MGI Generativo`;
-                if (step1Desc) step1Desc.textContent = "Descreva seu relato ou tema. Este processo envolve todos os passos + os 12 comandos de Movimento Generativo Informacional (MGI).";
-                if (inputAiRelato) inputAiRelato.placeholder = "Escreva ou fale detalhadamente seu relato ou tema para a reorganização completa (Ex: Sinto dificuldades nos meus relacionamentos e ansiedade financeira desde a juventude...)";
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
+                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
+                if (inputAiRelato) inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
+                const cnt = document.getElementById("char-counter-container");
+                if (cnt) {
+                    cnt.style.display = "flex";
+                    const num = document.getElementById("char-counter-number");
+                    if (num && inputAiRelato) {
+                        const len = inputAiRelato.value.trim().length;
+                        num.textContent = `${len} / 100`;
+                        num.style.color = len >= 100 ? "var(--color-primary)" : "#fca5a5";
+                    }
+                }
             }
         });
     });
+
+    const charCounterContainer = document.getElementById("char-counter-container");
+    const charCounterNumber = document.getElementById("char-counter-number");
+    if (inputAiRelato) {
+        inputAiRelato.addEventListener("input", () => {
+            if (state.selectedMode === 4 && charCounterContainer && charCounterNumber) {
+                const len = inputAiRelato.value.trim().length;
+                charCounterNumber.textContent = `${len} / 100`;
+                charCounterNumber.style.color = len >= 100 ? "var(--color-primary)" : "#fca5a5";
+            }
+        });
+    }
 
     // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
     async function generateMgiCommands(tema) {
@@ -1663,6 +1687,11 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
             const relato = inputAiRelato.value.trim();
             if (!relato) {
                 alert("Por favor, descreva seu relato ou objetivo para continuar.");
+                return;
+            }
+
+            if (state.selectedMode === 4 && relato.length < 100) {
+                alert(`Para a Reorganização Profunda, precisamos de um panorama completo da situação (mínimo de 100 caracteres). Por favor, conte um pouco mais sobre o que está acontecendo! (Atual: ${relato.length} caracteres)`);
                 return;
             }
 
