@@ -2036,6 +2036,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         currentUtterance: null,
 
         // 1. DITADO POR VOZ (SPEECH-TO-TEXT)
+        isManuallyStopped: false,
+
         toggleSpeechRecognition: function(inputId, buttonEl) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -2046,48 +2048,66 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             const targetInput = document.getElementById(inputId);
             if (!targetInput) return;
 
+            // Se já estiver gravando neste mesmo botão, interrompe manualmente
             if (this.activeRecognition && this.activeRecognitionBtn === buttonEl) {
+                this.isManuallyStopped = true;
                 this.stopSpeechRecognition();
                 return;
             }
 
+            this.isManuallyStopped = false;
             this.stopSpeechRecognition();
 
             try {
                 const recognition = new SpeechRecognition();
                 recognition.lang = 'pt-BR';
-                recognition.continuous = true;
-                recognition.interimResults = false;
+                recognition.continuous = false; // continuous=false é MUITO mais estável no Chrome/Android/Safari
+                recognition.interimResults = true; // Exibe as palavras em tempo real na tela conforme a pessoa fala!
+
+                let baseText = targetInput.value ? targetInput.value.trim() + " " : "";
 
                 recognition.onstart = () => {
                     this.activeRecognition = recognition;
                     this.activeRecognitionBtn = buttonEl;
                     buttonEl.classList.add("listening");
                     buttonEl.innerHTML = "🔴";
-                    buttonEl.title = "Ouvindo... Clique para parar";
+                    buttonEl.title = "Ouvindo... Clique para encerrar";
                     showToast("🎤 Ouvindo... Fale normalmente em português.");
                 };
 
                 recognition.onresult = (event) => {
-                    let transcript = "";
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            transcript += event.results[i][0].transcript;
-                        }
+                    let spokenText = "";
+                    for (let i = 0; i < event.results.length; i++) {
+                        spokenText += event.results[i][0].transcript;
                     }
-                    if (transcript) {
-                        const currentVal = targetInput.value;
-                        targetInput.value = currentVal ? (currentVal + " " + transcript) : transcript;
-                        targetInput.dispatchEvent(new Event("input", { bubbles: true }));
-                    }
+                    targetInput.value = baseText + spokenText;
+                    targetInput.dispatchEvent(new Event("input", { bubbles: true }));
                 };
 
                 recognition.onerror = (event) => {
                     console.warn("Erro no ditado por voz:", event.error);
-                    this.stopSpeechRecognition();
+                    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+                        showToast("Acesso ao microfone foi negado. Permita a permissão de microfone no navegador.");
+                    } else if (event.error === "no-speech") {
+                        // Silêncio detectado, ignora
+                    }
                 };
 
                 recognition.onend = () => {
+                    // Se o usuário NÃO clicou em parar manualmente, reinicia para permitir ditados longos e contínuos
+                    if (!this.isManuallyStopped && this.activeRecognitionBtn === buttonEl) {
+                        try {
+                            baseText = targetInput.value ? targetInput.value.trim() + " " : "";
+                            setTimeout(() => {
+                                if (!this.isManuallyStopped && this.activeRecognitionBtn === buttonEl) {
+                                    recognition.start();
+                                } else {
+                                    this.stopSpeechRecognition();
+                                }
+                            }, 150);
+                            return;
+                        } catch(e) {}
+                    }
                     this.stopSpeechRecognition();
                 };
 
@@ -2095,13 +2115,15 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
             } catch (err) {
                 console.error("Falha ao iniciar reconhecimento de voz:", err);
+                showToast("Erro ao conectar microfone. Verifique as permissões.");
                 this.stopSpeechRecognition();
             }
         },
 
         stopSpeechRecognition: function() {
+            this.isManuallyStopped = true;
             if (this.activeRecognition) {
-                try { this.activeRecognition.stop(); } catch(e) {}
+                try { this.activeRecognition.abort(); } catch(e) {}
                 this.activeRecognition = null;
             }
             if (this.activeRecognitionBtn) {
