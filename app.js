@@ -2027,134 +2027,198 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     });
 
     // ==========================================================================
-    // MÓDULO DE ÁUDIO (ENTRADA POR VOZ E SAÍDA POR VOZ / SÍNTESE)
+    // MÓDULO DE ÁUDIO (MEDIARECORDER + WHISPER AI + SÍNTESE DE VOZ)
     // ==========================================================================
     const VoiceManager = {
-        activeRecognition: null,
-        activeRecognitionBtn: null,
-        speechSynthesis: window.speechSynthesis,
-        currentUtterance: null,
         isListening: false,
         activeInputId: null,
         activeRecognitionBtn: null,
         activeRecognition: null,
+        mediaRecorder: null,
+        audioChunks: [],
+        speechSynthesis: window.speechSynthesis,
+        currentUtterance: null,
 
-        // 1. DITADO POR VOZ (SPEECH-TO-TEXT CONTINUO)
+        // 1. DITADO POR VOZ (MEDIARECORDER + WHISPER AI)
         toggleSpeechRecognition: async function(inputId, buttonEl) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                showToast("Ditado por voz não é suportado neste navegador. Recomendamos usar o Google Chrome.");
-                return;
-            }
-
             const targetInput = document.getElementById(inputId);
             if (!targetInput) {
                 console.warn("Input de destino não encontrado:", inputId);
                 return;
             }
 
-            // Se já estiver gravando neste mesmo botão, desliga manualmente
+            // Se já estiver gravando neste mesmo botão, encerra a gravação e processa a transcrição
             if (this.isListening && this.activeRecognitionBtn === buttonEl) {
-                this.stopSpeechRecognition();
-                showToast("⏹️ Ditado encerrado.");
+                await this.stopSpeechRecognition();
                 return;
             }
 
-            // Desliga qualquer gravação anterior
-            this.stopSpeechRecognition();
+            // Encerra qualquer gravação ativa anterior
+            await this.stopSpeechRecognition();
 
-            // Solicitar permissão de microfone nativa no navegador se disponível
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    stream.getTracks().forEach(track => track.stop());
-                } catch (micErr) {
-                    console.warn("Permissão de microfone negada:", micErr);
-                    showToast("⚠️ Permissão de microfone negada. Permita o microfone nas configurações do navegador.");
-                    return;
-                }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast("⚠️ Gravador de áudio não suportado neste navegador.");
+                return;
             }
-
-            this.isListening = true;
-            this.activeInputId = inputId;
-            this.activeRecognitionBtn = buttonEl;
-
-            buttonEl.classList.add("listening");
-            buttonEl.innerHTML = "🔴";
-            buttonEl.title = "Ouvindo... Clique para encerrar";
-            showToast("🎤 Gravação ativa! Fale normalmente. Clique em 🔴 quando terminar.");
-
-            this.startSession();
-        },
-
-        startSession: function() {
-            if (!this.isListening || !this.activeInputId || !this.activeRecognitionBtn) return;
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return;
-
-            const targetInput = document.getElementById(this.activeInputId);
-            if (!targetInput) return;
 
             try {
-                const recognition = new SpeechRecognition();
-                recognition.lang = 'pt-BR';
-                recognition.continuous = true;
-                recognition.interimResults = true;
+                // Obter permissão nativa e stream de áudio do microfone
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                this.isListening = true;
+                this.activeInputId = inputId;
+                this.activeRecognitionBtn = buttonEl;
+                this.audioChunks = [];
 
-                let baseText = targetInput.value ? targetInput.value.trim() + " " : "";
+                buttonEl.classList.add("listening");
+                buttonEl.innerHTML = "🔴";
+                buttonEl.title = "Ouvindo... Clique para encerrar e converter em texto";
+                showToast("🎤 Gravando áudio! Fale normalmente. Clique em 🔴 quando terminar.");
 
-                recognition.onstart = () => {
-                    this.activeRecognition = recognition;
-                };
+                // 1. Iniciar MediaRecorder para gravação nativa do áudio sem interrupções
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 
+                                 (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+                
+                const recorderOptions = mimeType ? { mimeType } : {};
+                this.mediaRecorder = new MediaRecorder(stream, recorderOptions);
 
-                recognition.onresult = (event) => {
-                    let spokenText = "";
-                    for (let i = 0; i < event.results.length; i++) {
-                        spokenText += event.results[i][0].transcript;
-                    }
-                    targetInput.value = baseText + spokenText;
-                    targetInput.dispatchEvent(new Event("input", { bubbles: true }));
-                };
-
-                recognition.onerror = (event) => {
-                    console.warn("Erro no ditado por voz:", event.error);
-                    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-                        showToast("⚠️ Acesso ao microfone bloqueado nas configurações do navegador.");
-                        this.stopSpeechRecognition();
+                this.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data && event.data.size > 0) {
+                        this.audioChunks.push(event.data);
                     }
                 };
 
-                recognition.onend = () => {
-                    // Se a gravação ainda estiver ativa pelo usuário, inicia nova sessão continuamente sem desligar!
-                    if (this.isListening) {
-                        setTimeout(() => {
-                            if (this.isListening) {
-                                this.startSession();
+                this.mediaRecorder.start(250); // Fragmentos a cada 250ms
+
+                // 2. Opcional: Digitação ao vivo via Web Speech API se suportado pelo navegador
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    try {
+                        const recognition = new SpeechRecognition();
+                        recognition.lang = 'pt-BR';
+                        recognition.continuous = true;
+                        recognition.interimResults = true;
+
+                        let baseText = targetInput.value ? targetInput.value.trim() + " " : "";
+
+                        recognition.onresult = (event) => {
+                            let spokenText = "";
+                            for (let i = 0; i < event.results.length; i++) {
+                                spokenText += event.results[i][0].transcript;
                             }
-                        }, 200);
-                    }
-                };
+                            targetInput.value = baseText + spokenText;
+                            targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        };
 
-                recognition.start();
+                        recognition.onerror = () => {};
+                        recognition.onend = () => {
+                            if (this.isListening && this.activeRecognition === recognition) {
+                                try { recognition.start(); } catch(e) {}
+                            }
+                        };
 
-            } catch (err) {
-                console.error("Falha ao iniciar sessão de fala:", err);
+                        recognition.start();
+                        this.activeRecognition = recognition;
+                    } catch(e) {}
+                }
+
+            } catch (micErr) {
+                console.warn("Permissão de microfone negada ou erro ao iniciar:", micErr);
+                showToast("⚠️ Permissão de microfone negada. Permita o microfone nas configurações do seu navegador.");
+                this.stopSpeechRecognition();
             }
         },
 
-        stopSpeechRecognition: function() {
+        stopSpeechRecognition: async function() {
+            if (!this.isListening && !this.mediaRecorder && !this.activeRecognition) return;
+
+            const buttonEl = this.activeRecognitionBtn;
+            const targetInput = document.getElementById(this.activeInputId);
+            const initialText = targetInput ? targetInput.value.trim() : "";
+
             this.isListening = false;
+
             if (this.activeRecognition) {
                 try { this.activeRecognition.abort(); } catch(e) {}
                 this.activeRecognition = null;
             }
-            if (this.activeRecognitionBtn) {
-                this.activeRecognitionBtn.classList.remove("listening");
-                this.activeRecognitionBtn.innerHTML = "🎤";
-                this.activeRecognitionBtn.title = "Ditado por voz";
-                this.activeRecognitionBtn = null;
+
+            if (buttonEl) {
+                buttonEl.classList.remove("listening");
+                buttonEl.innerHTML = "⏳";
+                buttonEl.title = "Processando áudio...";
             }
+
+            // Parar MediaRecorder e obter o áudio gravado
+            let audioBlob = null;
+            if (this.mediaRecorder && this.mediaRecorder.state !== "inactive") {
+                audioBlob = await new Promise(resolve => {
+                    this.mediaRecorder.onstop = () => {
+                        const blob = new Blob(this.audioChunks, { type: this.mediaRecorder.mimeType || 'audio/webm' });
+                        if (this.mediaRecorder.stream) {
+                            this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                        }
+                        resolve(blob);
+                    };
+                    this.mediaRecorder.stop();
+                });
+            }
+
+            this.mediaRecorder = null;
+            this.audioChunks = [];
+
+            // Transcrever áudio via Groq Whisper API se houver chave configurada
+            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || "";
+            if (!apiKey && supabaseClient) {
+                try {
+                    const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
+                    if (data && data.value) apiKey = data.value;
+                } catch(e) {}
+            }
+
+            if (audioBlob && audioBlob.size > 1000 && apiKey && apiKey.startsWith("gsk_")) {
+                showToast("⏳ Transcrevendo áudio com IA Whisper...");
+                try {
+                    const formData = new FormData();
+                    formData.append("file", audioBlob, "speech.webm");
+                    formData.append("model", "whisper-large-v3-turbo");
+                    formData.append("language", "pt");
+                    formData.append("response_format", "json");
+
+                    const whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${apiKey}` },
+                        body: formData
+                    });
+
+                    if (whisperRes.ok) {
+                        const whisperData = await whisperRes.json();
+                        if (whisperData.text && whisperData.text.trim()) {
+                            const transcribed = whisperData.text.trim();
+                            if (targetInput) {
+                                if (transcribed.length >= initialText.length || !initialText) {
+                                    targetInput.value = transcribed;
+                                } else {
+                                    targetInput.value = initialText + " " + transcribed;
+                                }
+                                targetInput.dispatchEvent(new Event("input", { bubbles: true }));
+                            }
+                            showToast("✨ Áudio transcrito com sucesso!");
+                        }
+                    }
+                } catch (wErr) {
+                    console.warn("Erro ao transcrever com Groq Whisper:", wErr);
+                }
+            } else if (audioBlob && audioBlob.size > 1000) {
+                showToast("✅ Ditado concluído!");
+            }
+
+            if (buttonEl) {
+                buttonEl.innerHTML = "🎤";
+                buttonEl.title = "Ditado por voz";
+            }
+
+            this.activeRecognitionBtn = null;
             this.activeInputId = null;
         },
 
