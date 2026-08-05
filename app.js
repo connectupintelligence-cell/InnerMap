@@ -1710,7 +1710,7 @@ Definições de conceitos do método:
   REGRAS OBRIGATÓRIAS DE SÍNTESE DO FATO:
   1. INTERPRETAR E RESOLVER AUTO-CORREÇÕES DO CLIENTE: Se o relato contiver hesitações ou correções do próprio cliente (ex: "era do meu pai, na verdade da minha mãe", "ou melhor...", "digo X"), INTERPRETE A CORREÇÃO E USE APENAS A CONCLUSÃO FINAL CORRIGIDA (ex: "repetir um comportamento da minha mãe"). NUNCA inclua frases de auto-correção cruas na frase do fato.
   2. FLUIDEZ E ENCAIXE EM DECRETOS: Escreva a frase do fato sem pronomes pessoais iniciais ("Eu"), usando infinitivo ou forma nominal para se encaixar com perfeita concordância gramatical nos decretos de liberação (ex: "repetir comportamento da mãe", "mãe ser agressiva na infância").
-- COMPORTAMENTOS (MDI): Ações repetitivas involuntárias que o cliente faz para lidar com a queixa e o sentimento gerado por isso.
+- COMPORTAMENTOS E CONDICIONAMENTOS INCONSCIENTES (MDI): Condicionamentos, crenças implícitas, pensamentos automáticos e comportamentos involuntários que o cliente NÃO ESTÁ CONSEGUINDO VER SOZINHO ao relatar o fato ou problema. A I.A deve analisar com profundidade o fato/queixa e identificar os condicionamentos inconscientes e atitudes reativas que o cliente está sustentando sem perceber.
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
 - REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente.
