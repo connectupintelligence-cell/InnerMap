@@ -4600,4 +4600,42 @@ Pergunta atual: "${query}"
     // Expõe para uso em outros handlers
     window.renderAgenda = renderAgenda;
     window.checkDailyReminder = checkDailyReminder;
+
+    // ==========================================================================
+    // INTERATIVIDADE F.A.Q & MODAL DE TEORIA TÉCNICA (INNERMAP)
+    // ==========================================================================
+    document.addEventListener("click", (e) => {
+        // Toggle de acordeão (FAQ)
+        const faqHeader = e.target.closest(".faq-header");
+        if (faqHeader) {
+            e.preventDefault();
+            const faqItem = faqHeader.closest(".faq-item");
+            if (faqItem) {
+                const isActive = faqItem.classList.contains("active");
+                const container = faqItem.closest(".faq-accordion");
+                if (container) {
+                    container.querySelectorAll(".faq-item.active").forEach(item => {
+                        if (item !== faqItem) item.classList.remove("active");
+                    });
+                }
+                faqItem.classList.toggle("active", !isActive);
+            }
+            return;
+        }
+
+        // Abrir modal de teoria técnica
+        const theoryBtn = e.target.closest(".btn-open-theory");
+        if (theoryBtn) {
+            e.preventDefault();
+            const modal = document.getElementById("theory-modal");
+            if (modal) modal.style.display = "flex";
+            return;
+        }
+
+        // Fechar modal de teoria técnica
+        if (e.target.id === "btn-close-theory" || e.target.id === "theory-modal") {
+            const modal = document.getElementById("theory-modal");
+            if (modal) modal.style.display = "none";
+        }
+    });
 });
