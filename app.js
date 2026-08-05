@@ -1415,6 +1415,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const step1Desc = document.getElementById("step1-desc");
     const inputAiRelato = document.getElementById("input-ai-relato");
 
+    const charCounterContainer = document.getElementById("char-counter-container");
+    const charCounterText = document.getElementById("char-counter-text");
+    const charCounterNumber = document.getElementById("char-counter-number");
+
+    function updateRelatoCounter() {
+        if (!inputAiRelato || !charCounterContainer || !charCounterNumber) return;
+        const raw = inputAiRelato.value.trim();
+        const charCount = raw.length;
+        const wordCount = raw ? raw.split(/\s+/).filter(w => w.length > 0).length : 0;
+        const wordLabel = wordCount === 1 ? "1 palavra" : `${wordCount} palavras`;
+
+        charCounterContainer.style.display = "flex";
+
+        if (state.selectedMode === 4) {
+            if (charCounterText) charCounterText.textContent = "Mínimo para panorama completo: 100 caracteres";
+            charCounterNumber.textContent = `${wordLabel} • ${charCount} / 100 caracteres`;
+            charCounterNumber.style.color = charCount >= 100 ? "var(--color-primary)" : "#fca5a5";
+        } else {
+            if (charCounterText) charCounterText.textContent = "Contagem do relato:";
+            charCounterNumber.textContent = `${wordLabel} (${charCount} caracteres)`;
+            charCounterNumber.style.color = charCount > 0 ? "var(--color-primary)" : "var(--color-text-muted)";
+        }
+    }
+
+    function updateAprofundamentoCounter() {
+        const inputAprofundamento = document.getElementById("input-ai-aprofundamento");
+        const counterNum = document.getElementById("ai-aprofundamento-counter-number");
+        if (!inputAprofundamento || !counterNum) return;
+
+        const raw = inputAprofundamento.value.trim();
+        const charCount = raw.length;
+        const wordCount = raw ? raw.split(/\s+/).filter(w => w.length > 0).length : 0;
+        const wordLabel = wordCount === 1 ? "1 palavra" : `${wordCount} palavras`;
+
+        counterNum.textContent = charCount > 0 ? `${wordLabel} (${charCount} caracteres)` : "0 palavras (0 caracteres)";
+    }
+
     objCards.forEach(card => {
         card.addEventListener("click", () => {
             objCards.forEach(c => c.classList.remove("active"));
@@ -1433,36 +1470,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
                 if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
                 if (inputAiRelato) inputAiRelato.placeholder = "Digite o foco desejado (Ex: Quero motivação e foco para finalizar meu projeto esta semana, com serenidade e autoconfiança...)";
-                const cnt = document.getElementById("char-counter-container");
-                if (cnt) cnt.style.display = "none";
             } else if (state.selectedMode === 4) {
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
                 if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
                 if (inputAiRelato) inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
-                const cnt = document.getElementById("char-counter-container");
-                if (cnt) {
-                    cnt.style.display = "flex";
-                    const num = document.getElementById("char-counter-number");
-                    if (num && inputAiRelato) {
-                        const len = inputAiRelato.value.trim().length;
-                        num.textContent = `${len} / 100`;
-                        num.style.color = len >= 100 ? "var(--color-primary)" : "#fca5a5";
-                    }
-                }
             }
+            updateRelatoCounter();
         });
     });
 
-    const charCounterContainer = document.getElementById("char-counter-container");
-    const charCounterNumber = document.getElementById("char-counter-number");
     if (inputAiRelato) {
-        inputAiRelato.addEventListener("input", () => {
-            if (state.selectedMode === 4 && charCounterContainer && charCounterNumber) {
-                const len = inputAiRelato.value.trim().length;
-                charCounterNumber.textContent = `${len} / 100`;
-                charCounterNumber.style.color = len >= 100 ? "var(--color-primary)" : "#fca5a5";
-            }
-        });
+        inputAiRelato.addEventListener("input", updateRelatoCounter);
+        updateRelatoCounter();
+    }
+
+    const inputAprofundamentoElem = document.getElementById("input-ai-aprofundamento");
+    if (inputAprofundamentoElem) {
+        inputAprofundamentoElem.addEventListener("input", updateAprofundamentoCounter);
+        updateAprofundamentoCounter();
     }
 
     // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
