@@ -1909,57 +1909,46 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     if (btnAiContinuar) {
         btnAiContinuar.addEventListener("click", async () => {
             const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
-            const hasFacts = state.addedFacts && state.addedFacts.length > 0;
 
-            if (!respostaExtra && !hasFacts) {
-                if (inputAprofundamento) inputAprofundamento.focus();
-                showToast("Escreva sua resposta no campo acima para incluir mais detalhes, ou clique em 'Pular e gerar agora'.");
-                return;
-            }
+            if (respostaExtra) {
+                // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
+                btnAiContinuar.disabled = true;
+                if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
+                const btnSpan = btnAiContinuar.querySelector("span:last-child");
+                if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
 
-            if (!respostaExtra && hasFacts) {
-                // Fatos já foram mapeados → gerar direto com os fatos
-                triggerFinalGeneration();
-                return;
-            }
+                try {
+                    const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
 
-            // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
-            btnAiContinuar.disabled = true;
-            if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
-            const btnSpan = btnAiContinuar.querySelector("span:last-child");
-            if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
+                    const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
 
-            try {
-                const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
-
-                const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
-
-                let mergeResponse;
-                if (state.apiKey && state.apiKey.startsWith("gsk_")) {
-                    mergeResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                        body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
-                    });
-                    if (mergeResponse.ok) {
-                        const mergeData = await mergeResponse.json();
-                        const merged = JSON.parse(mergeData.choices[0].message.content);
-                        if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
-                        if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
-                        if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
-                        if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
-                        // Atualizar relato original para concordância incluir resposta extra
-                        state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
+                    let mergeResponse;
+                    if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+                        mergeResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                            body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                        });
+                        if (mergeResponse.ok) {
+                            const mergeData = await mergeResponse.json();
+                            const merged = JSON.parse(mergeData.choices[0].message.content);
+                            if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
+                            if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
+                            if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
+                            if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
+                            state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
+                        }
                     }
+                } catch(e) {
+                    console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
+                } finally {
+                    btnAiContinuar.disabled = false;
+                    if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
+                    updateContinueButtonText();
                 }
-            } catch(e) {
-                console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
-            } finally {
-                btnAiContinuar.disabled = false;
-                if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
-                updateContinueButtonText();
             }
 
+            // Prosseguir sempre para geração final (nunca travar!)
             triggerFinalGeneration();
         });
     }
