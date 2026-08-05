@@ -7,30 +7,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Color Palette */
-    --color-bg-dark: #070913;
-    --color-bg-card: rgba(13, 17, 39, 0.45);
-    --color-bg-card-hover: rgba(20, 26, 56, 0.6);
-    --color-border: rgba(255, 255, 255, 0.08);
-    --color-border-glow: rgba(102, 252, 241, 0.35);
+    /* Color Palette — Serene, Clean & Immersive Zen Aesthetics */
+    --color-bg-dark: #090c15;              /* Deep Slate Indigo */
+    --color-bg-card: rgba(18, 24, 40, 0.5);
+    --color-bg-card-hover: rgba(28, 36, 60, 0.65);
+    --color-border: rgba(255, 255, 255, 0.07);
+    --color-border-glow: rgba(45, 212, 191, 0.25);
     
-    --color-primary: #66FCF1;      /* Cyan */
-    --color-primary-glow: rgba(102, 252, 241, 0.5);
-    --color-secondary: #8A2BE2;    /* Violet */
-    --color-accent: #00FA9A;       /* Emerald */
-    --color-accent-glow: rgba(0, 250, 154, 0.3);
+    --color-primary: #2dd4bf;      /* Soft Zen Mint Teal — Relaxing & Clear */
+    --color-primary-glow: rgba(45, 212, 191, 0.35);
+    --color-secondary: #c084fc;    /* Soft Meditative Lavender */
+    --color-accent: #38bdf8;       /* Calm Sky Blue */
+    --color-accent-glow: rgba(56, 189, 248, 0.25);
     
-    --color-text-main: #F5F7FA;
-    --color-text-muted: #9EAFCE;
-    --color-text-inverse: #070913;
+    --color-text-main: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --color-text-inverse: #090c15;
     
     /* Typography */
     --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     
     /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    --transition-fast: all 0.15s ease;
+    --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ==========================================================================
@@ -67,14 +67,14 @@ body {
     height: 100vh;
     z-index: -2;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 50%, #0c102b 0%, var(--color-bg-dark) 100%);
+    background: radial-gradient(circle at 50% 30%, #0e1526 0%, var(--color-bg-dark) 100%);
 }
 
 .quantum-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(130px);
-    opacity: 0.15;
+    filter: blur(140px);
+    opacity: 0.1;
     animation: float 25s infinite alternate ease-in-out;
 }
 
