@@ -2096,7 +2096,11 @@ Retorne JSON no formato exato:
     }
 
     function triggerFinalGeneration() {
-        const phrase = state.tempTheme || inputPhrase.value.trim();
+        const inputAiRelato = document.getElementById("input-ai-relato");
+        const phrase = state.tempTheme 
+            || (typeof inputPhrase !== "undefined" && inputPhrase ? inputPhrase.value.trim() : "") 
+            || (inputAiRelato ? inputAiRelato.value.trim() : "") 
+            || "Autoconhecimento";
         
         if (btnSentimentSave) btnSentimentSave.disabled = true;
         if (btnGenerate) {
@@ -2105,69 +2109,74 @@ Retorne JSON no formato exato:
         }
         
         setTimeout(async () => {
-            const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
-            if (state.customLlmMicroaction) {
-                result.microacao = state.customLlmMicroaction;
-            }
+            try {
+                const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
+                if (state.customLlmMicroaction) {
+                    result.microacao = state.customLlmMicroaction;
+                }
 
-            // Aplicar correção de concordância gramatical com a IA
-            if (result.declaracaoEspecifica) {
-                result.declaracaoEspecifica = await correctConcordance(result.declaracaoEspecifica);
-            }
-            if (result.declaracaoNaoEspecifica) {
-                result.declaracaoNaoEspecifica = await correctConcordance(result.declaracaoNaoEspecifica);
-            }
+                // Aplicar correção de concordância gramatical com a IA
+                if (result.declaracaoEspecifica) {
+                    result.declaracaoEspecifica = await correctConcordance(result.declaracaoEspecifica);
+                }
+                if (result.declaracaoNaoEspecifica) {
+                    result.declaracaoNaoEspecifica = await correctConcordance(result.declaracaoNaoEspecifica);
+                }
 
-            state.currentData = result;
-            
-            // Popula Tela 2 (Consciência)
-            outputAjuste.innerText = result.ajuste;
-            outputMovimento.innerText = result.movimento;
-            
-            // Popula Tela 3 (Práticas Guiadas)
-            outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
-            outputObjetivo.innerText = result.objetivo;
-            
-            const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
-            if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
-                if (itemEspecifico) itemEspecifico.style.display = "none";
-            } else {
-                if (itemEspecifico) itemEspecifico.style.display = "block";
-                if (outputEspecifico) outputEspecifico.innerText = result.declaracaoEspecifica;
-            }
+                state.currentData = result;
+                
+                // Popula Tela 2 (Consciência)
+                if (outputAjuste) outputAjuste.innerText = result.ajuste;
+                if (outputMovimento) outputMovimento.innerText = result.movimento;
+                
+                // Popula Tela 3 (Práticas Guiadas)
+                if (outputCategory) outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
+                if (outputObjetivo) outputObjetivo.innerText = result.objetivo;
+                
+                const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
+                if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
+                    if (itemEspecifico) itemEspecifico.style.display = "none";
+                } else {
+                    if (itemEspecifico) itemEspecifico.style.display = "block";
+                    if (outputEspecifico) outputEspecifico.innerText = result.declaracaoEspecifica;
+                }
 
-            if (outputNaoEspecifico) outputNaoEspecifico.innerText = result.declaracaoNaoEspecifica;
-            
-            // Renderizar MGI (Movimento Generativo Informacional - Modo 4)
-            const itemMgi = document.getElementById("item-mgi");
-            const outputMgi = document.getElementById("output-mgi");
+                if (outputNaoEspecifico) outputNaoEspecifico.innerText = result.declaracaoNaoEspecifica;
+                
+                // Renderizar MGI (Movimento Generativo Informacional - Modo 4)
+                const itemMgi = document.getElementById("item-mgi");
+                const outputMgi = document.getElementById("output-mgi");
 
-            if (state.selectedMode === 4) {
-                const mgiCommands = await generateMgiCommands(result.tema || phrase);
-                result.mgi = mgiCommands;
-                if (itemMgi) itemMgi.style.display = "block";
-                if (outputMgi) outputMgi.innerText = mgiCommands;
-            } else {
-                if (itemMgi) itemMgi.style.display = "none";
-                if (outputMgi) outputMgi.innerText = "";
-            }
+                if (state.selectedMode === 4) {
+                    const mgiCommands = await generateMgiCommands(result.tema || phrase);
+                    result.mgi = mgiCommands;
+                    if (itemMgi) itemMgi.style.display = "block";
+                    if (outputMgi) outputMgi.innerText = mgiCommands;
+                } else {
+                    if (itemMgi) itemMgi.style.display = "none";
+                    if (outputMgi) outputMgi.innerText = "";
+                }
 
-            const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
-            if (!result.microacao || result.microacao.trim() === "") {
-                if (itemMicroacao) itemMicroacao.style.display = "none";
-            } else {
-                if (itemMicroacao) itemMicroacao.style.display = "block";
-                if (outputMicroacao) outputMicroacao.innerText = result.microacao;
+                const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
+                if (!result.microacao || result.microacao.trim() === "") {
+                    if (itemMicroacao) itemMicroacao.style.display = "none";
+                } else {
+                    if (itemMicroacao) itemMicroacao.style.display = "block";
+                    if (outputMicroacao) outputMicroacao.innerText = result.microacao;
+                }
+                
+                showScreen("step3");
+                startPracticeTimer();
+            } catch (err) {
+                console.error("Erro na geração final:", err);
+                showToast("Erro ao gerar reorganização: " + err.message);
+            } finally {
+                if (btnGenerate) {
+                    btnGenerate.disabled = false;
+                    btnGenerate.innerText = "Gerar Ajustes Informacionais →";
+                }
+                if (btnSentimentSave) btnSentimentSave.disabled = false;
             }
-            
-            showScreen("step3");
-            startPracticeTimer();
-            
-            if (btnGenerate) {
-                btnGenerate.disabled = false;
-                btnGenerate.innerText = "Gerar Ajustes Informacionais →";
-            }
-            if (btnSentimentSave) btnSentimentSave.disabled = false;
         }, 1200);
     }
 
