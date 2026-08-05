@@ -9,16 +9,16 @@ window.onerror = function(message, source, lineno, colno, error) {
 window.appLoaded = true;
 
 /**
- * InnerMap - Motor de ReorganizaÃ§Ã£o Informacional
+ * InnerMap - Motor de Reorganização Informacional
  * Core Logic, State Management & Supabase Backend Integration
  */
 
 // ==========================================================================
-// CONFIGURAÃ‡ÃƒO DO SUPABASE (BANCO DE DADOS & AUTH REMOTO)
+// CONFIGURAÇÃO DO SUPABASE (BANCO DE DADOS & AUTH REMOTO)
 // ==========================================================================
 // Insira as chaves do seu projeto do Supabase aqui para ativar o login real com Google
-// e sincronizaÃ§Ã£o das reorganizaÃ§Ãµes na nuvem de forma 100% gratuita e sem servidor.
-// Caso fiquem vazias, o aplicativo entrarÃ¡ em modo de simulaÃ§Ã£o local automÃ¡tica.
+// e sincronização das reorganizações na nuvem de forma 100% gratuita e sem servidor.
+// Caso fiquem vazias, o aplicativo entrará em modo de simulação local automática.
 const SUPABASE_URL = "https://vyhwpjktsdvfnwvvjnbh.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_vfK43gvWRToO8gR9cd9ttA_dzDrAqHI";
 
@@ -28,121 +28,121 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("Supabase Client inicializado com sucesso!");
     } catch (err) {
-        console.error("Erro de inicializaÃ§Ã£o do Supabase:", err);
+        console.error("Erro de inicialização do Supabase:", err);
     }
 }
 // ==========================================================================
-// CONFIGURAÃ‡ÃƒO DO INFINITEPAY (GATEWAY DE PAGAMENTOS)
+// CONFIGURAÇÃO DO INFINITEPAY (GATEWAY DE PAGAMENTOS)
 // ==========================================================================
-// Insira sua InfiniteTag (sem o @) para gerar cobranÃ§as dinÃ¢micas via API.
-// Caso queira usar links estÃ¡ticos diretos gerados no app, preencha-os abaixo.
+// Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
+// Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
 const INFINITEPAY_TAG = "connectup"; // Ex: "wavequantum"
-const INFINITEPAY_LINK_MONTHLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-GaCy6VClhl-49,90"; // Opcional: Link estÃ¡tico mensal (R$ 49,90)
-const INFINITEPAY_LINK_YEARLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-n9UsJS7UiU-478,80"; // Opcional: Link estÃ¡tico anual (R$ 478,80)
+const INFINITEPAY_LINK_MONTHLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-GaCy6VClhl-49,90"; // Opcional: Link estático mensal (R$ 49,90)
+const INFINITEPAY_LINK_YEARLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-n9UsJS7UiU-478,80"; // Opcional: Link estático anual (R$ 478,80)
 
-// Banco de dados de padrÃµes predefinidos para o motor de conteÃºdo
+// Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
     "medo_crescer": {
-        keywords: ["crescer", "sucesso", "expandir", "escala", "tamanho", "responsabilidade", "lideranÃ§a", "crescimento"],
+        keywords: ["crescer", "sucesso", "expandir", "escala", "tamanho", "responsabilidade", "liderança", "crescimento"],
         category: "Trabalho",
-        categoryEmoji: "ðŸ“ Trabalho",
+        categoryEmoji: "💼 Trabalho",
         title: "Medo de Crescer",
-        ajuste: "VocÃª pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidÃ£o.",
-        movimento: "Desenvolver uma expansÃ£o sustentÃ¡vel, delegando com confianÃ§a e acolhendo novas oportunidades.",
+        ajuste: "Você pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidão.",
+        movimento: "Desenvolver uma expansão sustentável, delegando com confiança e acolhendo novas oportunidades.",
         objetivo: "Crescer de forma leve, segura e alinhada.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de que crescer Ã© arriscado ou perigoso que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao encarar novas responsabilidades e crescimento nos negÃ³cios acabaram!\nAlma, todos os sentimentos que senti em relaÃ§Ã£o ao medo de crescer acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre crescer acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre crescer acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho acolher a expansÃ£o com seguranÃ§a, leveza e consistÃªncia.\nAlma, eu jÃ¡ construo crescimento seguro e delego tarefas com total tranquilidade e merecimento.",
-        pergunta: "Qual o menor passo de crescimento que vocÃª pode dar hoje que nÃ£o assuste sua percepÃ§Ã£o racional?",
-        microacao: "Escrever uma meta de crescimento para o prÃ³ximo mÃªs e listar duas tarefas que vocÃª pode delegar ou simplificar."
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, receio e comportamentos de medo de crescer, autossabotagem e medo da sobrecarga que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de que crescer é arriscado ou perigoso que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao encarar novas responsabilidades e crescimento nos negócios acabaram!\nAlma, todos os sentimentos que senti em relação ao medo de crescer acabaram!\nEspírito, todas as informações negativas que recebi sobre crescer acabou!\nEspírito, todas as informações negativas que gerei sobre crescer acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho acolher a expansão com segurança, leveza e consistência.\nAlma, eu já construo crescimento seguro e delego tarefas com total tranquilidade e merecimento.",
+        pergunta: "Qual o menor passo de crescimento que você pode dar hoje que não assuste sua percepção racional?",
+        microacao: "Escrever uma meta de crescimento para o próximo mês e listar duas tarefas que você pode delegar ou simplificar."
     },
     "culpa_descansar": {
-        keywords: ["descansar", "pausa", "parar", "lazer", "tempo livre", "Ã³cio", "dormir", "fÃ©rias", "descanso"],
+        keywords: ["descansar", "pausa", "parar", "lazer", "tempo livre", "ócio", "dormir", "férias", "descanso"],
         category: "Prosperidade",
-        categoryEmoji: "ðŸ“ Prosperidade",
+        categoryEmoji: "💰 Prosperidade",
         title: "Culpa por Descansar",
-        ajuste: "A percepÃ§Ã£o de que seu valor pessoal depende exclusivamente do seu nÃ­vel de produtividade diÃ¡ria.",
-        movimento: "Reconhecer que a pausa Ã© essencial para a criatividade e a sustentabilidade de suas realizaÃ§Ãµes.",
+        ajuste: "A percepção de que seu valor pessoal depende exclusivamente do seu nível de produtividade diária.",
+        movimento: "Reconhecer que a pausa é essencial para a criatividade e a sustentabilidade de suas realizações.",
         objetivo: "Descansar sem culpa e com paz interna profunda.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e crenÃ§as de que preciso trabalhar em esforÃ§o extremo para ter valor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre descansar acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre descansar acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho silenciar minha mente e restabelecer minha energia vital.\nAlma, eu jÃ¡ descanso com tranquilidade e paz, reconhecendo que a pausa potencializa minha prosperidade.",
-        pergunta: "O que vocÃª estaria evitando encarar se decidisse silenciar e descansar agora?",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e crenças de que preciso trabalhar em esforço extremo para ter valor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, culpa que senti ao parar para descansar e relaxar acabaram!\nAlma, ansiedade que senti ao ter tempo livre acabaram!\nAlma, todos os sentimentos de culpa por descansar acabaram!\nEspírito, todas as informações negativas que recebi sobre descansar acabou!\nEspírito, todas as informações negativas que gerei sobre descansar acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho silenciar minha mente e restabelecer minha energia vital.\nAlma, eu já descanso com tranquilidade e paz, reconhecendo que a pausa potencializa minha prosperidade.",
+        pergunta: "O que você estaria evitando encarar se decidisse silenciar e descansar agora?",
         microacao: "Bloquear 30 minutos na sua agenda hoje para fazer algo puramente por lazer, sem fins produtivos."
     },
     "dificuldade_vender": {
-        keywords: ["vender", "vendas", "cobrar", "preÃ§o", "dinheiro", "cliente", "oferta", "negociar", "pedir valor"],
+        keywords: ["vender", "vendas", "cobrar", "preço", "dinheiro", "cliente", "oferta", "negociar", "pedir valor"],
         category: "Trabalho",
-        categoryEmoji: "ðŸ“ Trabalho",
+        categoryEmoji: "💼 Trabalho",
         title: "Dificuldade de Vender ou Cobrar",
-        ajuste: "A associaÃ§Ã£o da venda e da cobranÃ§a a importunar os outros, medo da rejeiÃ§Ã£o ou sensaÃ§Ã£o sutil de nÃ£o merecimento.",
-        movimento: "Enxergar a venda como uma troca justa de valor, onde vocÃª apoia genuinamente a resoluÃ§Ã£o de uma necessidade real.",
-        objetivo: "Fluidez, valorizaÃ§Ã£o e seguranÃ§a na entrega de suas soluÃ§Ãµes.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preÃ§os ou vender acabaram!\nAlma, rejeiÃ§Ã£o que senti quando clientes disseram nÃ£o acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nEspÃ­rito, todas as informações negativas que recebi sobre vendas acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre vendas acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho ver a venda como uma troca justa de valor e auxÃ­lio mÃºtuo.\nAlma, eu jÃ¡ recebo dinheiro com fluidez, merecimento e autoconfianÃ§a plena em minha entrega.",
-        pergunta: "Se o seu produto ou serviÃ§o pudesse transformar positivamente a vida de alguÃ©m hoje, vocÃª ainda teria vergonha de oferecÃª-lo?",
-        microacao: "Enviar uma mensagem para um cliente antigo perguntando como ele estÃ¡ ou fazer uma oferta direta para um potencial cliente."
+        ajuste: "A associação da venda e da cobrança a importunar os outros, medo da rejeição ou sensação sutil de não merecimento.",
+        movimento: "Enxergar a venda como uma troca justa de valor, onde você apoia genuinamente a resolução de uma necessidade real.",
+        objetivo: "Fluidez, valorização e segurança na entrega de suas soluções.",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receios de cobrar pelo meu valor ou oferecer meus produtos que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, vergonha que senti ao falar de preços ou vender acabaram!\nAlma, rejeição que senti quando clientes disseram não acabaram!\nAlma, todos os sentimentos de dificuldade de vender e cobrar acabaram!\nEspírito, todas as informações negativas que recebi sobre vendas acabou!\nEspírito, todas as informações negativas que gerei sobre vendas acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho ver a venda como uma troca justa de valor e auxílio mútuo.\nAlma, eu já recebo dinheiro com fluidez, merecimento e autoconfiança plena em minha entrega.",
+        pergunta: "Se o seu produto ou serviço pudesse transformar positivamente a vida de alguém hoje, você ainda teria vergonha de oferecê-lo?",
+        microacao: "Enviar uma mensagem para um cliente antigo perguntando como ele está ou fazer uma oferta direta para um potencial cliente."
     },
     "medo_negocios": {
-        keywords: ["medo nos negÃ³cios", "errar", "falhar", "quebrar", "falÃªncia", "empreender", "risco", "perder dinheiro", "decisÃ£o"],
+        keywords: ["medo nos negócios", "errar", "falhar", "quebrar", "falência", "empreender", "risco", "perder dinheiro", "decisão"],
         category: "Coragem",
-        categoryEmoji: "ðŸ“ Coragem",
-        title: "Medo de Errar ou Falhar nos NegÃ³cios",
-        ajuste: "O receio do fracasso ou da perda de controle organizando suas decisÃµes sob um viÃ©s de paralisaÃ§Ã£o e autoproteÃ§Ã£o.",
-        movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptaÃ§Ã£o.",
-        objetivo: "DecisÃ£o consciente, resiliÃªncia e clareza profissional.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de falÃªncia e quebra nos negÃ³cios que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisÃµes de negÃ³cios acabaram!\nAlma, frustraÃ§Ã£o que senti com resultados insatisfatÃ³rios acabaram!\nAlma, todos os sentimentos de inseguranÃ§a e medo de falhar nos negÃ³cios acabaram!\nEspÃ­rito, todas as informações negativas que recebi nos negÃ³cios acabou!\nEspÃ­rito, todas as informações negativas que gerei nos negÃ³cios acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho focar em soluÃ§Ãµes estratÃ©gicas, aprendizado constante e resiliÃªncia.\nAlma, eu jÃ¡ decido com clareza profissional, guiando meus negÃ³cios rumo Ã  solidez e prosperidade.",
-        pergunta: "Qual decisÃ£o importante vocÃª estÃ¡ adiando ou evitando por medo do que pode acontecer depois?",
-        microacao: "Tomar hoje uma decisÃ£o simples que vocÃª vem adiando nos Ãºltimos 7 dias."
+        categoryEmoji: "🦁 Coragem",
+        title: "Medo de Errar ou Falhar nos Negócios",
+        ajuste: "O receio do fracasso ou da perda de controle organizando suas decisões sob um viés de paralisação e autoproteção.",
+        movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptação.",
+        objetivo: "Decisão consciente, resiliência e clareza profissional.",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos e receio de perder o controle e falhar nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de falência e quebra nos negócios que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, medo que senti de errar in decisões de negócios acabaram!\nAlma, frustração que senti com resultados insatisfatórios acabaram!\nAlma, todos os sentimentos de insegurança e medo de falhar nos negócios acabaram!\nEspírito, todas as informações negativas que recebi nos negócios acabou!\nEspírito, todas as informações negativas que gerei nos negócios acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho focar em soluções estratégicas, aprendizado constante e resiliência.\nAlma, eu já decido com clareza profissional, guiando meus negócios rumo à solidez e prosperidade.",
+        pergunta: "Qual decisão importante você está adiando ou evitando por medo do que pode acontecer depois?",
+        microacao: "Tomar hoje uma decisão simples que você vem adiando nos últimos 7 dias."
     },
     "carencia_emocional": {
-        keywords: ["carÃªncia", "abandono", "rejeiÃ§Ã£o", "solteiro", "solidÃ£o", "ciÃºmes", "dependÃªncia", "relacionamento", "amor", "parceiro", "carÃªncia emocional"],
+        keywords: ["carência", "abandono", "rejeição", "solteiro", "solidão", "ciúmes", "dependência", "relacionamento", "amor", "parceiro", "carência emocional"],
         category: "Relacionamentos",
-        categoryEmoji: "ðŸ“ Relacionamentos",
-        title: "CarÃªncia e DependÃªncia Emocional",
-        ajuste: "A busca externa pela validaÃ§Ã£o, seguranÃ§a e afeto que vocÃª sente faltar em sua prÃ³pria organizaÃ§Ã£o interna.",
-        movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua prÃ³pria base de seguranÃ§a afetiva.",
-        objetivo: "Autonomia afetiva, amor-prÃ³prio e conexÃµes saudÃ¡veis.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de dependÃªncia afetiva e medo da solidÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carÃªncia que senti pela falta de atenÃ§Ã£o ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carÃªncia e solidÃ£o acabaram!\nEspÃ­rito, todas as informações negativas que recebi em minhas relaÃ§Ãµes acabou!\nEspÃ­rito, todas as informações negativas que gerei em minhas relaÃ§Ãµes acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho nutrir meu amor-prÃ³prio e encontrar estabilidade dentro de mim.\nAlma, eu jÃ¡ me sinto pleno(a) e seguro(a), me relacionando com liberdade e maturidade emocional.",
-        pergunta: "Que tipo de atenÃ§Ã£o ou validaÃ§Ã£o vocÃª estÃ¡ esperando dos outros que vocÃª mesmo(a) nÃ£o estÃ¡ se dando?",
+        categoryEmoji: "❤️ Relacionamentos",
+        title: "Carência e Dependência Emocional",
+        ajuste: "A busca externa pela validação, segurança e afeto que você sente faltar em sua própria organização interna.",
+        movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua própria base de segurança afetiva.",
+        objetivo: "Autonomia afetiva, amor-próprio e conexões saudáveis.",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de dependência afetiva e medo da solidão que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, carência que senti pela falta de atenção ou afeto acabaram!\nAlma, abandono que senti em meus relacionamentos antigos acabaram!\nAlma, todos os sentimentos de carência e solidão acabaram!\nEspírito, todas as informações negativas que recebi em minhas relações acabou!\nEspírito, todas as informações negativas que gerei em minhas relações acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho nutrir meu amor-próprio e encontrar estabilidade dentro de mim.\nAlma, eu já me sinto pleno(a) e seguro(a), me relacionando com liberdade e maturidade emocional.",
+        pergunta: "Que tipo de atenção ou validação você está esperando dos outros que você mesmo(a) não está se dando?",
         microacao: "Escrever uma pequena lista com 3 qualidades reais suas ou preparar um momento especial de autocuidado hoje."
     },
     "medo_julgamento": {
-        keywords: ["julgamento", "crÃ­tica", "opiniÃ£o", "exposiÃ§Ã£o", "falar em pÃºblico", "vergonha", "timidez", "esconder", "aparÃªncia"],
+        keywords: ["julgamento", "crítica", "opinião", "exposição", "falar em público", "vergonha", "timidez", "esconder", "aparência"],
         category: "Autoestima",
-        categoryEmoji: "ðŸ“ Autoestima",
-        title: "Medo do Julgamento e da CrÃ­tica",
-        ajuste: "A necessidade de aprovaÃ§Ã£o externa atuando como um filtro limitador da sua expressÃ£o e do seu potencial autÃªntico.",
-        movimento: "Acolher sua verdade interna e compreender que a percepÃ§Ã£o do outro reflete a realidade dele, nÃ£o o seu valor real.",
-        objetivo: "Liberdade de expressÃ£o e seguranÃ§a pessoal profunda.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de autoanulaÃ§Ã£o e vergonha de me expor que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\nEspÃ­rito, pensamentos de desaprovaÃ§Ã£o e crÃ­ticas dos outros que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, inseguranÃ§a que senti ao falar em pÃºblico ou me expor acabaram!\nAlma, rejeiÃ§Ã£o que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nEspÃ­rito, todas as informações negativas que recebi da opiniÃ£o pÃºblica acabou!\nEspÃ­rito, todas as informações negativas que gerei sobre me expressar acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho expressar minha verdade interna com liberdade e seguranÃ§a.\nAlma, eu jÃ¡ me exponho com autovalorizaÃ§Ã£o e reconheÃ§o o real valor de minha prÃ³pria voz.",
-        pergunta: "O que vocÃª comeÃ§aria a criar ou fazer hoje mesmo se soubesse que nÃ£o seria criticado ou julgado?",
-        microacao: "Expressar uma opiniÃ£o autÃªntica ou compartilhar um pensamento pessoal com alguÃ©m de confianÃ§a."
+        categoryEmoji: "✨ Autoestima",
+        title: "Medo do Julgamento e da Crítica",
+        ajuste: "A necessidade de aprovação externa atuando como um filtro limitador da sua expressão e do seu potencial autêntico.",
+        movimento: "Acolher sua verdade interna e compreender que a percepção do outro reflete a realidade dele, não o seu valor real.",
+        objetivo: "Liberdade de expressão e segurança pessoal profunda.",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de autoanulação e vergonha de me expor que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\nEspírito, pensamentos de desaprovação e críticas dos outros que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, insegurança que senti ao falar em público ou me expor acabaram!\nAlma, rejeição que senti quando fui criticado(a) acabaram!\nAlma, todos os sentimentos de medo do julgamento alheio acabaram!\nEspírito, todas as informações negativas que recebi da opinião pública acabou!\nEspírito, todas as informações negativas que gerei sobre me expressar acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho expressar minha verdade interna com liberdade e segurança.\nAlma, eu já me exponho com autovalorização e reconheço o real valor de minha própria voz.",
+        pergunta: "O que você começaria a criar ou fazer hoje mesmo se soubesse que não seria criticado ou julgado?",
+        microacao: "Expressar uma opinião autêntica ou compartilhar um pensamento pessoal com alguém de confiança."
     },
     "sobrecarga_cansaco": {
-        keywords: ["cansaÃ§o", "cansado", "esgotado", "sobrecarga", "estresse", "ansiedade", "energia", "vitalidade", "corpo", "limite"],
-        category: "SaÃºde emocional",
-        categoryEmoji: "ðŸ“ SaÃºde emocional",
+        keywords: ["cansaço", "cansado", "esgotado", "sobrecarga", "estresse", "ansiedade", "energia", "vitalidade", "corpo", "limite"],
+        category: "Saúde emocional",
+        categoryEmoji: "🌿 Saúde emocional",
         title: "Sobrecarga e Falta de Energia",
-        ajuste: "Assumir responsabilidades e demandas que nÃ£o sÃ£o suas como uma forma inconsciente de buscar utilidade ou aceitaÃ§Ã£o.",
-        movimento: "Estabelecer limites claros e saudÃ¡veis, preservando seu estado interno e sua energia para o que Ã© essencial.",
-        objetivo: "EquilÃ­brio emocional, leveza e clareza de prioridades pessoais.",
-        declaracao: "1 - Movimento SistÃªmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer nÃ£o que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaÃ§o e pressÃ£o que senti por excesso de responsabilidades acabaram!\nAlma, invasÃ£o que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nEspÃ­rito, todas as informações negativas que recebi por carregar pesos alheios acabou!\nEspÃ­rito, todas as informações negativas que gerei no excesso de tarefas acabou!",
-        fortalecimento: "3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\nEspÃ­rito, minha consciÃªncia escolhe, eu escolho respeitar os limites do meu corpo e priorizar meu bem-estar.\nAlma, eu jÃ¡ estabeleÃ§o limites saudÃ¡veis e gerencio minhas responsabilidades com total leveza.",
-        pergunta: "De quem Ã© a responsabilidade que vocÃª estÃ¡ carregando hoje alÃ©m da sua prÃ³pria?",
-        microacao: "Dizer um 'nÃ£o' gentil, mas firme, a uma tarefa secundÃ¡ria que nÃ£o seja de sua real responsabilidade."
+        ajuste: "Assumir responsabilidades e demandas que não são suas como uma forma inconsciente de buscar utilidade ou aceitação.",
+        movimento: "Estabelecer limites claros e saudáveis, preservando seu estado interno e sua energia para o que é essencial.",
+        objetivo: "Equilíbrio emocional, leveza e clareza de prioridades pessoais.",
+        declaracao: "1 - Movimento Sistêmico Informacional - MSI\nAlma, comportamentos de assumir cargas alheias e dificuldade de dizer não que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n\n2 - Movimento Factual Informacional - MFI\nAlma, cansaço e pressão que senti por excesso de responsabilidades acabaram!\nAlma, invasão que senti ao ter meus limites desrespeitados acabaram!\nAlma, todos os sentimentos de sobrecarga e esgotamento acabaram!\nEspírito, todas as informações negativas que recebi por carregar pesos alheios acabou!\nEspírito, todas as informações negativas que gerei no excesso de tarefas acabou!",
+        fortalecimento: "3 - Movimento de Reinterpretação Informacional - MRI\nEspírito, minha consciência escolhe, eu escolho respeitar os limites do meu corpo e priorizar meu bem-estar.\nAlma, eu já estabeleço limites saudáveis e gerencio minhas responsabilidades com total leveza.",
+        pergunta: "De quem é a responsabilidade que você está carregando hoje além da sua própria?",
+        microacao: "Dizer um 'não' gentil, mas firme, a uma tarefa secundária que não seja de sua real responsabilidade."
     }
 };
 
 // ==========================================================================
-// LÃ³gica de embeddings matemÃ¡ticos e RAG no Frontend (Simulador)
+// Lógica de embeddings matemáticos e RAG no Frontend (Simulador)
 // ==========================================================================
 
-// FunÃ§Ã£o geradora de embeddings normatizados de 1536 dimensÃµes (baseado no caractere hash)
+// Função geradora de embeddings normatizados de 1536 dimensões (baseado no caractere hash)
 function generateMockEmbedding(phrase) {
     const text = phrase.toLowerCase().trim();
-    // Gerar semente determinÃ­stica baseado nas letras do texto
+    // Gerar semente determinística baseado nas letras do texto
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
         hash = text.charCodeAt(i) + ((hash << 5) - hash);
@@ -150,12 +150,12 @@ function generateMockEmbedding(phrase) {
     
     const vector = [];
     for (let i = 0; i < 1536; i++) {
-        // Criar componente de vetor de forma pseudo-aleatÃ³ria determinÃ­stica
+        // Criar componente de vetor de forma pseudo-aleatória determinística
         const val = Math.sin(hash + i) * Math.cos(hash - i * 3);
         vector.push(val);
     }
     
-    // NormalizaÃ§Ã£o L2 (para distÃ¢ncia cosseno/produto escalar simples ser direto)
+    // Normalização L2 (para distância cosseno/produto escalar simples ser direto)
     const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
     return vector.map(val => parseFloat((val / magnitude).toFixed(6)));
 }
@@ -171,16 +171,16 @@ function formatFactForSentence(fact) {
         clean = clean.substring(11).trim();
     }
 
-    // 2. Corrigir construÃ§Ãµes como "mÃ£e ser descontar os problemas" -> "mÃ£e descontar os problemas"
-    // Se a caracterÃ­stica comeÃ§ar com verbos terminados em "ar", "er", "ir", "or", removemos o "ser" intermediÃ¡rio.
+    // 2. Corrigir construções como "mãe ser descontar os problemas" -> "mãe descontar os problemas"
+    // Se a característica começar com verbos terminados em "ar", "er", "ir", "or", removemos o "ser" intermediário.
     clean = clean.replace(/(\w+)\s+ser\s+((\w+)(ar|er|ir|or)\b)/gi, "$1 $2");
 
-    // 3. Substituir dois-pontos (":") por vÃ­rgula para fluidez
+    // 3. Substituir dois-pontos (":") por vírgula para fluidez
     clean = clean.replace(/\s*:\s*/g, ", ");
 
     const cleanLower = clean.toLowerCase();
 
-    // 4. Se jÃ¡ comeÃ§ar com conectores comuns, deixar como estÃ¡
+    // 4. Se já começar com conectores comuns, deixar como está
     const PREPOSITIONS = ["por ", "na ", "no ", "em ", "com ", "de ", "da ", "do ", "pela ", "pelo ", "para "];
     if (PREPOSITIONS.some(p => cleanLower.startsWith(p))) {
         return clean;
@@ -342,7 +342,7 @@ function formatFactForSentence(fact) {
 }
 
 
-// FunÃ§Ã£o auxiliar para construir as frases de MSI e MFI de acordo com a seleÃ§Ã£o e sentimentos
+// Função auxiliar para construir as frases de MSI e MFI de acordo com a seleção e sentimentos
 function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, category, factDetail) {
     const cleanConcept = phrase.replace(/eu tenho/gi, '')
                             .replace(/estou com/gi, '')
@@ -372,13 +372,13 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
     } else if (factDetail && factDetail.trim() !== "") {
         const text = factDetail.toLowerCase().trim();
         const SENTIMENTS_LIST = [
-            "culpa", "injustiÃ§a", "dor", "tristeza", "solidÃ£o", "rejeiÃ§Ã£o", "desaprovaÃ§Ã£o", 
-            "carÃªncia", "raiva", "Ã³dio", "decepÃ§Ã£o", "incompetÃªncia", "incapacidade", 
-            "inferioridade", "pressÃ£o", "invasÃ£o", "usada", "manipulada", "desrespeitada", 
-            "ser controlada", "nÃ£o controlar", "perder o controle", "sensaÃ§Ã£o de estar ou ser feia", 
-            "pÃ¢nico", "medo", "trocada", "frustraÃ§Ã£o", "sensaÃ§Ã£o de perder o sentido da vida", 
-            "inseguranÃ§a", "nojo", "desÃ¢nimo", "nÃ£o servir pra nada", "vontade de morrer", 
-            "angÃºstia", "incerteza", "sensaÃ§Ã£o de nÃ£o ter estabilidade", "abandonada", "submissÃ£o"
+            "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", 
+            "carência", "raiva", "ódio", "decepção", "incompetência", "incapacidade", 
+            "inferioridade", "pressão", "invasão", "usada", "manipulada", "desrespeitada", 
+            "ser controlada", "não controlar", "perder o controle", "sensação de estar ou ser feia", 
+            "pânico", "medo", "trocada", "frustração", "sensação de perder o sentido da vida", 
+            "insegurança", "nojo", "desânimo", "não servir pra nada", "vontade de morrer", 
+            "angústia", "incerteza", "sensação de não ter estabilidade", "abandonada", "submissão"
         ];
 
         let matchedSentiments = [];
@@ -388,24 +388,24 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
             }
         });
 
-        if (text.includes("briga") || text.includes("discuti") || text.includes("conflito") || text.includes("discussÃ£o") || text.includes("marido") || text.includes("esposa") || text.includes("carro") || text.includes("bati")) {
+        if (text.includes("briga") || text.includes("discuti") || text.includes("conflito") || text.includes("discussão") || text.includes("marido") || text.includes("esposa") || text.includes("carro") || text.includes("bati")) {
             if (!matchedSentiments.includes("tristeza")) matchedSentiments.push("tristeza");
             if (!matchedSentiments.includes("raiva")) matchedSentiments.push("raiva");
-            if (!matchedSentiments.includes("injustiÃ§a")) matchedSentiments.push("injustiÃ§a");
+            if (!matchedSentiments.includes("injustiça")) matchedSentiments.push("injustiça");
         }
         if (text.includes("dinheiro") || text.includes("escassez") || text.includes("perda")) {
-            if (!matchedSentiments.includes("inseguranÃ§a")) matchedSentiments.push("inseguranÃ§a");
-            if (!matchedSentiments.includes("pressÃ£o")) matchedSentiments.push("pressÃ£o");
-            if (!matchedSentiments.includes("frustraÃ§Ã£o")) matchedSentiments.push("frustraÃ§Ã£o");
+            if (!matchedSentiments.includes("insegurança")) matchedSentiments.push("insegurança");
+            if (!matchedSentiments.includes("pressão")) matchedSentiments.push("pressão");
+            if (!matchedSentiments.includes("frustração")) matchedSentiments.push("frustração");
         }
 
         if (matchedSentiments.length === 0) {
             if (category === "Relacionamentos") {
-                matchedSentiments = ["tristeza", "rejeiÃ§Ã£o", "raiva"];
+                matchedSentiments = ["tristeza", "rejeição", "raiva"];
             } else if (category === "Prosperidade" || category === "Trabalho") {
-                matchedSentiments = ["inseguranÃ§a", "incerteza", "frustraÃ§Ã£o"];
+                matchedSentiments = ["insegurança", "incerteza", "frustração"];
             } else {
-                matchedSentiments = ["tristeza", "inseguranÃ§a", "angÃºstia"];
+                matchedSentiments = ["tristeza", "insegurança", "angústia"];
             }
         }
         
@@ -498,19 +498,19 @@ class ReorganizationEngine {
             rawMRI = fallback.fortalecimento;
         }
 
-        // Construir declaraÃ§Ãµes MSI/MFI dinamicamente
+        // Construir declarações MSI/MFI dinamicamente
         const declarations = buildDeclarations(inputPhrase, isHereditary, hereditaryType, addedFacts, category, factDetail);
 
-        // MRI - Movimento de ReinterpretaÃ§Ã£o
+        // MRI - Movimento de Reinterpretação
         let cleanMRI = "";
         if (matchedKey && maxMatches > 0) {
             cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
         } else {
             const mriSuggest = this.suggestMriRessignificacao(inputPhrase);
-            cleanMRI = `EspÃ­rito, eu escolho ${mriSuggest.es}.\nAlma, eu jÃ¡ ${mriSuggest.al}.`;
+            cleanMRI = `Espírito, eu escolho ${mriSuggest.es}.\nAlma, eu já ${mriSuggest.al}.`;
         }
 
-        // MDI - Movimento de DescompactaÃ§Ã£o Informacional (BLOCO 3.3 - Fixo)
+        // MDI - Movimento de Descompactação Informacional (BLOCO 3.3 - Fixo)
         const cleanConcept = inputPhrase.replace(/eu tenho/gi, '')
                                 .replace(/estou com/gi, '')
                                 .replace(/sinto muito/gi, '')
@@ -552,13 +552,13 @@ class ReorganizationEngine {
             finalEspecifica = ""; // Sem MSI/MFI/MFPI
             finalNaoEspecifica = cleanMRI; // Apenas MRI
             
-            // Fallback microaÃ§Ã£o simplificada para Iniciante
+            // Fallback microação simplificada para Iniciante
             if (category === "Relacionamentos") {
-                finalMicroacao = `Na prÃ³xima situaÃ§Ã£o de relacionamento, observe como o padrÃ£o de "${cleanConcept.toLowerCase()}" se apresenta e faÃ§a uma escolha consciente diferente.`;
+                finalMicroacao = `Na próxima situação de relacionamento, observe como o padrão de "${cleanConcept.toLowerCase()}" se apresenta e faça uma escolha consciente diferente.`;
             } else if (category === "Prosperidade" || category === "Trabalho") {
-                finalMicroacao = `Ao lidar com questÃµes de trabalho ou dinheiro, faÃ§a uma pausa de reflexÃ£o sobre o tema "${cleanConcept.toLowerCase()}".`;
+                finalMicroacao = `Ao lidar com questões de trabalho ou dinheiro, faça uma pausa de reflexão sobre o tema "${cleanConcept.toLowerCase()}".`;
             } else {
-                finalMicroacao = `Tire alguns minutos do seu dia para respirar profundamente e soltar o padrÃ£o mental de "${cleanConcept.toLowerCase()}".`;
+                finalMicroacao = `Tire alguns minutos do seu dia para respirar profundamente e soltar o padrão mental de "${cleanConcept.toLowerCase()}".`;
             }
         } else {
             // MFPI (falso positivo) - 1x na vida
@@ -584,40 +584,40 @@ class ReorganizationEngine {
             // MDI + MRI
             finalNaoEspecifica = cleanMRI + "\n\n" + mdi;
 
-            // --- LÃ³gica de GeraÃ§Ã£o de MicroaÃ§Ãµes Personalizadas (SeÃ§Ã£o 6) ---
+            // --- Lógica de Geração de Microações Personalizadas (Seção 6) ---
             const firstMdiBehavior = (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) ? addedMdiBehaviors[0].behavior : "";
 
             if (hasMdiCondicional && firstMdiBehavior && addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
                 // Ambos comportamentos e falsos positivos
                 if (category === "Relacionamentos") {
-                    finalMicroacao = `Na prÃ³xima situaÃ§Ã£o envolvendo seu tema, evite "${firstMdiBehavior.toLowerCase()}" e pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}", observando o equilÃ­brio retornar.`;
+                    finalMicroacao = `Na próxima situação envolvendo seu tema, evite "${firstMdiBehavior.toLowerCase()}" e pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}", observando o equilíbrio retornar.`;
                 } else if (category === "Prosperidade" || category === "Trabalho") {
-                    finalMicroacao = `Ao lidar com dinheiro ou trabalho, interrompa o hÃ¡bito de "${firstMdiBehavior.toLowerCase()}" e desapegue da necessidade de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
+                    finalMicroacao = `Ao lidar com dinheiro ou trabalho, interrompa o hábito de "${firstMdiBehavior.toLowerCase()}" e desapegue da necessidade de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
                 } else {
-                    finalMicroacao = `Ao perceber o desconforto, evite "${firstMdiBehavior.toLowerCase()}" e solte a dependÃªncia de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
+                    finalMicroacao = `Ao perceber o desconforto, evite "${firstMdiBehavior.toLowerCase()}" e solte a dependência de "${addedPositivosAtrapalham[0].toLowerCase()}".`;
                 }
             } else if (hasMdiCondicional && firstMdiBehavior) {
                 // Apenas comportamento repetitivo
                 if (category === "Relacionamentos") {
-                    finalMicroacao = `Na prÃ³xima situaÃ§Ã£o envolvendo seu tema ou pessoas prÃ³ximas, pratique o oposto de "${firstMdiBehavior.toLowerCase()}" para romper o ciclo automÃ¡tico.`;
+                    finalMicroacao = `Na próxima situação envolvendo seu tema ou pessoas próximas, pratique o oposto de "${firstMdiBehavior.toLowerCase()}" para romper o ciclo automático.`;
                 } else if (category === "Prosperidade" || category === "Trabalho") {
-                    finalMicroacao = `Diante de desafios ligados a dinheiro/trabalho, crie um espaÃ§o de reflexÃ£o de 10 minutos antes de "${firstMdiBehavior.toLowerCase()}".`;
+                    finalMicroacao = `Diante de desafios ligados a dinheiro/trabalho, crie um espaço de reflexão de 10 minutos antes de "${firstMdiBehavior.toLowerCase()}".`;
                 } else {
-                    finalMicroacao = `Quando notar o padrÃ£o do tema se manifestando, em vez de "${firstMdiBehavior.toLowerCase()}", faÃ§a uma pausa consciente e ancore o MRI.`;
+                    finalMicroacao = `Quando notar o padrão do tema se manifestando, em vez de "${firstMdiBehavior.toLowerCase()}", faça uma pausa consciente e ancore o MRI.`;
                 }
             } else if (addedPositivosAtrapalham && addedPositivosAtrapalham.length > 0) {
                 // Apenas falso positivo (MFPI)
-                finalMicroacao = `Pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}" no seu dia a dia. Observe quando essa forÃ§a aparente se manifesta e escolha a flexibilidade.`;
+                finalMicroacao = `Pratique soltar o apego de "${addedPositivosAtrapalham[0].toLowerCase()}" no seu dia a dia. Observe quando essa força aparente se manifesta e escolha a flexibilidade.`;
             } else {
                 // Fallback por categoria amarrado ao TEMA literal
                 if (category === "Prosperidade") {
-                    finalMicroacao = `Dedique 15 minutos hoje para revisar suas aÃ§Ãµes prÃ¡ticas em relaÃ§Ã£o a "${cleanConcept.toLowerCase()}" e tome uma decisÃ£o organizada.`;
+                    finalMicroacao = `Dedique 15 minutos hoje para revisar suas ações práticas em relação a "${cleanConcept.toLowerCase()}" e tome uma decisão organizada.`;
                 } else if (category === "Trabalho") {
-                    finalMicroacao = `Organize sua rotina diÃ¡ria para dar uma resposta mais equilibrada e menos automÃ¡tica ao tema "${cleanConcept.toLowerCase()}".`;
+                    finalMicroacao = `Organize sua rotina diária para dar uma resposta mais equilibrada e menos automática ao tema "${cleanConcept.toLowerCase()}".`;
                 } else if (category === "Relacionamentos") {
-                    finalMicroacao = `Pratique a observaÃ§Ã£o do padrÃ£o de "${cleanConcept.toLowerCase()}" na sua prÃ³xima interaÃ§Ã£o e responda com clareza e empatia.`;
+                    finalMicroacao = `Pratique a observação do padrão de "${cleanConcept.toLowerCase()}" na sua próxima interação e responda com clareza e empatia.`;
                 } else {
-                    finalMicroacao = `Reserve um momento de silÃªncio hoje para reconhecer e soltar conscientemente a tensÃ£o ligada a "${cleanConcept.toLowerCase()}".`;
+                    finalMicroacao = `Reserve um momento de silêncio hoje para reconhecer e soltar conscientemente a tensão ligada a "${cleanConcept.toLowerCase()}".`;
                 }
             }
         }
@@ -630,7 +630,7 @@ class ReorganizationEngine {
             movimento: movimento,
             objetivo: objetivo,
             declaracaoEspecifica: finalEspecifica, // MFI
-            declaracaoNaoEspecifica: finalNaoEspecifica, // MSI + MRI + MDI dependendo do nÃ­vel
+            declaracaoNaoEspecifica: finalNaoEspecifica, // MSI + MRI + MDI dependendo do nível
             pergunta: pergunta,
             microacao: finalMicroacao,
             embedding: embedding,
@@ -640,24 +640,24 @@ class ReorganizationEngine {
 
     static suggestMriRessignificacao(phrase) {
         const clean = phrase.toLowerCase().trim();
-        let es = "direcionar minha atenÃ§Ã£o para novas possibilidades, soluÃ§Ãµes e expansÃ£o";
-        let al = "construo minha realidade com presenÃ§a, consistÃªncia e equilÃ­brio";
+        let es = "direcionar minha atenção para novas possibilidades, soluções e expansão";
+        let al = "construo minha realidade com presença, consistência e equilíbrio";
 
-        if (clean.includes("escassez") || clean.includes("dinheiro") || clean.includes("financeiro") || clean.includes("dÃ­vida") || clean.includes("pobre")) {
-            es = "direcionar minha atenÃ§Ã£o para a abundÃ¢ncia, prosperidade e fluxo constante de recursos";
-            al = "construo riqueza, fartura e seguranÃ§a financeira com aÃ§Ãµes consistentes e sabedoria";
+        if (clean.includes("escassez") || clean.includes("dinheiro") || clean.includes("financeiro") || clean.includes("dívida") || clean.includes("pobre")) {
+            es = "direcionar minha atenção para a abundância, prosperidade e fluxo constante de recursos";
+            al = "construo riqueza, fartura e segurança financeira com ações consistentes e sabedoria";
         } else if (clean.includes("relacionamento") || clean.includes("amor") || clean.includes("briga") || clean.includes("casamento")) {
-            es = "direcionar minha atenÃ§Ã£o para conexÃµes saudÃ¡veis, comunicaÃ§Ã£o pacÃ­fica e amor mÃºtuo";
-            al = "vivencio laÃ§os afetivos harmÃ´nicos, respeito mÃºtuo e cooperaÃ§Ã£o diÃ¡ria";
-        } else if (clean.includes("ansiedade") || clean.includes("medo") || clean.includes("pÃ¢nico") || clean.includes("preocupaÃ§Ã£o")) {
-            es = "direcionar minha atenÃ§Ã£o para a paz interna, seguranÃ§a e clareza mental";
-            al = "sinto serenidade, confianÃ§a absoluta na vida e estabilidade emocional em meu corpo";
+            es = "direcionar minha atenção para conexões saudáveis, comunicação pacífica e amor mútuo";
+            al = "vivencio laços afetivos harmônicos, respeito mútuo e cooperação diária";
+        } else if (clean.includes("ansiedade") || clean.includes("medo") || clean.includes("pânico") || clean.includes("preocupação")) {
+            es = "direcionar minha atenção para a paz interna, segurança e clareza mental";
+            al = "sinto serenidade, confiança absoluta na vida e estabilidade emocional em meu corpo";
         } else if (clean.includes("trabalho") || clean.includes("carreira") || clean.includes("profissional") || clean.includes("emprego")) {
-            es = "direcionar minha atenÃ§Ã£o para o crescimento profissional, reconhecimento e realizaÃ§Ã£o";
-            al = "exerÃ§o meus talentos com dedicaÃ§Ã£o, prosperidade e entrega de valor consistente";
-        } else if (clean.includes("saÃºde") || clean.includes("dor") || clean.includes("doenÃ§a") || clean.includes("corpo")) {
-            es = "direcionar minha atenÃ§Ã£o para a saÃºde plena, regeneraÃ§Ã£o celular e vitalidade";
-            al = "sinto meu corpo forte, revigorado e em perfeito equilÃ­brio funcional";
+            es = "direcionar minha atenção para o crescimento profissional, reconhecimento e realização";
+            al = "exerço meus talentos com dedicação, prosperidade e entrega de valor consistente";
+        } else if (clean.includes("saúde") || clean.includes("dor") || clean.includes("doença") || clean.includes("corpo")) {
+            es = "direcionar minha atenção para a saúde plena, regeneração celular e vitalidade";
+            al = "sinto meu corpo forte, revigorado e em perfeito equilíbrio funcional";
         }
 
         return { es, al };
@@ -666,28 +666,28 @@ class ReorganizationEngine {
     static generateDynamicFallback(phrase) {
         const text = phrase.toLowerCase().trim();
         let category = "Autoconhecimento";
-        let categoryEmoji = "ðŸ“ Autoconhecimento";
-        let title = "Processo de ReorganizaÃ§Ã£o";
+        let categoryEmoji = "🧘 Autoconhecimento";
+        let title = "Processo de Reorganização";
         
         if (text.includes("dinheiro") || text.includes("escassez") || text.includes("financeiro") || text.includes("rico") || text.includes("pobre") || text.includes("prosperar") || text.includes("economia")) {
             category = "Prosperidade";
-            categoryEmoji = "ðŸ“ Prosperidade";
+            categoryEmoji = "💰 Prosperidade";
             title = "Ajuste de Prosperidade";
-        } else if (text.includes("trabalho") || text.includes("empresa") || text.includes("negÃ³cio") || text.includes("carreira") || text.includes("vender") || text.includes("chefe") || text.includes("emprego")) {
+        } else if (text.includes("trabalho") || text.includes("empresa") || text.includes("negócio") || text.includes("carreira") || text.includes("vender") || text.includes("chefe") || text.includes("emprego")) {
             category = "Trabalho";
-            categoryEmoji = "ðŸ“ Trabalho";
+            categoryEmoji = "💼 Trabalho";
             title = "Ajuste de Trabalho";
-        } else if (text.includes("relacionamento") || text.includes("namorado") || text.includes("amor") || text.includes("casamento") || text.includes("traiÃ§Ã£o") || text.includes("solidÃ£o") || text.includes("abandono") || text.includes("ciÃºme") || text.includes("marido") || text.includes("esposa")) {
+        } else if (text.includes("relacionamento") || text.includes("namorado") || text.includes("amor") || text.includes("casamento") || text.includes("traição") || text.includes("solidão") || text.includes("abandono") || text.includes("ciúme") || text.includes("marido") || text.includes("esposa")) {
             category = "Relacionamentos";
-            categoryEmoji = "ðŸ“ Relacionamentos";
+            categoryEmoji = "❤️ Relacionamentos";
             title = "Ajuste de Relacionamento";
-        } else if (text.includes("saÃºde") || text.includes("dor") || text.includes("doente") || text.includes("corpo") || text.includes("sono") || text.includes("cansado") || text.includes("energia") || text.includes("doenÃ§a")) {
-            category = "SaÃºde emocional";
-            categoryEmoji = "ðŸ“ SaÃºde emocional";
-            title = "Ajuste de SaÃºde Emocional";
+        } else if (text.includes("saúde") || text.includes("dor") || text.includes("doente") || text.includes("corpo") || text.includes("sono") || text.includes("cansado") || text.includes("energia") || text.includes("doença")) {
+            category = "Saúde emocional";
+            categoryEmoji = "🌿 Saúde emocional";
+            title = "Ajuste de Saúde Emocional";
         } else if (text.includes("medo") || text.includes("receio") || text.includes("pavor")) {
             category = "Coragem";
-            categoryEmoji = "ðŸ“ Coragem";
+            categoryEmoji = "🦁 Coragem";
             title = "Ajuste de Coragem";
         }
 
@@ -703,13 +703,13 @@ class ReorganizationEngine {
 
         // 1. Rastrear sentimentos no Fato
         const SENTIMENTS_LIST = [
-            "culpa", "injustiÃ§a", "dor", "tristeza", "solidÃ£o", "rejeiÃ§Ã£o", "desaprovaÃ§Ã£o", 
-            "carÃªncia", "raiva", "Ã³dio", "decepÃ§Ã£o", "incompetÃªncia", "incapacidade", 
-            "inferioridade", "pressÃ£o", "invasÃ£o", "usada", "manipulada", "desrespeitada", 
-            "ser controlada", "nÃ£o controlar", "perder o controle", "sensaÃ§Ã£o de estar ou ser feia", 
-            "pÃ¢nico", "medo", "trocada", "frustraÃ§Ã£o", "sensaÃ§Ã£o de perder o sentido da via", 
-            "inseguranÃ§a", "nojo", "desÃ¢nimo", "nÃ£o servir pra nada", "vontade de morrer", 
-            "angÃºstia", "incerteza", "sensaÃ§Ã£o de nÃ£o ter estabilidade", "abandonada", "submissÃ£o"
+            "culpa", "injustiça", "dor", "tristeza", "solidão", "rejeição", "desaprovação", 
+            "carência", "raiva", "ódio", "decepção", "incompetência", "incapacidade", 
+            "inferioridade", "pressão", "invasão", "usada", "manipulada", "desrespeitada", 
+            "ser controlada", "não controlar", "perder o controle", "sensação de estar ou ser feia", 
+            "pânico", "medo", "trocada", "frustração", "sensação de perder o sentido da via", 
+            "insegurança", "nojo", "desânimo", "não servir pra nada", "vontade de morrer", 
+            "angústia", "incerteza", "sensação de não ter estabilidade", "abandonada", "submissão"
         ];
 
         let matchedSentiments = [];
@@ -721,36 +721,36 @@ class ReorganizationEngine {
             }
         });
 
-        // HeurÃ­sticas adicionais baseadas em palavras-chave do Fato
-        if (text.includes("briga") || text.includes("discuti") || text.includes("conflito") || text.includes("discussÃ£o")) {
+        // Heurísticas adicionais baseadas em palavras-chave do Fato
+        if (text.includes("briga") || text.includes("discuti") || text.includes("conflito") || text.includes("discussão")) {
             if (!matchedSentiments.includes("tristeza")) matchedSentiments.push("tristeza");
             if (!matchedSentiments.includes("raiva")) matchedSentiments.push("raiva");
-            if (!matchedSentiments.includes("injustiÃ§a")) matchedSentiments.push("injustiÃ§a");
+            if (!matchedSentiments.includes("injustiça")) matchedSentiments.push("injustiça");
         }
         if (text.includes("dinheiro") || text.includes("escassez") || text.includes("perda")) {
-            if (!matchedSentiments.includes("inseguranÃ§a")) matchedSentiments.push("inseguranÃ§a");
-            if (!matchedSentiments.includes("pressÃ£o")) matchedSentiments.push("pressÃ£o");
-            if (!matchedSentiments.includes("frustraÃ§Ã£o")) matchedSentiments.push("frustraÃ§Ã£o");
+            if (!matchedSentiments.includes("insegurança")) matchedSentiments.push("insegurança");
+            if (!matchedSentiments.includes("pressão")) matchedSentiments.push("pressão");
+            if (!matchedSentiments.includes("frustração")) matchedSentiments.push("frustração");
         }
         if (text.includes("vender") || text.includes("cobrar") || text.includes("trabalho")) {
-            if (!matchedSentiments.includes("incompetÃªncia")) matchedSentiments.push("incompetÃªncia");
-            if (!matchedSentiments.includes("rejeiÃ§Ã£o")) matchedSentiments.push("rejeiÃ§Ã£o");
-            if (!matchedSentiments.includes("desaprovaÃ§Ã£o")) matchedSentiments.push("desaprovaÃ§Ã£o");
+            if (!matchedSentiments.includes("incompetência")) matchedSentiments.push("incompetência");
+            if (!matchedSentiments.includes("rejeição")) matchedSentiments.push("rejeição");
+            if (!matchedSentiments.includes("desaprovação")) matchedSentiments.push("desaprovação");
         }
-        if (text.includes("cansaÃ§o") || text.includes("exaustÃ£o") || text.includes("sobrecarga")) {
-            if (!matchedSentiments.includes("pressÃ£o")) matchedSentiments.push("pressÃ£o");
-            if (!matchedSentiments.includes("invasÃ£o")) matchedSentiments.push("invasÃ£o");
-            if (!matchedSentiments.includes("desÃ¢nimo")) matchedSentiments.push("desÃ¢nimo");
+        if (text.includes("cansaço") || text.includes("exaustão") || text.includes("sobrecarga")) {
+            if (!matchedSentiments.includes("pressão")) matchedSentiments.push("pressão");
+            if (!matchedSentiments.includes("invasão")) matchedSentiments.push("invasão");
+            if (!matchedSentiments.includes("desânimo")) matchedSentiments.push("desânimo");
         }
 
-        // Se ainda nÃ£o encontrou nada, usar um fallback por categoria
+        // Se ainda não encontrou nada, usar um fallback por categoria
         if (matchedSentiments.length === 0) {
             if (category === "Relacionamentos") {
-                matchedSentiments = ["tristeza", "rejeiÃ§Ã£o", "raiva"];
+                matchedSentiments = ["tristeza", "rejeição", "raiva"];
             } else if (category === "Prosperidade" || category === "Trabalho") {
-                matchedSentiments = ["inseguranÃ§a", "incerteza", "frustraÃ§Ã£o"];
+                matchedSentiments = ["insegurança", "incerteza", "frustração"];
             } else {
-                matchedSentiments = ["tristeza", "inseguranÃ§a", "angÃºstia"];
+                matchedSentiments = ["tristeza", "insegurança", "angústia"];
             }
         }
 
@@ -758,8 +758,8 @@ class ReorganizationEngine {
         matchedSentiments = [...new Set(matchedSentiments)];
 
         // Formatar MSI
-        let msiText = `1 - Movimento SistÃªmico Informacional - MSI\n`;
-        msiText += `Alma, comportamentos e padrÃµes involuntÃ¡rios de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existÃªncia atÃ© a primeira infÃ¢ncia, acabaram!\n`;
+        let msiText = `1 - Movimento Sistêmico Informacional - MSI\n`;
+        msiText += `Alma, comportamentos e padrões involuntários de "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabaram!\n`;
         
         // Formatar MFI
         let mfiText = `2 - Movimento Factual Informacional - MFI\n`;
@@ -767,32 +767,32 @@ class ReorganizationEngine {
             mfiText += `Alma, ${s} que senti na "${cleanConcept.toLowerCase()}" acabou!\n`;
         });
         mfiText += `Alma, todos os sentimentos que senti na "${cleanConcept.toLowerCase()}" acabaram!\n`;
-        mfiText += `EspÃ­rito, todas as informações negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mfiText += `EspÃ­rito, todas as informações negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
+        mfiText += `Espírito, todas as informações negativas que recebi na "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mfiText += `Espírito, todas as informações negativas que gerei na "${cleanConcept.toLowerCase()}" acabou!`;
 
         const finalDeclaracao = `${msiText}\n${mfiText}`;
 
         // Formatar MRI
-        let mriText = `3 - Movimento de ReinterpretaÃ§Ã£o Informacional - MRI\n`;
+        let mriText = `3 - Movimento de Reinterpretação Informacional - MRI\n`;
         if (category === "Prosperidade") {
-            mriText += `EspÃ­rito, minha consciÃªncia escolhe, eu escolho direcionar minha atenÃ§Ã£o para possibilidades, soluÃ§Ãµes e expansÃ£o.\nAlma, eu jÃ¡ construo riqueza com presenÃ§a, consistÃªncia e equilÃ­brio.`;
+            mriText += `Espírito, minha consciência escolhe, eu escolho direcionar minha atenção para possibilidades, soluções e expansão.\nAlma, eu já construo riqueza com presença, consistência e equilíbrio.`;
         } else if (category === "Relacionamentos") {
-            mriText += `EspÃ­rito, minha consciÃªncia escolhe, eu escolho acolher minha autonomia afetiva e estabelecer relaÃ§Ãµes saudÃ¡veis.\nAlma, eu jÃ¡ me sinto seguro(a), pleno(a) e vivencio conexÃµes estÃ¡veis com maturidade.`;
+            mriText += `Espírito, minha consciência escolhe, eu escolho acolher minha autonomia afetiva e estabelecer relações saudáveis.\nAlma, eu já me sinto seguro(a), pleno(a) e vivencio conexões estáveis com maturidade.`;
         } else {
-            mriText += `EspÃ­rito, minha consciÃªncia escolhe, eu escolho focar em equilÃ­brio interno, clareza e novas soluÃ§Ãµes.\nAlma, eu jÃ¡ organizo meu estado interno com consistÃªncia, presenÃ§a e leveza.`;
+            mriText += `Espírito, minha consciência escolhe, eu escolho focar em equilíbrio interno, clareza e novas soluções.\nAlma, eu já organizo meu estado interno com consistência, presença e leveza.`;
         }
 
         return {
             category: category,
             categoryEmoji: categoryEmoji,
             title: title,
-            ajuste: `O padrÃ£o de "${cleanConcept.toLowerCase()}" estÃ¡ gerando registros ativos que influenciam suas escolhas automÃ¡ticas.`,
-            movimento: `Acolher este registro factual conscientemente para liberar a carga emocional e atualizar seu padrÃ£o de percepÃ§Ã£o.`,
-            objetivo: "ReorganizaÃ§Ã£o factual e atualizaÃ§Ã£o de padrÃµes internos.",
+            ajuste: `O padrão de "${cleanConcept.toLowerCase()}" está gerando registros ativos que influenciam suas escolhas automáticas.`,
+            movimento: `Acolher este registro factual conscientemente para liberar a carga emocional e atualizar seu padrão de percepção.`,
+            objetivo: "Reorganização factual e atualização de padrões internos.",
             declaracao: finalDeclaracao,
             fortalecimento: mriText,
-            pergunta: `O que o registro de "${cleanConcept.toLowerCase()}" estÃ¡ protegendo ou sinalizando na sua experiÃªncia atual?`,
-            microacao: "Escrever o fato em um papel, mentalizar as frases de liberaÃ§Ã£o (MSI/MFI), e depois rasgÃ¡-lo, focando na reinterpretaÃ§Ã£o sugerida (MRI).",
+            pergunta: `O que o registro de "${cleanConcept.toLowerCase()}" está protegendo ou sinalizando na sua experiência atual?`,
+            microacao: "Escrever o fato em um papel, mentalizar as frases de liberação (MSI/MFI), e depois rasgá-lo, focando na reinterpretação sugerida (MRI).",
             originalPhrase: phrase
         };
     }
@@ -802,7 +802,7 @@ class ReorganizationEngine {
 class AppStateManager {
     constructor() {
         this.currentStep = 1;
-        this.currentData = null; // Guarda o resultado da reorganizaÃ§Ã£o atual
+        this.currentData = null; // Guarda o resultado da reorganização atual
         this.history = this.loadHistory();
         this.timerInterval = null;
         this.isHereditary = false;
@@ -816,7 +816,7 @@ class AppStateManager {
         this.hasMdiCondicional = false;
         this.addedMdiBehaviors = []; // [{ behavior: "...", sentiment: "..." }]
         
-        // AutenticaÃ§Ã£o e Assinatura persistidas
+        // Autenticação e Assinatura persistidas
         this.currentUser = this.loadUser();
         this.subscription = this.loadSubscription();
     }
@@ -883,7 +883,7 @@ class AppStateManager {
         } catch (e) {
             console.warn("Erro ao salvar assinatura no localStorage:", e);
         }
-        // Sincronizar com o banco do Supabase se o usuÃ¡rio estiver logado
+        // Sincronizar com o banco do Supabase se o usuário estiver logado
         if (sub && supabaseClient && this.currentUser) {
             try {
                 await supabaseClient.from("subscriptions").upsert({
@@ -910,9 +910,9 @@ class AppStateManager {
                 .eq("id", this.currentUser.id)
                 .maybeSingle();
 
-            // Se o perfil nÃ£o existir (usuÃ¡rio antigo criado antes do trigger), cria-o agora!
+            // Se o perfil não existir (usuário antigo criado antes do trigger), cria-o agora!
             if (!profErr && !profData) {
-                console.log("Perfil nÃ£o encontrado. Criando perfil padrÃ£o...");
+                console.log("Perfil não encontrado. Criando perfil padrão...");
                 const { data: newProfile, error: insertErr } = await supabaseClient
                     .from("profiles")
                     .insert({
@@ -957,7 +957,7 @@ class AppStateManager {
                 localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
             }
 
-            // 2. Buscar HistÃ³rico de ReorganizaÃ§Ãµes Remoto
+            // 2. Buscar Histórico de Reorganizações Remoto
             const { data: histData, error: histErr } = await supabaseClient
                 .from("reorganizations")
                 .select("*")
@@ -965,8 +965,8 @@ class AppStateManager {
                 .order("id", { ascending: false });
 
             if (histErr) {
-                console.error("Erro ao buscar histÃ³rico de reorganizaÃ§Ãµes no Supabase:", histErr);
-                showToast("Erro ao sincronizar histÃ³rico: " + histErr.message);
+                console.error("Erro ao buscar histórico de reorganizações no Supabase:", histErr);
+                showToast("Erro ao sincronizar histórico: " + histErr.message);
             } else if (histData) {
                 this.history = histData.map(d => ({
                     id: d.id,
@@ -981,7 +981,7 @@ class AppStateManager {
                 this.saveHistory();
             }
         } catch (err) {
-            console.error("Erro crÃ­tico na carga do Supabase:", err);
+            console.error("Erro crítico na carga do Supabase:", err);
         }
     }
 
@@ -1016,13 +1016,13 @@ class AppStateManager {
                 });
                 
                 if (insertErr) {
-                    console.error("Erro ao salvar reorganizaÃ§Ã£o no Supabase:", insertErr);
+                    console.error("Erro ao salvar reorganização no Supabase:", insertErr);
                     showToast("Erro ao salvar no banco: " + insertErr.message);
                 } else {
-                    console.log("ReorganizaÃ§Ã£o salva com sucesso no Supabase!");
+                    console.log("Reorganização salva com sucesso no Supabase!");
                 }
             } catch (err) {
-                console.error("Erro crÃ­tico ao salvar reorganizaÃ§Ã£o no Supabase:", err);
+                console.error("Erro crítico ao salvar reorganização no Supabase:", err);
             }
         }
     }
@@ -1051,7 +1051,7 @@ class AppStateManager {
     }
 }
 
-// InicializaÃ§Ã£o da UI e Event Listeners
+// Inicialização da UI e Event Listeners
 document.addEventListener("DOMContentLoaded", () => {
     const state = new AppStateManager();
 
@@ -1080,7 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnLoginTrigger = document.getElementById("btn-login-trigger");
     const btnHeroLogin = document.getElementById("btn-hero-login");
     
-    // Sub-screens da Tela 1 (QuestionÃ¡rio)
+    // Sub-screens da Tela 1 (Questionário)
     const subStep1a = document.getElementById("sub-step-1a");
     const btnSubNext1 = document.getElementById("btn-sub-next1");
     const subStep1aConfirm = document.getElementById("sub-step-1a-confirm");
@@ -1124,7 +1124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnQuestSkip = document.getElementById("btn-quest-skip");
     const btnQuestNext = document.getElementById("btn-quest-next");
 
-    // RevisÃ£o e Sentimentos DOM Elements
+    // Revisão e Sentimentos DOM Elements
     const subStep2b = document.getElementById("sub-step-2b");
     const revisionFactsList = document.getElementById("revision-facts-list");
     const btnRevisionAddMore = document.getElementById("btn-revision-add-more");
@@ -1183,7 +1183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const statLighter = document.getElementById("stat-lighter");
     const statsCategoryList = document.getElementById("stats-category-list");
 
-    // LÃ³gica Centralizada de Tabs
+    // Lógica Centralizada de Tabs
     function switchTab(activeNav, activeSection) {
         // Mobile bottom nav references
         const mApp = document.getElementById("mobile-nav-app");
@@ -1220,6 +1220,22 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (!state.subscription) {
                 showScreen("paywall");
             } else if (state.currentStep === 0) {
+                showScreen("step1");
+            }
+        });
+    }
+
+    const logoContainer = document.getElementById("logo-container");
+    if (logoContainer) {
+        logoContainer.addEventListener("click", (e) => {
+            e.preventDefault();
+            switchTab(navApp, sectionApp);
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else {
+                state.currentStep = 0;
                 showScreen("step1");
             }
         });
@@ -1262,13 +1278,13 @@ document.addEventListener("DOMContentLoaded", () => {
         navLib.addEventListener("click", (e) => {
             e.preventDefault();
             if (!state.currentUser) {
-                showToast("Acesse sua conta para ver suas ReorganizaÃ§Ãµes.");
+                showToast("Acesse sua conta para ver suas Reorganizações.");
                 switchTab(navApp, sectionApp);
                 showScreen("auth");
                 return;
             }
             if (!state.subscription) {
-                showToast("Assine um plano para ver suas ReorganizaÃ§Ãµes.");
+                showToast("Assine um plano para ver suas Reorganizações.");
                 switchTab(navApp, sectionApp);
                 showScreen("paywall");
                 return;
@@ -1299,7 +1315,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Event Listeners para a Barra de NavegaÃ§Ã£o Mobile
+    // Event Listeners para a Barra de Navegação Mobile
     const mApp = document.getElementById("mobile-nav-app");
     const mAgenda = document.getElementById("mobile-nav-agenda");
     const mLib = document.getElementById("mobile-nav-lib");
@@ -1343,13 +1359,13 @@ document.addEventListener("DOMContentLoaded", () => {
         mLib.addEventListener("click", (e) => {
             e.preventDefault();
             if (!state.currentUser) {
-                showToast("Acesse sua conta para ver suas ReorganizaÃ§Ãµes.");
+                showToast("Acesse sua conta para ver suas Reorganizações.");
                 switchTab(mApp, sectionApp);
                 showScreen("auth");
                 return;
             }
             if (!state.subscription) {
-                showToast("Assine um plano para ver suas ReorganizaÃ§Ãµes.");
+                showToast("Assine um plano para ver suas Reorganizações.");
                 switchTab(mApp, sectionApp);
                 showScreen("paywall");
                 return;
@@ -1375,7 +1391,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    // SeleÃ§Ã£o de NÃ­vel de Profundidade (Tela 1A)
+    // Seleção de Nível de Profundidade (Tela 1A)
     const btnLevelIniciante = document.getElementById("btn-level-iniciante");
     const btnLevelIntermediario = document.getElementById("btn-level-intermediario");
     const btnLevelAvancado = document.getElementById("btn-level-avancado");
@@ -1606,7 +1622,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
         });
     }
 
-    // Chips de SugestÃµes de Temas na Tela 1A
+    // Chips de Sugestões de Temas na Tela 1A
     const themeChips = document.querySelectorAll("#theme-suggestions-chips .sentiment-tag");
     themeChips.forEach(chip => {
         chip.addEventListener("click", () => {
@@ -1638,7 +1654,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
         });
     }
 
-    // LÃ³gica de NavegaÃ§Ã£o e TransiÃ§Ã£o dos Sub-Passos da Tela 1
+    // Lógica de Navegação e Transição dos Sub-Passos da Tela 1
     function switchSubStep(hideEl, showEl) {
         if (!hideEl || !showEl) return;
         hideEl.classList.remove("active");
@@ -2015,7 +2031,7 @@ Retorne JSON no formato exato:
 
 
     // ==========================================================================
-    // GeraÃ§Ã£o de Decretos Final
+    // Geração de Decretos Final
     // ==========================================================================
 
 
@@ -2127,7 +2143,7 @@ Retorne JSON no formato exato:
             
             if (btnGenerate) {
                 btnGenerate.disabled = false;
-                btnGenerate.innerText = "Gerar Ajustes Informacionais â†’";
+                btnGenerate.innerText = "Gerar Ajustes Informacionais →";
             }
             if (btnSentimentSave) btnSentimentSave.disabled = false;
         }, 1200);
@@ -2164,15 +2180,15 @@ Retorne JSON no formato exato:
         }
     }
 
-    // Tela 2 (ConsciÃªncia) -> Tela 4: Ir para Registro & Acompanhamento
+    // Tela 2 (Consciência) -> Tela 4: Ir para Registro & Acompanhamento
     btnToStep3.addEventListener("click", () => {
         showScreen("step4");
     });
 
-    // LÃ³gica do Timer de PrÃ¡tica (Tela 3)
+    // Lógica do Timer de Prática (Tela 3)
     function startPracticeTimer() {
         btnToStep4.disabled = true;
-        btnToStep4.innerText = "Realize a prÃ¡tica com atenÃ§Ã£o... (10s)";
+        btnToStep4.innerText = "Realize a prática com atenção... (10s)";
         let timeLeft = 10;
         timerProgress.style.width = "100%";
         
@@ -2186,21 +2202,21 @@ Retorne JSON no formato exato:
             if (timeLeft <= 0) {
                 clearInterval(state.timerInterval);
                 btnToStep4.disabled = false;
-                btnToStep4.innerText = "Concluir PrÃ¡tica e Ver Leitura Informacional â†’";
+                btnToStep4.innerText = "Concluir Prática e Ver Leitura Informacional →";
                 btnToStep4.classList.add("pulse-glow");
             } else {
-                btnToStep4.innerText = `Realize a prÃ¡tica com atenÃ§Ã£o... (${timeLeft}s)`;
+                btnToStep4.innerText = `Realize a prática com atenção... (${timeLeft}s)`;
             }
         }, 1000);
     }
 
-    // Tela 3 (PrÃ¡ticas Guiadas) -> Tela 2: Ir para ConsciÃªncia
+    // Tela 3 (Práticas Guiadas) -> Tela 2: Ir para Consciência
     btnToStep4.addEventListener("click", () => {
         if (state.timerInterval) clearInterval(state.timerInterval);
         showScreen("step2");
     });
 
-    // SeleÃ§Ã£o de sentimentos na Tela 4
+    // Seleção de sentimentos na Tela 4
     let selectedRating = "Mais leve"; // default
     ratingOptions.forEach(opt => {
         opt.addEventListener("click", () => {
@@ -2610,7 +2626,7 @@ Retorne JSON no formato exato:
     }
 
     // ==========================================================================
-    // LÃ³gica de AutenticaÃ§Ã£o e Assinaturas (Simulador SaaS)
+    // Lógica de Autenticação e Assinaturas (Simulador SaaS)
     // ==========================================================================
     const userNavContainer = document.getElementById("user-nav-container");
     const userEmailDisplay = document.getElementById("user-email-display");
@@ -2639,7 +2655,7 @@ Retorne JSON no formato exato:
 
             if (userStatusDisplay) {
                 if (state.currentUser.role === "therapist") {
-                    userStatusDisplay.innerText = "Terapeuta ðŸ”‘";
+                    userStatusDisplay.innerText = "Terapeuta 🔑";
                     userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
                     userStatusDisplay.style.color = "var(--color-primary)";
                     userStatusDisplay.style.borderColor = "var(--color-primary)";
@@ -2657,7 +2673,7 @@ Retorne JSON no formato exato:
                             }
                         }
                         const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                        const daysRemaining = Math.max(0, 15 - daysElapsed);
+                        const daysRemaining = Math.max(0, 7 - daysElapsed);
                         
                         userStatusDisplay.innerText = `Teste: ${daysRemaining}d rest.`;
                         userStatusDisplay.style.background = "rgba(251, 188, 5, 0.15)";
@@ -2742,7 +2758,7 @@ Retorne JSON no formato exato:
                         
                         if (error) throw error;
                         
-                        // Salvar usuÃ¡rio
+                        // Salvar usuário
                         state.saveUser({
                             email: email,
                             provider: "email",
@@ -2771,7 +2787,7 @@ Retorne JSON no formato exato:
                         showScreen(state.subscription ? "step1" : "paywall");
                     }
                 } catch (err) {
-                    alert("Erro na autenticaÃ§Ã£o: " + err.message);
+                    alert("Erro na autenticação: " + err.message);
                 } finally {
                     if (btnAuthSubmit) {
                         btnAuthSubmit.disabled = false;
@@ -2782,7 +2798,7 @@ Retorne JSON no formato exato:
                     updateUserUI();
                 }
             } else {
-                // SimulaÃ§Ã£o local
+                // Simulação local
                 setTimeout(() => {
                     state.saveUser({
                         email: email,
@@ -2846,7 +2862,7 @@ Retorne JSON no formato exato:
                     `;
                 }
             } else {
-                // SimulaÃ§Ã£o local
+                // Simulação local
                 setTimeout(() => {
                     state.saveUser({
                         email: "visitante.google@gmail.com",
@@ -2892,7 +2908,7 @@ Retorne JSON no formato exato:
             
             updateUserUI();
             showScreen("auth");
-            showToast("VocÃª saiu da sua conta.");
+            showToast("Você saiu da sua conta.");
         });
     }
 
@@ -2912,7 +2928,7 @@ Retorne JSON no formato exato:
     async function startCheckout(plan) {
         activeSelectedPlan = plan;
         
-        // Prioridade mÃ¡xima: se links estÃ¡ticos estÃ£o configurados, redirecionar na hora (evita CORS e delay)
+        // Prioridade máxima: se links estáticos estão configurados, redirecionar na hora (evita CORS e delay)
         const staticLink = plan === "yearly" ? INFINITEPAY_LINK_YEARLY : INFINITEPAY_LINK_MONTHLY;
         if (staticLink) {
             window.location.href = staticLink;
@@ -2967,7 +2983,7 @@ Retorne JSON no formato exato:
                     return;
                 }
             } catch (err) {
-                console.warn("Falha ao gerar link dinÃ¢mico da InfinitePay, tentando link estÃ¡tico ou simulaÃ§Ã£o:", err);
+                console.warn("Falha ao gerar link dinâmico da InfinitePay, tentando link estático ou simulação:", err);
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -2976,9 +2992,9 @@ Retorne JSON no formato exato:
             }
         }
         
-        // Se nenhuma configuraÃ§Ã£o da InfinitePay estiver ativa, usa a simulaÃ§Ã£o local anterior
+        // Se nenhuma configuração da InfinitePay estiver ativa, usa a simulação local anterior
         if (checkoutPlanName) {
-            checkoutPlanName.innerText = plan === "yearly" ? "Anual (R$ 39,90/mÃªs)" : "Mensal (R$ 49,90/mÃªs)";
+            checkoutPlanName.innerText = plan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
         }
         if (checkoutModal) checkoutModal.style.display = "flex";
     }
@@ -2989,14 +3005,14 @@ Retorne JSON no formato exato:
         });
     });
 
-    // CÃ³digo de convite / Reivindicar Assinatura Gratuita
+    // Código de convite / Reivindicar Assinatura Gratuita
     const btnClaimInvite = document.getElementById("btn-claim-invite");
     const inputInviteCode = document.getElementById("input-invite-code");
 
     if (btnClaimInvite && inputInviteCode) {
         btnClaimInvite.addEventListener("click", () => {
             const rawCode = inputInviteCode.value.trim();
-            // Remover acentos e comparar de forma insensÃ­vel a maiÃºsculas/minÃºsculas e sem hashtag
+            // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
             const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             
             if (codeNormalized === "euescolhoasminhasrealidades") {
@@ -3010,17 +3026,17 @@ Retorne JSON no formato exato:
                 }).then(() => {
                     inputInviteCode.value = "";
                     updateUserUI();
-                    showToast("CÃ³digo de convite ativado! Seus 15 dias de teste comeÃ§aram agora. ðŸŽ‰");
+                    showToast("Código de convite ativado! Seus 7 dias de teste começaram agora. 🎉");
                     showScreen("step1");
                 }).catch(err => {
                     console.error(err);
-                    showToast("Erro ao processar ativaÃ§Ã£o do convite.");
+                    showToast("Erro ao processar ativação do convite.");
                 }).finally(() => {
                     btnClaimInvite.disabled = false;
                     btnClaimInvite.innerText = "Reivindicar";
                 });
             } else {
-                showToast("CÃ³digo de convite invÃ¡lido ou expirado.");
+                showToast("Código de convite inválido ou expirado.");
             }
         });
     }
@@ -3067,7 +3083,7 @@ Retorne JSON no formato exato:
             if (pixInput) {
                 pixInput.select();
                 document.execCommand("copy");
-                showToast("CÃ³digo Copia e Cola copiado!");
+                showToast("Código Copia e Cola copiado!");
             }
         });
     }
@@ -3086,7 +3102,7 @@ Retorne JSON no formato exato:
                 
                 if (checkoutModal) checkoutModal.style.display = "none";
                 btnConfirmPayment.disabled = false;
-                btnConfirmPayment.innerText = "Simular ConfirmaÃ§Ã£o de Pagamento";
+                btnConfirmPayment.innerText = "Simular Confirmação de Pagamento";
                 
                 updateUserUI();
                 showScreen("step1");
@@ -3095,7 +3111,7 @@ Retorne JSON no formato exato:
         });
     }
 
-    // Helper: Renderizar Biblioteca (HistÃ³rico)
+    // Helper: Renderizar Biblioteca (Histórico)
     function renderLibrary() {
         libraryContainer.innerHTML = "";
         const history = state.history;
@@ -3148,22 +3164,22 @@ Retorne JSON no formato exato:
                         </div>
                         ${item.data && item.data.declaracaoEspecifica ? `
                         <div class="detail-section">
-                            <strong>LiberaÃ§Ã£o de Registros EspecÃ­ficos (1x na vida):</strong>
+                            <strong>Liberação de Registros Específicos (1x na vida):</strong>
                             <p class="hqi-box" style="background: rgba(234, 67, 53, 0.03); border: 1px solid rgba(234, 67, 53, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem;">${item.data.declaracaoEspecifica}</p>
                         </div>
                         ` : ''}
                         ${item.data && item.data.declaracaoNaoEspecifica ? `
                         <div class="detail-section">
-                            <strong>LiberaÃ§Ã£o dos NÃ£o EspecÃ­ficos (1x por dia / 15 dias):</strong>
+                            <strong>Liberação dos Não Específicos (1x por dia / 15 dias):</strong>
                             <p class="hqi-box-fortify" style="background: rgba(102, 252, 241, 0.03); border: 1px solid rgba(102, 252, 241, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem; color: var(--color-primary);">${item.data.declaracaoNaoEspecifica}</p>
                         </div>
                         ` : ''}
                         <div class="detail-section">
-                            <strong>AÃ§Ã£o de IntegraÃ§Ã£o:</strong>
-                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">ðŸŽ¯ ${item.data.microacao || 'Nenhuma'}</p>
+                            <strong>Ação de Integração:</strong>
+                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">🎯 ${item.data.microacao || 'Nenhuma'}</p>
                         </div>
                     </div>
-                    <button class="btn-toggle-details">Ver detalhes â†“</button>
+                    <button class="btn-toggle-details">Ver detalhes ↓</button>
                 `;
                 
                 const btnToggle = card.querySelector(".btn-toggle-details");
@@ -3172,7 +3188,7 @@ Retorne JSON no formato exato:
                 btnToggle.addEventListener("click", () => {
                     const isVisible = details.style.display === "block";
                     details.style.display = isVisible ? "none" : "block";
-                    btnToggle.innerText = isVisible ? "Ver detalhes â†“" : "Ocultar detalhes â†‘";
+                    btnToggle.innerText = isVisible ? "Ver detalhes ↓" : "Ocultar detalhes ↑";
                 });
                 
                 listContainer.appendChild(card);
@@ -3220,7 +3236,7 @@ Retorne JSON no formato exato:
     }
 
     // ==========================================================================
-    // LÃ³gica do Simulador RAG e Banco de Dados no Console
+    // Lógica do Simulador RAG e Banco de Dados no Console
     // ==========================================================================
 
     function renderVectorList() {
@@ -3229,7 +3245,7 @@ Retorne JSON no formato exato:
         const history = state.history;
 
         if (history.length === 0) {
-            ragVectorList.innerHTML = `<li class="empty-stats">Nenhum vetor salvo ainda. Crie reorganizaÃ§Ãµes na aba InÃ­cio.</li>`;
+            ragVectorList.innerHTML = `<li class="empty-stats">Nenhum vetor salvo ainda. Crie reorganizações na aba Início.</li>`;
             return;
         }
 
@@ -3240,7 +3256,7 @@ Retorne JSON no formato exato:
             li.style.borderRadius = "8px";
             li.style.padding = "0.75rem";
             
-            // Gerar embedding caso o item antigo nÃ£o possua
+            // Gerar embedding caso o item antigo não possua
             if (!item.embedding) {
                 item.embedding = generateMockEmbedding(item.phrase);
             }
@@ -3274,17 +3290,17 @@ Retorne JSON no formato exato:
             }
 
             setTimeout(() => {
-                // Passo 1: GeraÃ§Ã£o de Embedding
+                // Passo 1: Geração de Embedding
                 const queryEmbedding = generateMockEmbedding(query);
                 const firstValues = queryEmbedding.slice(0, 4).join(", ");
                 
                 appendConsoleLog(`[PASSO 1] Gerando Vector Embedding via OpenAI API (text-embedding-3-small)...`);
-                appendConsoleLog(`Vector gerado com sucesso! DimensÃ£o: 1536.`, "color-green");
-                appendConsoleLog(`Vetor do usuÃ¡rio: [${firstValues}, ...]`, "color-grey");
+                appendConsoleLog(`Vector gerado com sucesso! Dimensão: 1536.`, "color-green");
+                appendConsoleLog(`Vetor do usuário: [${firstValues}, ...]`, "color-grey");
 
                 setTimeout(() => {
                     // Passo 2: Busca Vetorial Cosseno no pgvector
-                    appendConsoleLog(`[PASSO 2] Consultando banco de dados PostgreSQL usando operador de distÃ¢ncia cosseno (<=>) no pgvector...`);
+                    appendConsoleLog(`[PASSO 2] Consultando banco de dados PostgreSQL usando operador de distância cosseno (<=>) no pgvector...`);
                     
                     const history = state.history;
                     const matches = [];
@@ -3305,12 +3321,12 @@ Retorne JSON no formato exato:
                     // Ordenar por similaridade decrescente
                     matches.sort((a, b) => b.similarity - a.similarity);
 
-                    // Filtrar por limite semÃ¢ntico (threshold de 0.60 para simulaÃ§Ã£o)
+                    // Filtrar por limite semântico (threshold de 0.60 para simulação)
                     const threshold = 0.60;
                     const relevantMatches = matches.filter(m => m.similarity >= threshold).slice(0, 2);
 
                     if (matches.length === 0) {
-                        appendConsoleLog(`Varredura completa. Tabela journal_entries estÃ¡ vazia. Nenhum contexto histÃ³rico recuperado.`, "color-yellow");
+                        appendConsoleLog(`Varredura completa. Tabela journal_entries está vazia. Nenhum contexto histórico recuperado.`, "color-yellow");
                     } else {
                         appendConsoleLog(`Similaridades calculadas com sucesso no banco de dados:`);
                         matches.slice(0, 3).forEach(m => {
@@ -3321,30 +3337,30 @@ Retorne JSON no formato exato:
                     }
 
                     setTimeout(() => {
-                        // Passo 3: InjeÃ§Ã£o de Contexto & Montagem do Prompt
-                        appendConsoleLog(`[PASSO 3] Sintetizando prompt contextualizado com MemÃ³ria Inteligente para o LLM...`);
+                        // Passo 3: Injeção de Contexto & Montagem do Prompt
+                        appendConsoleLog(`[PASSO 3] Sintetizando prompt contextualizado com Memória Inteligente para o LLM...`);
                         
                         let contextBlock = "";
                         if (relevantMatches.length > 0) {
-                            contextBlock = `--- MEMÃ“RIA INTELIGENTE (HistÃ³rico relevante recuperado) ---\n`;
+                            contextBlock = `--- MEMÃ“RIA INTELIGENTE (Histórico relevante recuperado) ---\n`;
                             relevantMatches.forEach((m, idx) => {
-                                contextBlock += `- Registro antigo ${idx+1}: '${m.phrase}' | Feedback emocional pÃ³s-prÃ¡tica: ${m.rating}\n`;
+                                contextBlock += `- Registro antigo ${idx+1}: '${m.phrase}' | Feedback emocional pós-prática: ${m.rating}\n`;
                             });
                             contextBlock += `---------------------------------------------------------\n`;
                         } else {
-                            contextBlock = `(Nenhum histÃ³rico semanticamente relevante foi injetado para economizar tokens)\n`;
+                            contextBlock = `(Nenhum histórico semanticamente relevante foi injetado para economizar tokens)\n`;
                         }
 
                         const promptPreview = `
 [SYSTEM PROMPT]
-VocÃª Ã© o InnerMap, assistente especializado em reorganizar padrÃµes internos...
+Você é o InnerMap, assistente especializado em reorganizar padrões internos...
 
 [RETRIEVED CONTEXT]
 ${contextBlock}
 [USER QUERY]
 Pergunta atual: "${query}"
 `;
-                        appendConsoleLog(`Prompt construÃ­do com sucesso:`);
+                        appendConsoleLog(`Prompt construído com sucesso:`);
                         const pre = document.createElement("pre");
                         pre.className = "console-code-block";
                         pre.innerText = promptPreview;
@@ -3366,14 +3382,14 @@ Pergunta atual: "${query}"
                             responseBlock.style.marginTop = "0.75rem";
                             responseBlock.innerHTML = `
                                 <strong>Ajuste:</strong> ${result.ajuste}<br><br>
-                                <strong>LiberaÃ§Ã£o:</strong> <span style="font-family: monospace;">${result.declaracao}</span>
+                                <strong>Liberação:</strong> <span style="font-family: monospace;">${result.declaracao}</span>
                             `;
                             if (ragConsoleLogs) ragConsoleLogs.appendChild(responseBlock);
                             
                             appendConsoleLog(`[COMPLETO] Registro atualizado salvo com sucesso na tabela journal_entries do PostgreSQL.`, "color-green");
                             
                             btnSimulateRag.disabled = false;
-                            btnSimulateRag.innerHTML = 'Simular Fluxo RAG â†’';
+                            btnSimulateRag.innerHTML = 'Simular Fluxo RAG →';
                             renderVectorList();
                         }, 1500);
                     }, 1500);
@@ -3413,9 +3429,9 @@ Pergunta atual: "${query}"
         }, 3000);
     }
 
-    // Verificar o status e a data de validade da assinatura de teste (trial de 15 dias)
+    // Verificar o status e a data de validade da assinatura de teste (trial de 7 dias)
     function checkSubscriptionStatus() {
-        // Se o usuÃ¡rio for um terapeuta/admin, desativa o limite e o aviso de 15 dias de teste
+        // Se o usuário for um terapeuta/admin, desativa o limite e o aviso de 7 dias de teste
         if (state.currentUser && state.currentUser.role === "therapist") {
             return true;
         }
@@ -3426,7 +3442,7 @@ Pergunta atual: "${query}"
             
             let diffTime = currentDate - activationDate;
             if (isNaN(diffTime)) {
-                // Tenta tratar formato local dd/mm/aaaa se houver no histÃ³rico antigo
+                // Tenta tratar formato local dd/mm/aaaa se houver no histórico antigo
                 const parts = state.subscription.date.split('/');
                 if (parts.length === 3) {
                     const parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
@@ -3435,29 +3451,29 @@ Pergunta atual: "${query}"
             }
             
             const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            const daysRemaining = 15 - daysElapsed;
+            const daysRemaining = 7 - daysElapsed;
             
             if (daysRemaining <= 0) {
-                alert("Seu período de teste de 15 dias acabou! Por favor, assine um plano para continuar.");
+                alert("Seu período de teste de 7 dias acabou! Por favor, assine um plano para continuar.");
                 state.saveSubscription(null);
                 updateUserUI();
                 showScreen("paywall");
                 return false;
-            } else if ([10, 5, 3, 1].includes(daysRemaining)) {
+            } else if ([5, 3, 1].includes(daysRemaining)) {
                 showToast(`Atenção: Restam ${daysRemaining} ${daysRemaining === 1 ? 'dia' : 'dias'} do seu período de teste! Assine o plano Mensal ou Anual para continuar.`);
             }
         }
         return true;
     }
 
-    // InicializaÃ§Ã£o da Tela no Load
+    // Inicialização da Tela no Load
     if (supabaseClient) {
-        // Carregar a base de padrÃµes do Supabase e semear se necessÃ¡rio
+        // Carregar a base de padrões do Supabase e semear se necessário
         loadPatternsFromSupabase().then(() => {
             seedPatternsDatabaseIfEmpty();
         });
 
-        // 1. Obter sessÃ£o inicial de forma imediata (Promise)
+        // 1. Obter sessão inicial de forma imediata (Promise)
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session && session.user) {
                 state.saveUser({
@@ -3489,11 +3505,11 @@ Pergunta atual: "${query}"
                 showScreen("auth");
             }
         }).catch(err => {
-            console.error("Erro ao obter sessÃ£o inicial:", err);
+            console.error("Erro ao obter sessão inicial:", err);
             showScreen("auth");
         });
 
-        // 2. Ouvir mudanÃ§as futuras de autenticaÃ§Ã£o (como login, logout, OAuth)
+        // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (event === "SIGNED_IN" && session) {
                 state.saveUser({
@@ -3519,7 +3535,7 @@ Pergunta atual: "${query}"
             }
         });
     } else {
-        // Fallback local se Supabase nÃ£o configurado
+        // Fallback local se Supabase não configurado
         updateUserUI();
         if (checkSubscriptionStatus()) {
             if (!state.currentUser) {
@@ -3545,7 +3561,7 @@ Pergunta atual: "${query}"
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("payment") === "success") {
         const plan = urlParams.get("plan");
-        // Limpar parÃ¢metros da URL para evitar recargas ativando repetidamente
+        // Limpar parâmetros da URL para evitar recargas ativando repetidamente
         window.history.replaceState({}, document.title, window.location.pathname);
         
         state.saveSubscription({
@@ -3561,7 +3577,7 @@ Pergunta atual: "${query}"
         });
     }
 
-    // Verificar se hÃ¡ algum pagamento pendente no localStorage e consultar na API da InfinitePay
+    // Verificar se há algum pagamento pendente no localStorage e consultar na API da InfinitePay
     const pendingPlan = localStorage.getItem("pending_payment_plan");
     const pendingSlug = localStorage.getItem("pending_payment_slug");
     if (pendingPlan && pendingSlug && INFINITEPAY_TAG) {
@@ -3577,7 +3593,7 @@ Pergunta atual: "${query}"
         })
         .then(res => {
             if (res.ok) return res.json();
-            throw new Error("Erro na requisiÃ§Ã£o");
+            throw new Error("Erro na requisição");
         })
         .then(data => {
             if (data && (data.status === "paid" || data.status === "approved" || data.status === "completed" || data.paid === true)) {
@@ -3628,7 +3644,7 @@ Pergunta atual: "${query}"
                     };
                 });
                 window.patternsDatabase = db;
-                console.log("Banco de dados do MÃ©todo carregado com sucesso do Supabase.");
+                console.log("Banco de dados do Método carregado com sucesso do Supabase.");
             }
         } catch (err) {
             console.warn("Erro ao carregar patterns_kb do Supabase:", err);
@@ -3665,20 +3681,20 @@ Pergunta atual: "${query}"
                     .from("patterns_kb")
                     .insert(rows);
                 if (!insertErr) {
-                    console.log("Carga inicial de padrÃµes concluÃ­da com sucesso!");
+                    console.log("Carga inicial de padrões concluída com sucesso!");
                     await loadPatternsFromSupabase();
                 } else {
                     console.error("Erro na carga inicial:", insertErr);
                 }
             }
         } catch (err) {
-            console.warn("Erro ao verificar/semear base de padrÃµes:", err);
+            console.warn("Erro ao verificar/semear base de padrões:", err);
         }
     }
 
     async function loadTherapistDashboardData() {
         if (!supabaseClient) {
-            showToast("Supabase nÃ£o configurado.");
+            showToast("Supabase não configurado.");
             return;
         }
 
@@ -3694,12 +3710,12 @@ Pergunta atual: "${query}"
                 return;
             }
 
-            // Guardar no escopo local do window para manipulaÃ§Ã£o
+            // Guardar no escopo local do window para manipulação
             window.dashProfiles = profiles;
             window.dashSubscriptions = subs;
             window.dashReorganizations = reorgs;
 
-            // 2. Calcular estatÃ­sticas filtrando apenas contas que sÃ£o Clientes (role === 'client')
+            // 2. Calcular estatísticas filtrando apenas contas que são Clientes (role === 'client')
             const clientIds = new Set(profiles.filter(p => p.role === "client").map(p => p.id));
             const clientEmails = new Set(profiles.filter(p => p.role === "client").map(p => p.email));
 
@@ -3722,7 +3738,7 @@ Pergunta atual: "${query}"
                         }
                     }
                     const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    const daysRemaining = 15 - daysElapsed;
+                    const daysRemaining = 7 - daysElapsed;
                     if (daysRemaining > 0) {
                         activeTrials++;
                     }
@@ -3731,7 +3747,7 @@ Pergunta atual: "${query}"
 
             const totalPractices = reorgs.filter(r => clientIds.has(r.user_id) || clientEmails.has(r.email) || clientEmails.has(r.user_id)).length;
 
-            // Exibir estatÃ­sticas
+            // Exibir estatísticas
             document.getElementById("stat-total-clients").innerText = totalClients;
             document.getElementById("stat-active-subs").innerText = activeSubs;
             document.getElementById("stat-active-trials").innerText = activeTrials;
@@ -3779,7 +3795,7 @@ Pergunta atual: "${query}"
                         }
                     }
                     const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    const daysRemaining = Math.max(0, 15 - daysElapsed);
+                    const daysRemaining = Math.max(0, 7 - daysElapsed);
                     
                     if (daysRemaining <= 0) {
                         statusHTML = `<span class="badge-status inactive">Teste Expirado</span>`;
@@ -3799,7 +3815,7 @@ Pergunta atual: "${query}"
                 <td style="padding: 1rem; color: var(--color-text-muted);">${dateHTML}</td>
                 <td style="padding: 1rem; text-align: center; font-weight: bold; color: var(--color-primary);">${clientReorgs.length}</td>
                 <td style="padding: 1rem; text-align: right;">
-                    <button class="btn btn-outline btn-view-history" data-email="${c.email}" data-id="${c.id}" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Ver HistÃ³rico</button>
+                    <button class="btn btn-outline btn-view-history" data-email="${c.email}" data-id="${c.id}" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Ver Histórico</button>
                 </td>
             `;
             body.appendChild(tr);
@@ -3827,7 +3843,7 @@ Pergunta atual: "${query}"
         const clientReorgs = window.dashReorganizations.filter(r => r.user_id === id || r.email === email);
 
         if (clientReorgs.length === 0) {
-            container.innerHTML = `<p style="color: var(--color-text-muted); text-align: center; padding: 2rem 0;">Este cliente ainda nÃ£o realizou nenhuma prÃ¡tica informacional.</p>`;
+            container.innerHTML = `<p style="color: var(--color-text-muted); text-align: center; padding: 2rem 0;">Este cliente ainda não realizou nenhuma prática informacional.</p>`;
         } else {
             clientReorgs.sort((a, b) => b.id - a.id);
             clientReorgs.forEach(r => {
@@ -3835,41 +3851,41 @@ Pergunta atual: "${query}"
                 card.className = "practice-item-card";
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted);">
-                        <span>ðŸ“… ${r.date}</span>
+                        <span>📅 ${r.date}</span>
                         <span style="font-weight: 600; color: var(--color-primary-glow);">${r.categoryEmoji}</span>
                     </div>
                     <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.75rem; color: var(--color-text-main);">"${r.phrase}"</div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px dashed rgba(255,255,255,0.06);">
-                        <div><strong style="color: var(--color-text-muted);">PadrÃ£o Ativado:</strong><br>${r.title}</div>
-                        <div><strong style="color: var(--color-text-muted);">Sentimento PÃ³s-PrÃ¡tica:</strong><br><span style="color: var(--color-primary);">${r.rating}</span></div>
+                        <div><strong style="color: var(--color-text-muted);">Padrão Ativado:</strong><br>${r.title}</div>
+                        <div><strong style="color: var(--color-text-muted);">Sentimento Pós-Prática:</strong><br><span style="color: var(--color-primary);">${r.rating}</span></div>
                     </div>
 
-                    <!-- Detalhes do DiagnÃ³stico e Comandos Sugeridos -->
+                    <!-- Detalhes do Diagnóstico e Comandos Sugeridos -->
                     <div class="practice-details-section" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255,255,255,0.01); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
                         ${r.data && r.data.declaracaoEspecifica ? `
                         <div>
-                            <strong style="color: #EA4335; font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">âš ï¸ LiberaÃ§Ã£o EspecÃ­fica (1x na vida)</strong>
+                            <strong style="color: #EA4335; font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">âš ï¸ Liberação Específica (1x na vida)</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(234, 67, 53, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoEspecifica}</p>
                         </div>
                         ` : ''}
 
                         ${r.data && r.data.declaracaoNaoEspecifica ? `
                         <div>
-                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">ðŸ”„ LiberaÃ§Ã£o NÃ£o EspecÃ­fica (1x por dia / 15 dias)</strong>
+                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">🔄 Liberação Não Específica (1x por dia / 15 dias)</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(102, 252, 241, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoNaoEspecifica}</p>
                         </div>
                         ` : ''}
 
                         ${r.data && r.data.microacao ? `
                         <div>
-                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">ðŸ’¡ MicroaÃ§Ã£o & SugestÃ£o de Melhoria</strong>
+                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">💡 Microação & Sugestão de Melhoria</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 4px; font-size: 0.8rem; color: var(--color-text-muted); white-space: pre-wrap;">${r.data.microacao}</p>
                         </div>
                         ` : ''}
                     </div>
 
-                    <!-- BotÃµes de AÃ§Ãµes do Terapeuta -->
+                    <!-- Botões de Ações do Terapeuta -->
                     <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.75rem;">
                         <button class="btn btn-outline btn-edit-reorg" data-id="${r.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Editar Ajustes</button>
                         <button class="btn btn-text btn-delete-reorg" data-id="${r.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: #EA4335;">Excluir</button>
@@ -3878,7 +3894,7 @@ Pergunta atual: "${query}"
                 container.appendChild(card);
             });
 
-            // Adicionar event listeners para os botÃµes de ediÃ§Ã£o e exclusÃ£o
+            // Adicionar event listeners para os botões de edição e exclusão
             container.querySelectorAll(".btn-edit-reorg").forEach(btn => {
                 btn.addEventListener("click", () => {
                     const reorgId = btn.dataset.id;
@@ -3922,7 +3938,7 @@ Pergunta atual: "${query}"
     }
 
     async function deleteClientReorganization(reorgId, email, clientId) {
-        if (!confirm("Tem certeza que deseja excluir esta prÃ¡tica do histÃ³rico do cliente permanentemente?")) return;
+        if (!confirm("Tem certeza que deseja excluir esta prática do histórico do cliente permanentemente?")) return;
 
         if (supabaseClient) {
             try {
@@ -3933,21 +3949,21 @@ Pergunta atual: "${query}"
                 }
             } catch (err) {
                 console.error(err);
-                showToast("Erro crÃ­tico ao excluir.");
+                showToast("Erro crítico ao excluir.");
                 return;
             }
         }
 
         // Remover do escopo local
         window.dashReorganizations = window.dashReorganizations.filter(r => r.id !== reorgId);
-        showToast("PrÃ¡tica excluÃ­da com sucesso!");
+        showToast("Prática excluída com sucesso!");
         
-        // Re-renderizar o histÃ³rico e a lista
+        // Re-renderizar o histórico e a lista
         openClientDetailsModal(email, clientId);
         loadTherapistDashboardData();
     }
 
-    // Fechar e Submeter Modal de EdiÃ§Ã£o de ReorganizaÃ§Ã£o
+    // Fechar e Submeter Modal de Edição de Reorganização
     const btnCloseEditReorg = document.getElementById("btn-close-edit-reorg");
     const btnCancelEditReorg = document.getElementById("btn-cancel-edit-reorg");
     const modalEditReorg = document.getElementById("modal-edit-reorg");
@@ -3988,12 +4004,12 @@ Pergunta atual: "${query}"
                         .eq("id", reorgId);
 
                     if (error) {
-                        showToast("Erro ao salvar alteraÃ§Ãµes no Supabase: " + error.message);
+                        showToast("Erro ao salvar alterações no Supabase: " + error.message);
                         return;
                     }
                 } catch (err) {
                     console.error(err);
-                    showToast("Erro crÃ­tico ao salvar alteraÃ§Ãµes.");
+                    showToast("Erro crítico ao salvar alterações.");
                     return;
                 }
             }
@@ -4005,7 +4021,7 @@ Pergunta atual: "${query}"
             showToast("Ajustes atualizados com sucesso!");
             modalEditReorg.style.display = "none";
 
-            // Atualizar modal de histÃ³rico e estatÃ­sticas
+            // Atualizar modal de histórico e estatísticas
             openClientDetailsModal(reorg.email, reorg.user_id);
             loadTherapistDashboardData();
         });
@@ -4020,7 +4036,7 @@ Pergunta atual: "${query}"
         const keys = Object.keys(db);
 
         if (keys.length === 0) {
-            body.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">Nenhum padrÃ£o cadastrado.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">Nenhum padrão cadastrado.</td></tr>`;
             return;
         }
 
@@ -4071,7 +4087,7 @@ Pergunta atual: "${query}"
         form.reset();
 
         if (id) {
-            titleEl.innerText = "Editar PadrÃ£o TerapÃªutico";
+            titleEl.innerText = "Editar Padrão Terapêutico";
             idInput.value = id;
             idDisplayInput.value = id;
             idDisplayInput.disabled = true;
@@ -4093,7 +4109,7 @@ Pergunta atual: "${query}"
                 document.getElementById("edit-microacao").value = item.microacao || "";
             }
         } else {
-            titleEl.innerText = "Novo PadrÃ£o TerapÃªutico";
+            titleEl.innerText = "Novo Padrão Terapêutico";
             idInput.value = "";
             idDisplayInput.value = "";
             idDisplayInput.disabled = false;
@@ -4103,7 +4119,7 @@ Pergunta atual: "${query}"
     }
 
     async function deletePattern(id) {
-        if (!confirm(`Tem certeza que deseja excluir o padrÃ£o '${id}'? Esta aÃ§Ã£o nÃ£o pode ser desfeita.`)) {
+        if (!confirm(`Tem certeza que deseja excluir o padrão '${id}'? Esta ação não pode ser desfeita.`)) {
             return;
         }
 
@@ -4118,20 +4134,20 @@ Pergunta atual: "${query}"
                     console.error("Erro ao excluir do Supabase:", error);
                     showToast("Erro ao excluir do banco remoto.");
                 } else {
-                    showToast("PadrÃ£o excluÃ­do!");
+                    showToast("Padrão excluído!");
                     await loadPatternsFromSupabase();
                     renderKbTable();
                 }
             } else {
                 if (window.patternsDatabase && window.patternsDatabase[id]) {
                     delete window.patternsDatabase[id];
-                    showToast("ExcluÃ­do localmente (offline).");
+                    showToast("Excluído localmente (offline).");
                     renderKbTable();
                 }
             }
         } catch (err) {
-            console.error("Falha ao excluir padrÃ£o:", err);
-            showToast("Erro crÃ­tico ao excluir.");
+            console.error("Falha ao excluir padrão:", err);
+            showToast("Erro crítico ao excluir.");
         }
     }
 
@@ -4207,7 +4223,7 @@ Pergunta atual: "${query}"
             const finalId = idInput ? idInput : idDisplay;
 
             if (!finalId) {
-                showToast("ID invÃ¡lido.");
+                showToast("ID inválido.");
                 return;
             }
 
@@ -4251,10 +4267,10 @@ Pergunta atual: "${query}"
                         .upsert(payload);
 
                     if (error) {
-                        console.error("Erro ao salvar padrÃ£o no Supabase:", error);
-                        showToast("Erro ao salvar padrÃ£o no banco remoto.");
+                        console.error("Erro ao salvar padrão no Supabase:", error);
+                        showToast("Erro ao salvar padrão no banco remoto.");
                     } else {
-                        showToast("PadrÃ£o salvo com sucesso!");
+                        showToast("Padrão salvo com sucesso!");
                         document.getElementById("modal-pattern-editor").style.display = "none";
                         await loadPatternsFromSupabase();
                         renderKbTable();
@@ -4267,17 +4283,17 @@ Pergunta atual: "${query}"
                     renderKbTable();
                 }
             } catch (err) {
-                console.error("Falha ao salvar padrÃ£o:", err);
-                showToast("Erro crÃ­tico ao salvar.");
+                console.error("Falha ao salvar padrão:", err);
+                showToast("Erro crítico ao salvar.");
             } finally {
                 btnSave.disabled = false;
-                btnSave.innerText = "Salvar PadrÃ£o";
+                btnSave.innerText = "Salvar Padrão";
             }
         });
     }
 
     // ==========================================================================
-    // LÃ³gica da Agenda de ExercÃ­cios DiÃ¡rios (15 dias)
+    // Lógica da Agenda de Exercícios Diários (15 dias)
     // ==========================================================================
     function renderAgenda() {
         const agendaContainer = document.getElementById("agenda-container");
@@ -4346,7 +4362,7 @@ Pergunta atual: "${query}"
 
                     // Mostrar mensagem de incentivo
                     if (agenda.ticks[day]) {
-                        showToast(`Dia ${day} concluÃ­do com sucesso! Ã“timo trabalho!`);
+                        showToast(`Dia ${day} concluído com sucesso! Ã“timo trabalho!`);
                         
                         // Se concluiu todos os 15 dias, parabenizar!
                         let allDone = true;
@@ -4357,7 +4373,7 @@ Pergunta atual: "${query}"
                             }
                         }
                         if (allDone) {
-                            showToast("ðŸŽ‰ ParabÃ©ns! VocÃª completou o ciclo de 15 dias de reprogramaÃ§Ã£o!");
+                            showToast("🎉 Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
                         }
                     }
                 });
@@ -4384,21 +4400,21 @@ Pergunta atual: "${query}"
             const diffTime = new Date() - startDate;
             const currentDay = Math.min(15, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
 
-            // Se o dia atual da prÃ¡tica ainda nÃ£o foi marcado como completo
+            // Se o dia atual da prática ainda não foi marcado como completo
             if (!agenda.ticks || !agenda.ticks[currentDay]) {
-                // Verificar se jÃ¡ mostramos lembrete hoje para nÃ£o fludar
+                // Verificar se já mostramos lembrete hoje para não fludar
                 const lastReminderStr = localStorage.getItem("last_reminder_date_" + emailKey);
                 const todayStr = new Date().toDateString();
                 if (lastReminderStr !== todayStr) {
                     localStorage.setItem("last_reminder_date_" + emailKey, todayStr);
                     
                     if ("Notification" in window && Notification.permission === "granted") {
-                        new Notification("InnerMap: ExercÃ­cio de Hoje", {
-                            body: `Dia ${currentDay} da sua reprogramaÃ§Ã£o: "${agenda.phrase}". Realize o comando diÃ¡rio e sua microaÃ§Ã£o!`,
+                        new Notification("InnerMap: Exercício de Hoje", {
+                            body: `Dia ${currentDay} da sua reprogramação: "${agenda.phrase}". Realize o comando diário e sua microação!`,
                             icon: "favicon.ico"
                         });
                     } else {
-                        showToast(`ðŸ“ Lembrete: Dia ${currentDay} da sua reprogramaÃ§Ã£o estÃ¡ pendente. Pratique hoje!`);
+                        showToast(`📌 Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
                     }
                 }
             }
@@ -4407,19 +4423,19 @@ Pergunta atual: "${query}"
         }
     }
 
-    // InicializaÃ§Ã£o do botÃ£o de Lembretes
+    // Inicialização do botão de Lembretes
     const btnToggleReminders = document.getElementById("btn-toggle-reminders");
     if (btnToggleReminders) {
         const updateRemindersBtnUI = () => {
             const enabled = localStorage.getItem("reminders_enabled") === "true";
             if (enabled) {
                 btnToggleReminders.className = "btn btn-outline active";
-                btnToggleReminders.innerHTML = `<span>ðŸ”• Desativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span>🔕 Desativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-primary)";
                 btnToggleReminders.style.color = "var(--color-primary)";
             } else {
                 btnToggleReminders.className = "btn btn-outline";
-                btnToggleReminders.innerHTML = `<span>ðŸ”” Ativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span>🔔 Ativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-border)";
                 btnToggleReminders.style.color = "var(--color-text-muted)";
             }
@@ -4432,20 +4448,20 @@ Pergunta atual: "${query}"
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
                         localStorage.setItem("reminders_enabled", "true");
-                        showToast("NotificaÃ§Ãµes ativadas com sucesso!");
+                        showToast("Notificações ativadas com sucesso!");
                         new Notification("InnerMap", {
-                            body: "VocÃª receberÃ¡ lembretes diÃ¡rios para realizar seus exercÃ­cios informacionais.",
+                            body: "Você receberá lembretes diários para realizar seus exercícios informacionais.",
                             icon: "favicon.ico"
                         });
                     } else {
-                        showToast("PermissÃ£o de notificaÃ§Ã£o negada pelo navegador.");
+                        showToast("Permissão de notificação negada pelo navegador.");
                     }
                 } else {
-                    showToast("Este navegador nÃ£o suporta notificaÃ§Ãµes de Ã¡rea de trabalho.");
+                    showToast("Este navegador não suporta notificações de área de trabalho.");
                 }
             } else {
                 localStorage.setItem("reminders_enabled", "false");
-                showToast("Lembretes diÃ¡rios desativados.");
+                showToast("Lembretes diários desativados.");
             }
             updateRemindersBtnUI();
         });
@@ -4453,7 +4469,7 @@ Pergunta atual: "${query}"
         updateRemindersBtnUI();
     }
 
-    // ExpÃµe para uso em outros handlers
+    // Expõe para uso em outros handlers
     window.renderAgenda = renderAgenda;
     window.checkDailyReminder = checkDailyReminder;
 });
