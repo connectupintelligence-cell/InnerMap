@@ -180,165 +180,40 @@ function formatFactForSentence(fact) {
 
     const cleanLower = clean.toLowerCase();
 
-    // 4. Se já começar com conectores comuns, deixar como está
-    const PREPOSITIONS = ["por ", "na ", "no ", "em ", "com ", "de ", "da ", "do ", "pela ", "pelo ", "para "];
-    if (PREPOSITIONS.some(p => cleanLower.startsWith(p))) {
+    // 1. Se já começa com as conjunções solicitadas (quando, por, pela, pelo, etc.), respeitar o início
+    const CONJUNCTIONS = ["quando ", "por ", "pela ", "pelo ", "pelas ", "pelos ", "na ", "no ", "em ", "com "];
+    if (CONJUNCTIONS.some(c => cleanLower.startsWith(c))) {
         return clean;
     }
 
-    const VERB_PARTICIPLES = {
-        'consegui': 'conseguido', 'conseguiu': 'conseguido', 'conseguimos': 'conseguido', 'conseguiram': 'conseguido', 'conseguir': 'conseguido',
-        'tive': 'tido', 'teve': 'tido', 'tivemos': 'tido', 'tiveram': 'tido', 'ter': 'tido',
-        'fui': 'ido', 'foi': 'ido', 'fomos': 'ido', 'foram': 'ido', 'ir': 'ido',
-        'fiz': 'feito', 'fez': 'feito', 'fizemos': 'feito', 'fizeram': 'feito', 'fazer': 'feito',
-        'bati': 'batido', 'bateu': 'batido', 'bater': 'batido',
-        'perdi': 'perdido', 'perdeu': 'perdido', 'perder': 'perdido',
-        'errei': 'errado', 'errou': 'errado', 'errar': 'errado',
-        'briguei': 'brigado', 'brigou': 'brigado', 'brigar': 'brigado',
-        'falei': 'falado', 'falou': 'falado', 'falar': 'falado',
-        'discuti': 'discutido', 'discutiu': 'discutido', 'discutir': 'discutido',
-        'recebi': 'recebido', 'recebeu': 'recebido', 'receber': 'recebido',
-        'senti': 'sentido', 'sentiu': 'sentido', 'sentir': 'sentido',
-        'fiquei': 'ficado', 'ficou': 'ficado', 'ficar': 'ficado',
-        'pude': 'podido', 'poder': 'podido',
-        'gritei': 'gritado', 'gritou': 'gritado', 'gritar': 'gritado',
-        'chorei': 'chorado', 'chorou': 'chorado', 'chorar': 'chorado',
-        'quebrei': 'quebrado', 'quebrou': 'quebrado', 'quebrar': 'quebrado',
-        'falhei': 'falhado', 'falhou': 'falhado', 'falhar': 'falhado',
-        'menti': 'mentido', 'mentiu': 'mentido', 'mentir': 'mentido',
-        'gastei': 'gastado', 'gastou': 'gastado', 'gastar': 'gastado',
-        'comprei': 'comprado', 'comprou': 'comprado', 'comprar': 'comprado',
-        'vendi': 'vendido', 'vendeu': 'vendido', 'vender': 'vendido',
-        'ganhei': 'ganhado', 'ganhou': 'ganhado', 'ganhar': 'ganhado',
-        'vi': 'visto', 'viu': 'visto', 'ver': 'visto',
-        'olhei': 'olhado', 'olhou': 'olhado', 'olhar': 'olhado',
-        'esqueci': 'esquecido', 'esqueceu': 'esquecido', 'esquecer': 'esquecido',
-        'lembrei': 'lembrado', 'lembrou': 'lembrado', 'lembrar': 'lembrado',
-        'deixei': 'deixado', 'deixou': 'deixado', 'deixar': 'deixado',
-        'ajudei': 'ajudado', 'ajudou': 'ajudado', 'ajudar': 'ajudado',
-        'cheguei': 'chegado', 'chegou': 'chegado', 'chegar': 'chegado',
-        'sai': 'saído', 'saiu': 'saído', 'sair': 'saído',
-        'cai': 'caído', 'caiu': 'caído', 'cair': 'caído',
-        'entrei': 'entrado', 'entrou': 'entrado', 'entrar': 'entrado',
-        'repeti': 'repetido', 'repetiu': 'repetido', 'repetir': 'repetido'
-    };
+    // 2. Substantivos femininos de eventos ou situações -> usar "pela "
+    const feminineNouns = ["briga", "discussão", "conversa", "perda", "demissão", "reunião", "viagem", "morte", "separação", "traição", "crítica", "fofoca", "ausência", "falência", "cobrança", "agressão"];
+    // 3. Substantivos masculinos de eventos ou situações -> usar "pelo "
+    const masculineNouns = ["conflito", "desentendimento", "erro", "acidente", "assalto", "problema", "gasto", "atraso", "divórcio", "término", "medo", "abandono"];
 
     const words = cleanLower.split(/\s+/);
-    
-    // Só reestruturar se o verbo estiver nas primeiras 2 palavras para evitar bagunçar frases complexas
-    let verbIndex = -1;
-    let participle = "";
-    for (let i = 0; i < Math.min(words.length, 2); i++) {
-        const w = words[i];
-        if (VERB_PARTICIPLES[w]) {
-            verbIndex = i;
-            participle = VERB_PARTICIPLES[w];
-            break;
-        }
-    }
-
-    if (verbIndex !== -1) {
-        const prevWord = verbIndex > 0 ? words[verbIndex - 1] : "";
-        if (prevWord === "ter" || prevWord === "tido" || prevWord === "por" || prevWord === "eu") {
-            return `por ${clean}`;
-        }
-
-        const wordsBefore = clean.split(/\s+/).slice(0, verbIndex).join(" ");
-        const wordsAfter = clean.split(/\s+/).slice(verbIndex + 1).join(" ");
-        
-        const preWords = [];
-        const postWords = [];
-        
-        if (wordsBefore) {
-            wordsBefore.split(/\s+/).forEach(w => {
-                const low = w.trim().toLowerCase();
-                const isPre = ["eu", "você", "ele", "ela", "nós", "a gente", "não", "nunca", "jamais", "nem", "ontem", "hoje", "anteontem", "agora", "antes", "depois", "já"].includes(low);
-                if (isPre) {
-                    preWords.push(w);
-                } else {
-                    postWords.push(w);
-                }
-            });
-        }
-        
-        let result = "por ";
-        if (preWords.length > 0) {
-            result += preWords.join(" ") + " ";
-        } else {
-            result += "eu ";
-        }
-        
-        result += `ter ${participle}`;
-        
-        if (wordsAfter) result += ` ${wordsAfter}`;
-        if (postWords.length > 0) result += ` ${postWords.join(" ")}`;
-        return result;
-    }
-
-    // Caso comece com substantivos de eventos comuns
-    const feminineNouns = ["briga", "discussão", "conversa", "perda", "demissão", "reunião", "viagem", "morte", "separação", "traição", "crítica", "fofoca"];
-    const masculineNouns = ["conflito", "desentendimento", "erro", "acidente", "assalto", "problema", "gasto", "atraso"];
-
     const firstWord = words[0];
+
     if (feminineNouns.includes(firstWord)) {
-        return `na ${clean}`;
+        return `pela ${clean}`;
     }
     if (masculineNouns.includes(firstWord)) {
-        return `no ${clean}`;
+        return `pelo ${clean}`;
     }
 
-    // Ajuste de preposição/contração para fluxo natural
-    let prefix = "em relação a ";
-    let cleanTrimmed = clean;
-    const cleanLowerTrimmed = cleanLower.trim();
-
-    if (cleanLowerTrimmed.startsWith("mãe ")) {
-        prefix = "em relação à ";
-        cleanTrimmed = clean.substring(4);
-    } else if (cleanLowerTrimmed.startsWith("minha mãe ")) {
-        prefix = "em relação à ";
-        cleanTrimmed = clean.substring(10);
-    } else if (cleanLowerTrimmed.startsWith("pai ")) {
-        prefix = "em relação ao ";
-        cleanTrimmed = clean.substring(4);
-    } else if (cleanLowerTrimmed.startsWith("meu pai ")) {
-        prefix = "em relação ao ";
-        cleanTrimmed = clean.substring(8);
+    // 4. Verbos no infinitivo ou ação direta do cliente -> usar "por "
+    const infinitives = ["perder", "ficar", "ouvir", "ver", "ter", "ser", "fazer", "brigar", "discutir", "sofrer", "falhar", "errar", "receber", "apanhar", "gastar", "comprar", "vender"];
+    if (infinitives.includes(firstWord)) {
+        return `por ${clean}`;
     }
 
-    let result = `${prefix}${cleanTrimmed}`;
-    const lowerResult = result.toLowerCase();
-
-    if (lowerResult.includes("mãe")) {
-        const firstMaeIdx = lowerResult.indexOf("mãe");
-        const beforeMae = result.substring(0, firstMaeIdx + 3);
-        let afterMae = result.substring(firstMaeIdx + 3);
-
-        afterMae = afterMae.replace(/da minha mãe/gi, "dela")
-                           .replace(/de minha mãe/gi, "dela")
-                           .replace(/da mãe/gi, "dela")
-                           .replace(/de mãe/gi, "dela")
-                           .replace(/minha mãe/gi, "ela")
-                           .replace(/a mãe/gi, "ela");
-        result = beforeMae + afterMae;
+    // 5. Frases verbais com sujeito/tempo (ex: "meu pai gritou comigo", "eu perdi a chave", "a professora me humilhou") -> usar "quando "
+    if (words.length >= 2) {
+        return `quando ${clean}`;
     }
 
-    if (result.toLowerCase().includes("pai")) {
-        const lowerResult2 = result.toLowerCase();
-        const firstPaiIdx = lowerResult2.indexOf("pai");
-        const beforePai = result.substring(0, firstPaiIdx + 3);
-        let afterPai = result.substring(firstPaiIdx + 3);
-
-        afterPai = afterPai.replace(/do meu pai/gi, "dele")
-                           .replace(/de meu pai/gi, "dele")
-                           .replace(/do pai/gi, "dele")
-                           .replace(/de pai/gi, "dele")
-                           .replace(/meu pai/gi, "ele")
-                           .replace(/o pai/gi, "ele");
-        result = beforePai + afterPai;
-    }
-
-    return result;
+    // Fallback padrão com "por "
+    return `por ${clean}`;
 }
 
 
@@ -2588,6 +2463,11 @@ Retorne JSON no formato exato:
             this.activeInputId = null;
         },
 
+        currentRawText: "",
+        currentCharOffset: 0,
+        progressInterval: null,
+        activeButtonEl: null,
+
         // 2. LEITURA POR VOZ (TEXT-TO-SPEECH)
         speakText: function(text, buttonEl) {
             if (!this.speechSynthesis) {
@@ -2604,9 +2484,26 @@ Retorne JSON no formato exato:
 
             if (!text || !text.trim()) return;
 
-            const cleanText = text.replace(/<[^>]*>/g, '').trim();
+            let cleanText = text.replace(/<[^>]*>/g, '').trim();
 
-            const utterance = new SpeechSynthesisUtterance(cleanText);
+            // ✨ Prepend "Repita comigo por gentileza!" se não estiver presente (Requisito 2)
+            if (!cleanText.toLowerCase().startsWith("repita comigo")) {
+                cleanText = "Repita comigo por gentileza! " + cleanText;
+            }
+
+            this.currentRawText = cleanText;
+            this.currentCharOffset = 0;
+            this.activeButtonEl = buttonEl;
+
+            this._speakFromOffset(0);
+        },
+
+        _speakFromOffset: function(offsetIndex) {
+            if (!this.currentRawText) return;
+            const textToSpeak = this.currentRawText.substring(offsetIndex);
+            if (!textToSpeak.trim()) return;
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'pt-BR';
             utterance.rate = 0.95;
             utterance.pitch = 1.0;
@@ -2615,39 +2512,143 @@ Retorne JSON no formato exato:
             const ptVoice = voices.find(v => v.lang === 'pt-BR' || v.lang === 'pt_BR') || voices.find(v => v.lang.startsWith('pt'));
             if (ptVoice) utterance.voice = ptVoice;
 
-            if (buttonEl) {
-                buttonEl.classList.add("speaking");
-                const origHtml = buttonEl.innerHTML;
-                buttonEl.innerHTML = "⏹️ Parar";
+            // Rastrear progresso por caractere
+            utterance.onboundary = (event) => {
+                if (event.name === 'word' || event.charIndex !== undefined) {
+                    this.currentCharOffset = offsetIndex + (event.charIndex || 0);
+                    this.updatePlayerProgress();
+                }
+            };
+
+            const btnEl = this.activeButtonEl;
+            if (btnEl) {
+                btnEl.classList.add("speaking");
+                if (!btnEl.dataset.origHtml) btnEl.dataset.origHtml = btnEl.innerHTML;
+                btnEl.innerHTML = "⏹️ Parar";
 
                 utterance.onend = () => {
-                    buttonEl.classList.remove("speaking");
-                    buttonEl.innerHTML = origHtml;
-                    this.currentUtterance = null;
+                    this.onAudioEnd();
                 };
 
                 utterance.onerror = () => {
-                    buttonEl.classList.remove("speaking");
-                    buttonEl.innerHTML = origHtml;
-                    this.currentUtterance = null;
+                    this.onAudioEnd();
                 };
+            } else {
+                utterance.onend = () => this.onAudioEnd();
+                utterance.onerror = () => this.onAudioEnd();
             }
 
             this.currentUtterance = utterance;
+            this.showFloatingPlayer();
             this.speechSynthesis.speak(utterance);
+        },
+
+        rewind10Seconds: function() {
+            if (!this.speechSynthesis || !this.currentRawText) return;
+            // Estima ~35 caracteres por 10 segundos de fala em velocidade 0.95
+            const newOffset = Math.max(0, this.currentCharOffset - 35);
+            this.currentCharOffset = newOffset;
+
+            this.speechSynthesis.cancel();
+            showToast("⏮️ Voltando 10 segundos...");
+            setTimeout(() => {
+                this._speakFromOffset(newOffset);
+            }, 100);
+        },
+
+        togglePauseResume: function() {
+            if (!this.speechSynthesis) return;
+            const playIcon = document.getElementById("player-play-icon");
+            const statusText = document.getElementById("player-status-text");
+
+            if (this.speechSynthesis.speaking && !this.speechSynthesis.paused) {
+                this.speechSynthesis.pause();
+                if (playIcon) playIcon.textContent = "▶️";
+                if (statusText) statusText.textContent = "⏸️ Em pausa";
+                showToast("⏸️ Áudio pausado");
+            } else if (this.speechSynthesis.paused) {
+                this.speechSynthesis.resume();
+                if (playIcon) playIcon.textContent = "⏸️";
+                if (statusText) statusText.textContent = "🔊 Em execução (Repita comigo por gentileza)";
+                showToast("▶️ Continuando leitura");
+            }
+        },
+
+        showFloatingPlayer: function() {
+            const player = document.getElementById("floating-audio-player");
+            const playIcon = document.getElementById("player-play-icon");
+            const statusText = document.getElementById("player-status-text");
+
+            if (player) player.style.display = "block";
+            if (playIcon) playIcon.textContent = "⏸️";
+            if (statusText) statusText.textContent = "🔊 Em execução (Repita comigo por gentileza)";
+
+            if (this.progressInterval) clearInterval(this.progressInterval);
+            this.progressInterval = setInterval(() => this.updatePlayerProgress(), 300);
+        },
+
+        updatePlayerProgress: function() {
+            const fill = document.getElementById("player-progress-fill");
+            if (!fill || !this.currentRawText) return;
+            const total = this.currentRawText.length;
+            const current = this.currentCharOffset;
+            const pct = Math.min(100, Math.max(0, (current / total) * 100));
+            fill.style.width = `${pct}%`;
+        },
+
+        onAudioEnd: function() {
+            this.currentUtterance = null;
+            if (this.progressInterval) clearInterval(this.progressInterval);
+            const fill = document.getElementById("player-progress-fill");
+            if (fill) fill.style.width = "100%";
+
+            if (this.activeButtonEl) {
+                this.activeButtonEl.classList.remove("speaking");
+                if (this.activeButtonEl.dataset.origHtml) {
+                    this.activeButtonEl.innerHTML = this.activeButtonEl.dataset.origHtml;
+                }
+            }
+
+            setTimeout(() => {
+                const player = document.getElementById("floating-audio-player");
+                if (player) player.style.display = "none";
+                if (fill) fill.style.width = "0%";
+            }, 800);
         },
 
         stopSpeaking: function() {
             if (this.speechSynthesis) {
                 this.speechSynthesis.cancel();
             }
+            if (this.progressInterval) clearInterval(this.progressInterval);
             document.querySelectorAll(".btn-tts-speak.speaking").forEach(btn => {
                 btn.classList.remove("speaking");
-                btn.innerHTML = "🔊 Ouvir";
+                if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+                else btn.innerHTML = "🔊 Ouvir";
             });
             this.currentUtterance = null;
+            this.currentRawText = "";
+            this.currentCharOffset = 0;
+            this.activeButtonEl = null;
+            const player = document.getElementById("floating-audio-player");
+            if (player) player.style.display = "none";
         }
     };
+
+    // Listeners do Player de Áudio Flutuante
+    const btnPlayerRewind10 = document.getElementById("btn-player-rewind10");
+    const btnPlayerTogglePause = document.getElementById("btn-player-toggle-pause");
+    const btnPlayerStop = document.getElementById("btn-player-stop");
+
+    if (btnPlayerRewind10) {
+        btnPlayerRewind10.addEventListener("click", () => VoiceManager.rewind10Seconds());
+    }
+    if (btnPlayerTogglePause) {
+        btnPlayerTogglePause.addEventListener("click", () => VoiceManager.togglePauseResume());
+    }
+    if (btnPlayerStop) {
+        btnPlayerStop.addEventListener("click", () => VoiceManager.stopSpeaking());
+    }
 
     // Event Delegation no documento para capturar cliques nos botões de Microfone e TTS em qualquer lugar da página
     document.addEventListener("click", (e) => {
