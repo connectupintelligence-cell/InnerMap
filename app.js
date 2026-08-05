@@ -1745,7 +1745,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
   "microacao": "orientação comportamental prática baseada no relato",
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
-  "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)"
+  "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)",
+  "leitura_ajuste": "diagnóstico informacional profundo (2-3 linhas) revelando a causa raiz e por que este padrão se formou como defesa inconsciente no relato do cliente",
+  "movimento_sugerido": "orientação de conscientização (2-3 linhas) explicando como desativar o automatismo e ressignificar a percepção com clareza"
 }`;
                 }
 
@@ -1808,6 +1810,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.hasMdiCondicional = state.addedMdiBehaviors.length > 0;
                 state.addedPositivosAtrapalham = aiData.ganhos_aparentes || [];
                 state.customLlmMicroaction = aiData.microacao;
+                state.customLlmAjuste = aiData.leitura_ajuste;
+                state.customLlmMovimento = aiData.movimento_sugerido;
                 state.isHereditary = true;
                 state.selectedLevel = "avancado";
 
@@ -2087,9 +2091,14 @@ Retorne JSON no formato exato:
 
                 state.currentData = result;
                 
-                // Popula Tela 2 (Consciência)
+                // Popula Tela 2 (Consciência Informacional)
                 if (outputAjuste) outputAjuste.innerText = result.ajuste;
                 if (outputMovimento) outputMovimento.innerText = result.movimento;
+                
+                const outputStep2FullText = document.getElementById("output-step2-full-text");
+                if (outputStep2FullText) {
+                    outputStep2FullText.innerText = `Diagnóstico Informacional: ${result.ajuste}. Movimento Consciente de Libertação: ${result.movimento}`;
+                }
                 
                 // Popula Tela 3 (Práticas Guiadas)
                 if (outputCategory) outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
@@ -2127,8 +2136,7 @@ Retorne JSON no formato exato:
                     if (outputMicroacao) outputMicroacao.innerText = result.microacao;
                 }
                 
-                showScreen("step3");
-                startPracticeTimer();
+                showScreen("step2");
             } catch (err) {
                 console.error("Erro na geração final:", err);
                 showToast("Erro ao gerar reorganização: " + err.message);
@@ -2173,9 +2181,10 @@ Retorne JSON no formato exato:
         }
     }
 
-    // Tela 2 (Consciência) -> Tela 4: Ir para Registro & Acompanhamento
+    // Tela 2 (Consciência Informacional) -> Tela 3: Ir para Ajustes Informacionais
     btnToStep3.addEventListener("click", () => {
-        showScreen("step4");
+        showScreen("step3");
+        startPracticeTimer();
     });
 
     // Lógica do Timer de Prática (Tela 3)
@@ -2195,7 +2204,7 @@ Retorne JSON no formato exato:
             if (timeLeft <= 0) {
                 clearInterval(state.timerInterval);
                 btnToStep4.disabled = false;
-                btnToStep4.innerText = "Concluir Prática e Ver Leitura Informacional →";
+                btnToStep4.innerText = "Concluir Prática e Registrar Sensação →";
                 btnToStep4.classList.add("pulse-glow");
             } else {
                 btnToStep4.innerText = `Realize a prática com atenção... (${timeLeft}s)`;
@@ -2203,10 +2212,10 @@ Retorne JSON no formato exato:
         }, 1000);
     }
 
-    // Tela 3 (Práticas Guiadas) -> Tela 2: Ir para Consciência
+    // Tela 3 (Ajustes Informacionais) -> Tela 4: Ir para Registro & Integração
     btnToStep4.addEventListener("click", () => {
         if (state.timerInterval) clearInterval(state.timerInterval);
-        showScreen("step2");
+        showScreen("step4");
     });
 
     // Seleção de sentimentos na Tela 4
