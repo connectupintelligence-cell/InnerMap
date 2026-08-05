@@ -1577,6 +1577,27 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
         "inferioridade", "pressão", "invasão", "medo", "frustração", "insegurança", "angústia"
     ];
 
+    function getCustomSentiments() {
+        try {
+            const stored = localStorage.getItem("innermap_custom_sentiments");
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCustomSentiment(newSentiment) {
+        if (!newSentiment || !newSentiment.trim()) return;
+        const s = newSentiment.trim().toLowerCase();
+        const custom = getCustomSentiments();
+        if (!custom.includes(s) && !AVAILABLE_SENTIMENTS.includes(s)) {
+            custom.push(s);
+            try {
+                localStorage.setItem("innermap_custom_sentiments", JSON.stringify(custom));
+            } catch(e) {}
+        }
+    }
+
     function renderFactsEditor() {
         const editorSection = document.getElementById("ai-mfi-editor-section");
         const listContainer = document.getElementById("ai-facts-list-container");
@@ -1615,7 +1636,8 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
             tagsContainer.className = "sentiment-tags-container";
 
             const currentSentiments = (factObj.sentiments || []).map(s => s.toLowerCase());
-            const allOptions = Array.from(new Set([...currentSentiments, ...AVAILABLE_SENTIMENTS]));
+            const customSentiments = getCustomSentiments();
+            const allOptions = Array.from(new Set([...currentSentiments, ...customSentiments, ...AVAILABLE_SENTIMENTS]));
 
             allOptions.forEach(sentiment => {
                 const isSelected = currentSentiments.includes(sentiment.toLowerCase());
@@ -1639,10 +1661,50 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 tagsContainer.appendChild(tag);
             });
 
+            // Campo para Adicionar Sentimento Personalizado
+            const customRow = document.createElement("div");
+            customRow.style.cssText = "display: flex; gap: 6px; margin-top: 10px; align-items: center;";
+
+            const customInput = document.createElement("input");
+            customInput.type = "text";
+            customInput.placeholder = "➕ Digite outro sentimento (ex: vergonha, desespero)...";
+            customInput.style.cssText = "flex: 1; font-size: 0.78rem; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--color-border); background: rgba(255,255,255,0.06); color: var(--color-text); outline: none;";
+
+            const btnAddCustom = document.createElement("button");
+            btnAddCustom.type = "button";
+            btnAddCustom.textContent = "+ Adicionar Sentimento";
+            btnAddCustom.style.cssText = "font-size: 0.78rem; padding: 6px 14px; border-radius: 12px; background: var(--color-primary); color: #000; font-weight: 600; border: none; cursor: pointer; white-space: nowrap;";
+
+            const handleAddCustom = () => {
+                const val = customInput.value.trim().toLowerCase();
+                if (!val) {
+                    showToast("Digite o nome do sentimento antes de adicionar.");
+                    return;
+                }
+                saveCustomSentiment(val);
+                if (!state.addedFacts[factIndex].sentiments.map(s => s.toLowerCase()).includes(val)) {
+                    state.addedFacts[factIndex].sentiments.push(val);
+                }
+                showToast(`✨ Sentimento "${val}" adicionado à sua lista!`);
+                renderFactsEditor();
+            };
+
+            btnAddCustom.addEventListener("click", handleAddCustom);
+            customInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustom();
+                }
+            });
+
+            customRow.appendChild(customInput);
+            customRow.appendChild(btnAddCustom);
+
             card.appendChild(label);
             card.appendChild(input);
             card.appendChild(sTitle);
             card.appendChild(tagsContainer);
+            card.appendChild(customRow);
             listContainer.appendChild(card);
         });
     }
