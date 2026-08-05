@@ -1881,6 +1881,25 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     const inputAprofundamento = document.getElementById("input-ai-aprofundamento");
     const aiExploreSpinner = document.getElementById("ai-explore-spinner");
 
+    function updateContinueButtonText() {
+        if (!btnAiContinuar) return;
+        const btnSpan = btnAiContinuar.querySelector("span:last-child") || btnAiContinuar;
+        const hasText = inputAprofundamento && inputAprofundamento.value.trim().length > 0;
+        const hasFacts = state.addedFacts && state.addedFacts.length > 0;
+
+        if (hasText) {
+            btnSpan.textContent = "Analisar resposta e gerar reorganização →";
+        } else if (hasFacts) {
+            btnSpan.textContent = "Gerar Reorganização com Fatos Mapeados →";
+        } else {
+            btnSpan.textContent = "Continuar com mais detalhes →";
+        }
+    }
+
+    if (inputAprofundamento) {
+        inputAprofundamento.addEventListener("input", updateContinueButtonText);
+    }
+
     if (btnAiPular) {
         btnAiPular.addEventListener("click", () => {
             triggerFinalGeneration();
@@ -1890,9 +1909,16 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     if (btnAiContinuar) {
         btnAiContinuar.addEventListener("click", async () => {
             const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
+            const hasFacts = state.addedFacts && state.addedFacts.length > 0;
 
-            if (!respostaExtra) {
-                // Sem texto adicional → gerar direto
+            if (!respostaExtra && !hasFacts) {
+                if (inputAprofundamento) inputAprofundamento.focus();
+                showToast("Escreva sua resposta no campo acima para incluir mais detalhes, ou clique em 'Pular e gerar agora'.");
+                return;
+            }
+
+            if (!respostaExtra && hasFacts) {
+                // Fatos já foram mapeados → gerar direto com os fatos
                 triggerFinalGeneration();
                 return;
             }
@@ -1900,7 +1926,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
             btnAiContinuar.disabled = true;
             if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
-            btnAiContinuar.querySelector("span:last-child") && (btnAiContinuar.lastChild.textContent = " Analisando...");
+            const btnSpan = btnAiContinuar.querySelector("span:last-child");
+            if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
 
             try {
                 const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
@@ -1927,6 +1954,10 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 }
             } catch(e) {
                 console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
+            } finally {
+                btnAiContinuar.disabled = false;
+                if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
+                updateContinueButtonText();
             }
 
             triggerFinalGeneration();
@@ -2007,8 +2038,9 @@ Retorne JSON no formato exato:
 
                 renderFactsEditor();
 
-                // Limpar textarea e notificar usuário
+                // Limpar textarea, atualizar botão de continuar e notificar usuário
                 inputAprofundamento.value = "";
+                updateContinueButtonText();
                 showToast("✨ Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
 
                 // Rolar suavemente até o editor de fatos
@@ -2022,6 +2054,7 @@ Retorne JSON no formato exato:
             } finally {
                 btnAddAnswerFact.disabled = false;
                 if (addFactSpinner) addFactSpinner.style.display = "none";
+                updateContinueButtonText();
             }
         });
     }
