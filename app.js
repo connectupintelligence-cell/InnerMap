@@ -2573,12 +2573,11 @@ Retorne JSON no formato exato:
 
         rewind10Seconds: function() {
             if (!this.speechSynthesis || !this.currentRawText) return;
-            // Estima ~35 caracteres por 10 segundos de fala em velocidade 0.95
             const newOffset = Math.max(0, this.currentCharOffset - 35);
             this.currentCharOffset = newOffset;
 
             this.speechSynthesis.cancel();
-            showToast("⏮️ Voltando 10 segundos...");
+            showToast("Voltando 10 segundos...");
             setTimeout(() => {
                 this._speakFromOffset(newOffset);
             }, 100);
@@ -2589,16 +2588,19 @@ Retorne JSON no formato exato:
             const playIcon = document.getElementById("player-play-icon");
             const statusText = document.getElementById("player-status-text");
 
+            const pauseSvg = '<svg viewBox="0 0 24 24" fill="currentColor" style="width: 15px; height: 15px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+            const playSvg = '<svg viewBox="0 0 24 24" fill="currentColor" style="width: 15px; height: 15px; margin-left: 2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+
             if (this.speechSynthesis.speaking && !this.speechSynthesis.paused) {
                 this.speechSynthesis.pause();
-                if (playIcon) playIcon.textContent = "▶️";
-                if (statusText) statusText.textContent = "⏸️ Em pausa";
-                showToast("⏸️ Áudio pausado");
+                if (playIcon) playIcon.innerHTML = playSvg;
+                if (statusText) statusText.textContent = "Em pausa";
+                showToast("Áudio pausado");
             } else if (this.speechSynthesis.paused) {
                 this.speechSynthesis.resume();
-                if (playIcon) playIcon.textContent = "⏸️";
-                if (statusText) statusText.textContent = this.isRepeatPractice ? "🔊 Em execução (Repita comigo por gentileza)" : "🔊 Leitura Diagnóstica em execução";
-                showToast("▶️ Continuando leitura");
+                if (playIcon) playIcon.innerHTML = pauseSvg;
+                if (statusText) statusText.textContent = this.isRepeatPractice ? "Em execução (Repita comigo por gentileza)" : "Leitura Diagnóstica em execução";
+                showToast("Continuando leitura");
             }
         },
 
@@ -2607,12 +2609,14 @@ Retorne JSON no formato exato:
             const playIcon = document.getElementById("player-play-icon");
             const statusText = document.getElementById("player-status-text");
 
+            const pauseSvg = '<svg viewBox="0 0 24 24" fill="currentColor" style="width: 15px; height: 15px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+
             if (player) player.style.display = "block";
-            if (playIcon) playIcon.textContent = "⏸️";
+            if (playIcon) playIcon.innerHTML = pauseSvg;
             if (statusText) {
                 statusText.textContent = this.isRepeatPractice 
-                    ? "🔊 Em execução (Repita comigo por gentileza)" 
-                    : "🔊 Leitura Diagnóstica em execução";
+                    ? "Em execução (Repita comigo por gentileza)" 
+                    : "Leitura Diagnóstica em execução";
             }
 
             if (this.progressInterval) clearInterval(this.progressInterval);

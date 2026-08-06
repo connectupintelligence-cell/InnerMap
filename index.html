@@ -596,7 +596,7 @@
 
             <!-- F.A.Q - PERGUNTAS FREQUENTES NA PRIMEIRA PÁGINA -->
             <div class="faq-section" id="como-funciona">
-                <h2 class="faq-title">❓ Perguntas Frequentes (F.A.Q)</h2>
+                <h2 class="faq-title">Perguntas Frequentes (F.A.Q)</h2>
                 <p class="faq-subtitle">Tire suas dúvidas sobre o funcionamento do Método InnerMap e a Reorganização Informacional</p>
 
                 <div class="faq-accordion">
@@ -1106,24 +1106,31 @@
     <div id="floating-audio-player" class="floating-player-bar" style="display: none;">
         <div class="player-content-wrapper">
             <div class="player-info">
-                <span class="player-icon">🎙️</span>
+                <div class="player-audio-waves" title="Áudio em reprodução">
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                    <span class="wave-bar"></span>
+                </div>
                 <div class="player-text-group">
-                    <span class="player-title">Repita comigo por gentileza...</span>
-                    <span id="player-status-text" class="player-subtitle">🔊 Em execução</span>
+                    <span class="player-title">Prática Guiada InnerMap</span>
+                    <span id="player-status-text" class="player-subtitle">Leitura em execução</span>
                 </div>
             </div>
 
             <div class="player-controls">
                 <button type="button" id="btn-player-rewind10" class="btn-player-action" title="Voltar 10 segundos (-10s)">
-                    <span style="font-size: 0.82rem; font-weight: 700;">⏮️ -10s</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 4px;"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    <span style="font-size: 0.78rem; font-weight: 700;">-10s</span>
                 </button>
 
                 <button type="button" id="btn-player-toggle-pause" class="btn-player-action btn-player-main" title="Pausar / Continuar voz">
-                    <span id="player-play-icon">⏸️</span>
+                    <span id="player-play-icon" style="display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 15px; height: 15px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    </span>
                 </button>
 
                 <button type="button" id="btn-player-stop" class="btn-player-action btn-player-close" title="Parar e fechar">
-                    ✕
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
         </div>
