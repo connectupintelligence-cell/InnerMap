@@ -1811,10 +1811,16 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.hasMdiCondicional = state.addedMdiBehaviors.length > 0;
                 state.addedPositivosAtrapalham = aiData.ganhos_aparentes || [];
                 state.customLlmMicroaction = aiData.microacao;
-                state.customLlmAjuste = aiData.leitura_ajuste;
-                state.customLlmMovimento = aiData.movimento_sugerido;
+                state.customLlmAjuste = aiData.leitura_ajuste || aiData.reflexao;
+                state.customLlmMovimento = aiData.movimento_sugerido || "Conecte-se com sua intenção consciente e direcione sua atenção para o objetivo desejado com presença e serenidade.";
                 state.isHereditary = true;
-                state.selectedLevel = "avancado";
+                state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
+
+                // Se for Modo 3 (Motivação Rápida), vai direto para os ajustes sem parar na pergunta!
+                if (state.selectedMode === 3) {
+                    triggerFinalGeneration();
+                    return;
+                }
 
                 // Renderizar editor interativo de Fatos/Sentimentos (MFI)
                 renderFactsEditor();
@@ -1854,12 +1860,14 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         const hasText = inputAprofundamento && inputAprofundamento.value.trim().length > 0;
         const hasFacts = state.addedFacts && state.addedFacts.length > 0;
 
-        if (hasText) {
+        if (state.selectedMode === 3) {
+            btnSpan.textContent = "🚀 Ver Meus Ajustes de Motivação →";
+        } else if (hasText) {
             btnSpan.textContent = "Analisar resposta e gerar reorganização →";
         } else if (hasFacts) {
             btnSpan.textContent = "Gerar Reorganização com Fatos Mapeados →";
         } else {
-            btnSpan.textContent = "Continuar com mais detalhes →";
+            btnSpan.textContent = "✨ Gerar Meus Ajustes Informacionais →";
         }
     }
 
@@ -2080,6 +2088,12 @@ Retorne JSON no formato exato:
                 const result = ReorganizationEngine.analyzeInput(phrase, state.isHereditary, state.hereditaryType, state.addedFacts, state.factDetail, state.selectedLevel, state.addedPositivosAtrapalham, state.hasMdiCondicional, state.addedMdiBehaviors);
                 if (state.customLlmMicroaction) {
                     result.microacao = state.customLlmMicroaction;
+                }
+                if (state.customLlmAjuste) {
+                    result.ajuste = state.customLlmAjuste;
+                }
+                if (state.customLlmMovimento) {
+                    result.movimento = state.customLlmMovimento;
                 }
 
                 // Aplicar correção de concordância gramatical com a IA
