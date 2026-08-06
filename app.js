@@ -2210,18 +2210,21 @@ Retorne JSON no formato exato:
                 
                 // Popula Tela 2 (Consciência Informacional)
                 const step2TitleEl = document.querySelector("#screen-step2 .step-title");
+                const step2SubtitleEl = document.querySelector("#screen-step2 .step-subtitle");
                 const diagTitleEl = document.querySelector("#screen-step2 .response-container .hqi-item:nth-child(1) .hqi-item-title");
                 const movTitleEl = document.querySelector("#screen-step2 .response-container .hqi-item:nth-child(2) .hqi-item-title");
 
                 if (state.selectedMode === 3) {
                     if (step2TitleEl) step2TitleEl.innerText = "MOTIVAÇÃO & FORTALECIMENTO INFORMACIONAL";
-                    if (diagTitleEl) diagTitleEl.innerHTML = "🎯 Leitura de Fortalecimento & Potencial";
-                    if (movTitleEl) movTitleEl.innerHTML = "🕊️ Direcionamento Consciente & Presença";
+                    if (step2SubtitleEl) step2SubtitleEl.innerText = "Direcionamento prático, foco e expansão do seu potencial consciente para o dia.";
+                    if (diagTitleEl) diagTitleEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--color-primary); display: inline-block; vertical-align: -2px; margin-right: 6px;"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg> Leitura de Fortalecimento & Potencial';
+                    if (movTitleEl) movTitleEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: #c084fc; display: inline-block; vertical-align: -2px; margin-right: 6px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Direcionamento Consciente & Presença';
                     result.objetivo = "Fortalecimento e Motivação: " + (state.tempTheme || phrase);
                 } else {
                     if (step2TitleEl) step2TitleEl.innerText = "CONSCIÊNCIA INFORMACIONAL";
-                    if (diagTitleEl) diagTitleEl.innerHTML = "🔍 Diagnóstico Informacional & Causa Raiz";
-                    if (movTitleEl) movTitleEl.innerHTML = "🕊️ Movimento Consciente de Libertação";
+                    if (step2SubtitleEl) step2SubtitleEl.innerText = "Compreensão profunda das causas raízes, defesas inconscientes e o movimento de libertação.";
+                    if (diagTitleEl) diagTitleEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--color-primary); display: inline-block; vertical-align: -2px; margin-right: 6px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Diagnóstico Informacional & Causa Raiz';
+                    if (movTitleEl) movTitleEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: #c084fc; display: inline-block; vertical-align: -2px; margin-right: 6px;"><path d="M17.7 7.7A7.1 7.1 0 0 0 5 10.8M18 10l4-1-1 4"></path><path d="M6.3 16.3A7.1 7.1 0 0 0 19 13.2M6 14l-4 1 1-4"></path></svg> Movimento Consciente de Libertação';
                 }
 
                 if (outputAjuste) outputAjuste.innerText = result.ajuste;
