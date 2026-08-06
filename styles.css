@@ -191,6 +191,11 @@ a:hover {
     letter-spacing: -0.03em;
 }
 
+.desktop-nav-only {
+    display: flex;
+    align-items: center;
+}
+
 .nav-links {
     display: flex;
     list-style: none;
