@@ -1105,14 +1105,10 @@ document.addEventListener("DOMContentLoaded", () => {
         logoContainer.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(navApp, sectionApp);
-            if (!state.currentUser) {
-                showScreen("auth");
-            } else if (!state.subscription) {
-                showScreen("paywall");
-            } else {
-                state.currentStep = 0;
-                showScreen("step1");
-            }
+            state.currentStep = 0;
+            resetStep1Wizard();
+            showScreen("step1");
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
     }
 
