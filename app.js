@@ -376,10 +376,13 @@ class ReorganizationEngine {
         // Construir declarações MSI/MFI dinamicamente
         const declarations = buildDeclarations(inputPhrase, isHereditary, hereditaryType, addedFacts, category, factDetail);
 
+        const isMode3 = (typeof state !== "undefined" && state && state.selectedMode === 3);
+        const customFort = (typeof state !== "undefined" && state && state.customLlmDeclaracaoFortalecimento) ? state.customLlmDeclaracaoFortalecimento : null;
+
         // MRI - Movimento de Reinterpretação
         let cleanMRI = "";
-        if (state.selectedMode === 3 && state.customLlmDeclaracaoFortalecimento) {
-            cleanMRI = state.customLlmDeclaracaoFortalecimento;
+        if (isMode3 && customFort) {
+            cleanMRI = customFort;
         } else if (matchedKey && maxMatches > 0) {
             cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
         } else {
@@ -425,7 +428,7 @@ class ReorganizationEngine {
         let finalNaoEspecifica = "";
         let finalMicroacao = "";
 
-        if (selectedLevel === "iniciante" || state.selectedMode === 3) {
+        if (selectedLevel === "iniciante" || isMode3) {
             finalEspecifica = ""; // Sem MSI/MFI/MFPI (sem fatos)
             finalNaoEspecifica = cleanMRI; // Apenas a declaração afirmativa de fortalecimento (sem MDI de limpeza negativa!)
             
@@ -928,9 +931,12 @@ class AppStateManager {
     }
 }
 
+// Instância Global do Estado da Aplicação
+var state = null;
+
 // Inicialização da UI e Event Listeners
 document.addEventListener("DOMContentLoaded", () => {
-    const state = new AppStateManager();
+    state = window.state = new AppStateManager();
 
     // Carregar chave de API no startup para concordância funcionar em todos os fluxos
     if (supabaseClient) {
