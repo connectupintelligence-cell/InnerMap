@@ -518,6 +518,60 @@ class ReorganizationEngine {
         };
     }
 
+    static generateEuEscolhoManifesto(topicOrFeeling) {
+        const t = (topicOrFeeling || "").toLowerCase();
+        
+        if (t.includes("prosperidade") || t.includes("dinheiro") || t.includes("escassez") || t.includes("financeiro")) {
+            const variations = [
+                "Eu escolho soltar a preocupação com a falta e focar no fluxo constante de abundância.\nEu escolho agir com sabedoria, planejamento e valorização das minhas capacidades.\nEu escolho me abrir para receber novas oportunidades com merecimento e paz.",
+                "Eu escolho ver a prosperidade como o resultado natural da minha entrega de valor.\nEu escolho gerir meus recursos com segurança, consistência e discernimento.\nEu escolho vivenciar fartura e estabilidade com gratidão e serenidade."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+        
+        if (t.includes("saúde") || t.includes("vitalidade") || t.includes("energia") || t.includes("corpo")) {
+            const variations = [
+                "Eu escolho acolher meu corpo com amor, respeitando o tempo de repouso e regeneração.\nEu escolho nutrir minha mente e minhas células com serenidade e hábitos saudáveis.\nEu escolho confiar no poder de autocura e equilíbrio da minha natureza viva.",
+                "Eu escolho escutar os sinais do meu corpo com empatia e cuidado diário.\nEu escolho liberar o estresse acumulado e restabelecer minha energia vital plena.\nEu escolho sentir força, vitalidade e paz funcional em cada respiração."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        if (t.includes("trabalho") || t.includes("foco") || t.includes("produtividade") || t.includes("carreira")) {
+            const variations = [
+                "Eu escolho focar no progresso constante, soltando a cobrança por perfeição imediata.\nEu escolho realizar minhas tarefas diárias com clareza, presença e eficiência.\nEu escolho reconhecer minha competência e exercer meus talentos com autoconfiança.",
+                "Eu escolho direcionar minha atenção para soluções práticas e realizações consistentes.\nEu escolho trabalhar com ritmo equilibrado, mantendo a mente tranquila e focada.\nEu escolho celebrar cada conquista e construir meu legado com determinação."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        if (t.includes("autoconfiança") || t.includes("coragem") || t.includes("medo") || t.includes("insegurança")) {
+            const variations = [
+                "Eu escolho acreditar no meu potencial, mesmo quando ainda estou aprendendo no caminho.\nEu escolho me apoiar incondicionalmente, reconhecendo tudo o que já superei.\nEu escolho agir com firmeza, lembrando que sou o meu ponto de maior segurança.",
+                "Eu escolho me permitir ser visto com autenticidade, soltando o medo do julgamento alheio.\nEu escolho confiar no meu valor real e agir com coragem diante de novos desafios.\nEu escolho vestir a minha verdade e avançar com firmeza e presença."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        if (t.includes("serenidade") || t.includes("paz") || t.includes("ansiedade") || t.includes("equilíbrio")) {
+            const variations = [
+                "Eu escolho respirar fundo e soltar o controle sobre aquilo que não posso mudar.\nEu escolho cultivar a paz no meu centro interior, independente do barulho ao redor.\nEu escolho viver o momento presente com calma, aceitação e confiança no fluxo.",
+                "Eu escolho desacelerar meus pensamentos e ancorar minha mente na estabilidade do presente.\nEu escolho me perdoar e permitir que a serenidade guie minhas decisões diárias.\nEu escolho transformar o silêncio em fortaleza e a ansiedade em tranquilidade."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        if (t.includes("relacionamento") || t.includes("harmonia") || t.includes("amor") || t.includes("carência")) {
+            const variations = [
+                "Eu escolho me amar e me aprovar em primeiro lugar, sendo a fonte do afeto que busco.\nEu escolho me comunicar com clareza, respeito e verdade nos meus laços afetivos.\nEu escolho vivenciar conexões saudáveis, maduras e libertadoras com reciprocidade.",
+                "Eu escolho soltar dependências emocionais e nutrir minha autonomia com alegria.\nEu escolho abrir meu coração para trocas afetuosas baseadas em respeito e cooperação.\nEu escolho valorizar a mim mesmo(a) e acolher relacionamentos leves e harmoniosos."
+            ];
+            return variations[Math.floor(Math.random() * variations.length)];
+        }
+
+        return "Eu escolho direcionar minha atenção para novas possibilidades, força e expansão.\nEu escolho agir com clareza, serenidade e consistência diária.\nEu escolho confiar no meu poder pessoal e construir uma realidade leve e alinhada.";
+    }
+
     static suggestMriRessignificacao(phrase) {
         const clean = phrase.toLowerCase().trim();
         let es = "direcionar minha atenção para novas possibilidades, soluções e expansão";
