@@ -378,7 +378,9 @@ class ReorganizationEngine {
 
         // MRI - Movimento de Reinterpretação
         let cleanMRI = "";
-        if (matchedKey && maxMatches > 0) {
+        if (state.selectedMode === 3 && state.customLlmDeclaracaoFortalecimento) {
+            cleanMRI = state.customLlmDeclaracaoFortalecimento;
+        } else if (matchedKey && maxMatches > 0) {
             cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
         } else {
             const mriSuggest = this.suggestMriRessignificacao(inputPhrase);
@@ -423,9 +425,9 @@ class ReorganizationEngine {
         let finalNaoEspecifica = "";
         let finalMicroacao = "";
 
-        if (selectedLevel === "iniciante") {
-            finalEspecifica = ""; // Sem MSI/MFI/MFPI
-            finalNaoEspecifica = cleanMRI; // Apenas MRI
+        if (selectedLevel === "iniciante" || state.selectedMode === 3) {
+            finalEspecifica = ""; // Sem MSI/MFI/MFPI (sem fatos)
+            finalNaoEspecifica = cleanMRI; // Apenas a declaração afirmativa de fortalecimento (sem MDI de limpeza negativa!)
             
             // Fallback microação simplificada para Iniciante
             if (category === "Relacionamentos") {
@@ -1681,21 +1683,23 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 let prompt = "";
                 if (state.selectedMode === 3) {
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
-O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (modo rápido, sem foco em traumas passados).
+O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (Modo Rápido: sem traumas passados, sem fatos nem frases de limpeza de pensamentos negativos).
 
 Objetivo/Foco do Cliente:
 "${relato}"
 
 Retorne um objeto JSON válido no formato exato:
 {
-  "tema": "substantivo abstrato de foco (ex: Autoconfiança, Foco, Clareza, Serenidade)",
+  "tema": "substantivo abstrato de foco (ex: Autoconfiança, Foco, Clareza, Serenidade, Determinação)",
   "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
   "fatos": [],
   "comportamentos": [],
   "ganhos_aparentes": [],
-  "microacao": "orientação prática e fortalecedora para aplicar hoje",
-  "reflexao": "mensagem encorajadora e acolhedora de 2-3 linhas celebrando o foco escolhido",
-  "pergunta_aprofundamento": "uma única pergunta motivacional inspirando o cliente a visualizar o resultado"
+  "microacao": "orientação prática e motivadora de 1-2 linhas para aplicar hoje",
+  "reflexao": "mensagem encorajadora e inspiradora de 2-3 linhas celebrando a capacidade e a visão do cliente",
+  "leitura_ajuste": "diagnóstico fortalecedor (2-3 linhas) destacando as virtudes, a força interna e o potencial do cliente para alcançar o objetivo",
+  "movimento_sugerido": "direcionamento prático e inspirador (2-3 linhas) de como cultivar foco, presença e consistência ao longo do dia",
+  "declaracao_fortalecimento": "decreto de fortalecimento em duas frases afirmativas (uma com Espírito e uma com Alma), ex:\\nEspírito, eu escolho agir com foco, clareza e determinação.\\nAlma, eu já me sinto seguro(a) e capacitado(a) para realizar meu objetivo."
 }`;
                 } else {
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
@@ -1814,7 +1818,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.customLlmMicroaction = aiData.microacao;
                 state.customLlmAjuste = aiData.leitura_ajuste || aiData.reflexao;
                 state.customLlmMovimento = aiData.movimento_sugerido || "Conecte-se com sua intenção consciente e direcione sua atenção para o objetivo desejado com presença e serenidade.";
-                state.isHereditary = true;
+                state.customLlmDeclaracaoFortalecimento = aiData.declaracao_fortalecimento || null;
+                state.isHereditary = state.selectedMode === 3 ? false : true;
                 state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
 
                 // Se for Modo 3 (Motivação Rápida), vai direto para os ajustes sem parar na pergunta!
@@ -2109,12 +2114,31 @@ Retorne JSON no formato exato:
                 state.currentData = result;
                 
                 // Popula Tela 2 (Consciência Informacional)
+                const step2TitleEl = document.querySelector("#screen-step2 .step-title");
+                const diagTitleEl = document.querySelector("#screen-step2 .response-container .hqi-item:nth-child(1) .hqi-item-title");
+                const movTitleEl = document.querySelector("#screen-step2 .response-container .hqi-item:nth-child(2) .hqi-item-title");
+
+                if (state.selectedMode === 3) {
+                    if (step2TitleEl) step2TitleEl.innerText = "MOTIVAÇÃO & FORTALECIMENTO INFORMACIONAL";
+                    if (diagTitleEl) diagTitleEl.innerHTML = "🎯 Leitura de Fortalecimento & Potencial";
+                    if (movTitleEl) movTitleEl.innerHTML = "🕊️ Direcionamento Consciente & Presença";
+                    result.objetivo = "Fortalecimento e Motivação: " + (state.tempTheme || phrase);
+                } else {
+                    if (step2TitleEl) step2TitleEl.innerText = "CONSCIÊNCIA INFORMACIONAL";
+                    if (diagTitleEl) diagTitleEl.innerHTML = "🔍 Diagnóstico Informacional & Causa Raiz";
+                    if (movTitleEl) movTitleEl.innerHTML = "🕊️ Movimento Consciente de Libertação";
+                }
+
                 if (outputAjuste) outputAjuste.innerText = result.ajuste;
                 if (outputMovimento) outputMovimento.innerText = result.movimento;
                 
                 const outputStep2FullText = document.getElementById("output-step2-full-text");
                 if (outputStep2FullText) {
-                    outputStep2FullText.innerText = `Diagnóstico Informacional: ${result.ajuste}. Movimento Consciente de Libertação: ${result.movimento}`;
+                    if (state.selectedMode === 3) {
+                        outputStep2FullText.innerText = `Leitura de Fortalecimento: ${result.ajuste}. Direcionamento Consciente: ${result.movimento}`;
+                    } else {
+                        outputStep2FullText.innerText = `Diagnóstico Informacional: ${result.ajuste}. Movimento Consciente de Libertação: ${result.movimento}`;
+                    }
                 }
                 
                 // Popula Tela 3 (Práticas Guiadas)
