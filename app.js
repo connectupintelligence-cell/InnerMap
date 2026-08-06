@@ -599,15 +599,16 @@ class ReorganizationEngine {
             ].join("\n");
         }
 
+        const cleanTopic = (topicOrFeeling || "meu objetivo").trim();
         return [
-            "Eu escolho direcionar minha atenção para novas possibilidades, força e expansão.",
-            "Eu escolho me libertar de dúvidas e medos limitantes do passado.",
-            "Eu escolho agir com clareza, serenidade e consistência diária.",
-            "Eu escolho honrar meus sentimentos e me acolher com empatia.",
-            "Eu escolho focar no meu progresso contínuo e na minha evolução viva.",
-            "Eu escolho confiar no meu poder pessoal e construir uma realidade alinhada.",
-            "Espírito, eu escolho agir com foco, clareza e determinação.",
-            "Alma, eu já me sinto seguro(a) e plenamente capacitado(a) para realizar meu objetivo."
+            `Eu escolho direcionar minha atenção, clareza e determinação para "${cleanTopic}".`,
+            `Eu escolho me libertar de qualquer dúvida, insegurança ou hesitação com relação a "${cleanTopic}".`,
+            `Eu escolho agir com presença consciente, ritmo saudável e foco consistente a cada passo.`,
+            `Eu escolho reconhecer minha capacidade real e me apoiar incondicionalmente diante das conquistas.`,
+            `Eu escolho focar no meu constante progresso, soltando cobranças e valorizando minha evolução.`,
+            `Eu escolho confiar no meu poder pessoal para vivenciar "${cleanTopic}" com maestria, paz e alegria.`,
+            `Espírito, eu escolho agir com foco, clareza e determinação para "${cleanTopic}".`,
+            `Alma, eu já me sinto seguro(a), plenamente capacitado(a) e realizado(a) em "${cleanTopic}".`
         ].join("\n");
     }
 
@@ -1815,12 +1816,24 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (Modo Rápido: sem traumas passados, sem fatos nem frases de limpeza de pensamentos negativos).
 
-Objetivo/Foco do Cliente:
+Objetivo/Foco Livremente Informado pelo Cliente:
 "${relato}"
 
-DIRETRIZ DE CAPRICHO E VARIAÇÃO DILIGENTE (Semente de Inovação: ${seed}):
-- Traga uma mensagem poética, inspiradora, profunda e extremamente fortalecedora.
-- VARIE a perspectiva e as metáforas: evite repetição de clichês se o usuário estiver repetindo o mesmo tema. Traga uma luz nova de contemplação, coragem e virtude pessoal.
+REQUISITO CRÍTICO E OBRIGATÓRIO (6 DECRETOS DE FORTALECIMENTO):
+- Seja o tema um dos atalhos prontos ou um TEMA CUSTOMIZADO DIGITADO pelo cliente (ex: "${relato}"), você DEVE gerar no mínimo 6 DECRETOS AFIRMATIVOS PROFUNDOS que começam com "Eu escolho..." adaptados e contextualizados de forma única para este objetivo.
+- Formato OBRIGATÓRIO do campo "declaracao_fortalecimento":
+  Devem ser exatamente 6 linhas de "Eu escolho..." seguidas de 2 declarações com Espírito e Alma.
+  Exemplo:
+  Eu escolho... (decreto 1 contextualizado)
+  Eu escolho... (decreto 2 contextualizado)
+  Eu escolho... (decreto 3 contextualizado)
+  Eu escolho... (decreto 4 contextualizado)
+  Eu escolho... (decreto 5 contextualizado)
+  Eu escolho... (decreto 6 contextualizado)
+  Espírito, eu escolho agir com foco, clareza e determinação para ${relato}.
+  Alma, eu já me sinto seguro(a), plenamente capacitado(a) e realizado(a) para este objetivo.
+
+Semente de Variação Criativa: ${seed} (Sem clichês, com profunda virtude e sabedoria).
 
 Retorne um objeto JSON válido no formato exato:
 {
@@ -1832,8 +1845,8 @@ Retorne um objeto JSON válido no formato exato:
   "microacao": "orientação prática e motivadora de 1-2 linhas para aplicar hoje",
   "reflexao": "mensagem encorajadora e inspiradora de 2-3 linhas celebrando a capacidade e a visão do cliente",
   "leitura_ajuste": "diagnóstico fortalecedor (2-3 linhas) destacando as virtudes, a força interna e o potencial do cliente para alcançar o objetivo",
-  "movimento_sugerido": "direcionamento prático e inspirador (2-3 linhas) de como cultivar foco, presença e consistência ao longo do dia",
-  "declaracao_fortalecimento": "decreto de fortalecimento em duas frases afirmativas (uma com Espírito e uma com Alma), ex:\\nEspírito, eu escolho agir com foco, clareza e determinação.\\nAlma, eu já me sinto seguro(a) e capacitado(a) para realizar meu objetivo."
+  "movimento_sugerido": "direcionamento prático e inspirador (2-3 linhas) de como cultivar a postura 'Eu escolho...' ao longo do dia",
+  "declaracao_fortalecimento": "Eu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEspírito, eu escolho...\\nAlma, eu já..."
 }`;
                 } else {
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
