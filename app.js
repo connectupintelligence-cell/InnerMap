@@ -523,92 +523,85 @@ class ReorganizationEngine {
         
         if (t.includes("prosperidade") || t.includes("dinheiro") || t.includes("escassez") || t.includes("financeiro") || t.includes("fartura")) {
             return [
-                "Eu escolho soltar a preocupação com a falta e focar no fluxo constante de abundância.",
-                "Eu escolho gerir meus recursos com sabedoria, discernimento e planejamento seguro.",
-                "Eu escolho ver a prosperidade como o resultado natural da minha entrega de valor.",
-                "Eu escolho me abrir para receber novas oportunidades com total merecimento e paz.",
-                "Eu escolho construir riqueza com ações consistentes, serenidade e clareza de metas.",
-                "Eu escolho vivenciar a fartura e a estabilidade com profunda gratidão e alegria.",
-                "Espírito, eu escolho direcionar minha atenção para a abundância e o fluxo constante de recursos.",
-                "Alma, eu já construo riqueza, fartura e segurança financeira com sabedoria."
+                "Espírito, eu escolho soltar a preocupação com a falta e focar no fluxo constante de abundância.",
+                "Espírito, eu escolho gerir meus recursos com sabedoria, discernimento e planejamento seguro.",
+                "Espírito, eu escolho me abrir para receber novas oportunidades com total merecimento e paz.",
+                "Alma, eu já me sinto merecedor(a) da prosperidade e da fartura em minha vida.",
+                "Alma, eu já vivencio estabilidade financeira, riqueza e segurança a cada dia.",
+                "Alma, eu já sinto gratidão e profunda calma ao cuidar da minha vida material e do meu futuro.",
+                "Alma, eu já sinto o fluxo constante de recursos e abundância se manifestando com leveza."
             ].join("\n");
         }
         
         if (t.includes("saúde") || t.includes("vitalidade") || t.includes("energia") || t.includes("corpo")) {
             return [
-                "Eu escolho acolher meu corpo com amor, respeitando o tempo de repouso e regeneração.",
-                "Eu escolho nutrir minha mente e minhas células com pensamentos elevados e hábitos saudáveis.",
-                "Eu escolho escutar os sinais do meu corpo com empatia, presença e cuidado diário.",
-                "Eu escolho liberar qualquer tensão ou estresse acumulado, restabelecendo minha energia vital.",
-                "Eu escolho confiar no poder de autocura, renovação e força da minha natureza viva.",
-                "Eu escolho sentir meu corpo forte, leve, revigorado e em perfeito equilíbrio funcional.",
-                "Espírito, eu escolho direcionar minha atenção para a saúde plena, regeneração e vitalidade.",
-                "Alma, eu já sinto meu corpo forte, revigorado e em perfeita harmonia."
+                "Espírito, eu escolho acolher meu corpo com amor, respeitando o tempo de repouso e regeneração.",
+                "Espírito, eu escolho nutrir minha mente e minhas células com pensamentos elevados e hábitos saudáveis.",
+                "Espírito, eu escolho escutar os sinais do meu corpo com empatia, presença e cuidado diário.",
+                "Alma, eu já sinto meu corpo forte, leve, revigorado e em perfeito equilíbrio funcional.",
+                "Alma, eu já vivencio vitalidade plena, disposição e energia renovada em cada respiração.",
+                "Alma, eu já me sinto em profunda paz com o meu corpo e confiante na minha saúde viva.",
+                "Alma, eu já sinto a harmonia e o poder de autocura atuando em mim a todo momento."
             ].join("\n");
         }
 
         if (t.includes("trabalho") || t.includes("foco") || t.includes("produtividade") || t.includes("carreira")) {
             return [
-                "Eu escolho focar no progresso constante, soltando a cobrança por perfeição imediata.",
-                "Eu escolho realizar minhas tarefas diárias com clareza, presença e máxima eficiência.",
-                "Eu escolho direcionar minha atenção para soluções práticas e realizações consistentes.",
-                "Eu escolho reconhecer minha competência e exercer meus talentos com autoconfiança plena.",
-                "Eu escolho trabalhar com um ritmo equilibrado, mantendo a mente tranquila e focada.",
-                "Eu escolho celebrar cada passo conquistado e construir meu legado com entusiasmo.",
-                "Espírito, eu escolho direcionar minha atenção para o crescimento profissional e realização.",
-                "Alma, eu já exerço meus talentos com dedicação, prosperidade e clareza."
+                "Espírito, eu escolho focar no progresso constante, soltando a cobrança por perfeição imediata.",
+                "Espírito, eu escolho realizar minhas tarefas diárias com clareza, presença e máxima eficiência.",
+                "Espírito, eu escolho direcionar minha atenção para soluções práticas e realizações consistentes.",
+                "Alma, eu já me sinto capacitado(a), seguro(a) e autoconfiante em todos os meus projetos.",
+                "Alma, eu já vivencio clareza mental, ritmo equilibrado e produtividade leve no trabalho.",
+                "Alma, eu já sinto orgulho do meu legado e alegria ao exercer meus talentos diários.",
+                "Alma, eu já realizo minhas metas com estabilidade, foco e sabedoria constante."
             ].join("\n");
         }
 
         if (t.includes("autoconfiança") || t.includes("coragem") || t.includes("medo") || t.includes("insegurança")) {
             return [
-                "Eu escolho acreditar no meu potencial, mesmo quando ainda estou aprendendo no caminho.",
-                "Eu escolho me apoiar incondicionalmente, reconhecendo a força de tudo o que já superei.",
-                "Eu escolho me permitir ser visto com autenticidade, soltando o medo do julgamento alheio.",
-                "Eu escolho agir com coragem diante dos desafios, confiando no meu valor real.",
-                "Eu escolho me aprovar em primeiro lugar e vestir a minha verdade com firmeza.",
-                "Eu escolho ser o meu ponto mais seguro e avançar com presença e determinação.",
-                "Espírito, eu escolho expressar minha verdade com coragem e liberdade.",
-                "Alma, eu já me sinto seguro(a), pleno(a) e capacitado(a) para realizar meus objetivos."
+                "Espírito, eu escolho acreditar no meu potencial, mesmo quando ainda estou aprendendo no caminho.",
+                "Espírito, eu escolho me apoiar incondicionalmente, reconhecendo a força de tudo o que já superei.",
+                "Espírito, eu escolho me permitir ser visto com autenticidade, soltando o medo do julgamento alheio.",
+                "Alma, eu já me sinto seguro(a), pleno(a) e capacitado(a) para encarar qualquer desafio.",
+                "Alma, eu já vivencio firmeza interna, coragem e dignidade em todas as minhas atitudes.",
+                "Alma, eu já me aprovo em primeiro lugar e vista a minha verdade com orgulho e serenidade.",
+                "Alma, eu já sinto paz na minha própria pele e confiança inabalável no meu valor real."
             ].join("\n");
         }
 
         if (t.includes("serenidade") || t.includes("paz") || t.includes("ansiedade") || t.includes("equilíbrio")) {
             return [
-                "Eu escolho respirar fundo e soltar o controle sobre aquilo que não posso mudar.",
-                "Eu escolho desacelerar meus pensamentos e ancorar minha mente na paz do momento presente.",
-                "Eu escolho cultivar a estabilidade interna, independente das agitações ao meu redor.",
-                "Eu escolho me perdoar e permitir que a serenidade guie todas as minhas decisões.",
-                "Eu escolho transformar o silêncio em fortaleza e a ansiedade em tranquila aceitação.",
-                "Eu escolho viver com leveza, confiando que o fluxo da vida me apoia a cada instante.",
-                "Espírito, eu escolho direcionar minha atenção para a paz interna, clareza e serenidade.",
-                "Alma, eu já sinto estabilidade emocional e equilíbrio em meu corpo."
+                "Espírito, eu escolho respirar fundo e soltar o controle sobre aquilo que não posso mudar.",
+                "Espírito, eu escolho desacelerar meus pensamentos e ancorar minha mente na paz do momento presente.",
+                "Espírito, eu escolho cultivar a estabilidade interna, independente das agitações ao meu redor.",
+                "Alma, eu já sinto profunda paz em meu centro interior, silêncio e calma restauradora.",
+                "Alma, eu já vivencio serenidade em minhas emoções e aceitação tranquila da vida.",
+                "Alma, eu já me sinto seguro(a), equilibrado(a) e leve em cada respiração.",
+                "Alma, eu já sinto a confiança e a tranquilidade guiando cada uma das minhas decisões."
             ].join("\n");
         }
 
         if (t.includes("relacionamento") || t.includes("harmonia") || t.includes("amor") || t.includes("carência")) {
             return [
-                "Eu escolho me amar e me aprovar em primeiro lugar, sendo a fonte do afeto que procuro.",
-                "Eu escolho me comunicar com clareza, respeito e verdade em todas as minhas conexões.",
-                "Eu escolho soltar dependências emocionais e nutrir minha autonomia afetiva com alegria.",
-                "Eu escolho abrir meu coração para trocas afetuosas baseadas em cooperação e reciprocidade.",
-                "Eu escolho perdoar o passado e permitir que o amor verdadeiro flua sem amarras.",
-                "Eu escolho acolher relacionamentos leves, maduros, respeitosos e harmoniosos.",
-                "Espírito, eu escolho direcionar minha atenção para conexões saudáveis e amor mútuo.",
-                "Alma, eu já vivencio laços afetivos harmônicos, respeito e maturidade."
+                "Espírito, eu escolho me amar e me aprovar em primeiro lugar, sendo a fonte do afeto que procuro.",
+                "Espírito, eu escolho me comunicar com clareza, respeito e verdade em todas as minhas conexões.",
+                "Espírito, eu escolho soltar dependências emocionais e nutrir minha autonomia afetiva com alegria.",
+                "Alma, eu já vivencio laços afetivos harmônicos, leveza e respeito mútuo em minha vida.",
+                "Alma, eu já me sinto pleno(a), seguro(a) e acolhido(a) nas minhas relações diárias.",
+                "Alma, eu já sinto o amor verdadeiro fluindo sem amarras, cobrindo minha convivência de paz.",
+                "Alma, eu já recebo e entrego carinho, diálogo e consideração com reciprocidade."
             ].join("\n");
         }
 
         const cleanTopic = (topicOrFeeling || "meu objetivo").trim();
         return [
-            `Eu escolho direcionar minha atenção, clareza e determinação para "${cleanTopic}".`,
-            `Eu escolho me libertar de qualquer dúvida, insegurança ou hesitação com relação a "${cleanTopic}".`,
-            `Eu escolho agir com presença consciente, ritmo saudável e foco consistente a cada passo.`,
-            `Eu escolho reconhecer minha capacidade real e me apoiar incondicionalmente diante das conquistas.`,
-            `Eu escolho focar no meu constante progresso, soltando cobranças e valorizando minha evolução.`,
-            `Eu escolho confiar no meu poder pessoal para vivenciar "${cleanTopic}" com maestria, paz e alegria.`,
-            `Espírito, eu escolho agir com foco, clareza e determinação para "${cleanTopic}".`,
-            `Alma, eu já me sinto seguro(a), plenamente capacitado(a) e realizado(a) em "${cleanTopic}".`
+            `Espírito, eu escolho direcionar minha atenção, clareza e determinação para "${cleanTopic}".`,
+            `Espírito, eu escolho me libertar de qualquer dúvida, insegurança ou hesitação com relação a "${cleanTopic}".`,
+            `Espírito, eu escolho agir com presença consciente, ritmo saudável e foco consistente a cada passo.`,
+            `Alma, eu já me sinto seguro(a), plenamente capacitado(a) e realizado(a) em "${cleanTopic}".`,
+            `Alma, eu já vivencio paz, autoconfiança e clareza ao conduzir "${cleanTopic}".`,
+            `Alma, eu já sinto orgulho do meu progresso e alegria diante dos meus resultados.`,
+            `Alma, eu já habito a estabilidade, a força e o sucesso de "${cleanTopic}" em minha vida.`
         ].join("\n");
     }
 
@@ -1814,24 +1807,21 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 if (state.selectedMode === 3) {
                     const seed = Math.floor(Math.random() * 10000);
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
-O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (Modo Rápido: sem traumas passados, sem fatos nem frases de limpeza de pensamentos negativos).
+O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado: "${relato}".
 
-Objetivo/Foco Livremente Informado pelo Cliente:
-"${relato}"
+REGRAS RÍGIDAS E OBRIGATÓRIAS DO MÉTODO PARA O CAMPO "declaracao_fortalecimento":
+1. Antes de CADA frase de escolha ou intenção consciente, você DEVE usar o prefixo "Espírito, eu escolho..." (ex: "Espírito, eu escolho direcionar minha atenção para...").
+2. Antes de CADA frase de estado interno, sentimento ou realidade já realizada, você DEVE usar o prefixo "Alma, eu já..." ou "Alma, eu já me sinto..." ou "Alma, eu já vivencio...".
+3. PROPORÇÃO & EQUILÍBRIO: Gere 3 decretos de Espírito ("Espírito, eu escolho...") e MAIS decretos de Alma (de 4 a 5 decretos "Alma, eu já..."), totalizando entre 7 e 8 decretos no total.
 
-REQUISITO CRÍTICO E OBRIGATÓRIO (6 DECRETOS DE FORTALECIMENTO):
-- Seja o tema um dos atalhos prontos ou um TEMA CUSTOMIZADO DIGITADO pelo cliente (ex: "${relato}"), você DEVE gerar no mínimo 6 DECRETOS AFIRMATIVOS PROFUNDOS que começam com "Eu escolho..." adaptados e contextualizados de forma única para este objetivo.
-- Formato OBRIGATÓRIO do campo "declaracao_fortalecimento":
-  Devem ser exatamente 6 linhas de "Eu escolho..." seguidas de 2 declarações com Espírito e Alma.
-  Exemplo:
-  Eu escolho... (decreto 1 contextualizado)
-  Eu escolho... (decreto 2 contextualizado)
-  Eu escolho... (decreto 3 contextualizado)
-  Eu escolho... (decreto 4 contextualizado)
-  Eu escolho... (decreto 5 contextualizado)
-  Eu escolho... (decreto 6 contextualizado)
-  Espírito, eu escolho agir com foco, clareza e determinação para ${relato}.
-  Alma, eu já me sinto seguro(a), plenamente capacitado(a) e realizado(a) para este objetivo.
+Exemplo de formato do campo "declaracao_fortalecimento":
+Espírito, eu escolho direcionar minha atenção e clareza para ${relato}.
+Espírito, eu escolho agir com presença, sabedoria e ritmo saudável.
+Espírito, eu escolho soltar qualquer dúvida ou limitação do passado.
+Alma, eu já me sinto capacitado(a), seguro(a) e realizado(a) em relação a este objetivo.
+Alma, eu já vivencio clareza, serenidade e autoconfiança no meu dia a dia.
+Alma, eu já sinto o orgulho e a satisfação de concretizar este propósito.
+Alma, eu já habito o estado de paz, fartura e vitória em minha vida.
 
 Semente de Variação Criativa: ${seed} (Sem clichês, com profunda virtude e sabedoria).
 
@@ -1845,8 +1835,8 @@ Retorne um objeto JSON válido no formato exato:
   "microacao": "orientação prática e motivadora de 1-2 linhas para aplicar hoje",
   "reflexao": "mensagem encorajadora e inspiradora de 2-3 linhas celebrando a capacidade e a visão do cliente",
   "leitura_ajuste": "diagnóstico fortalecedor (2-3 linhas) destacando as virtudes, a força interna e o potencial do cliente para alcançar o objetivo",
-  "movimento_sugerido": "direcionamento prático e inspirador (2-3 linhas) de como cultivar a postura 'Eu escolho...' ao longo do dia",
-  "declaracao_fortalecimento": "Eu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEu escolho...\\nEspírito, eu escolho...\\nAlma, eu já..."
+  "movimento_sugerido": "direcionamento prático e inspirador (2-3 linhas) de como cultivar a postura de Espírito e Alma ao longo do dia",
+  "declaracao_fortalecimento": "Espírito, eu escolho...\\nEspírito, eu escolho...\\nEspírito, eu escolho...\\nAlma, eu já me sinto...\\nAlma, eu já vivencio...\\nAlma, eu já sinto...\\nAlma, eu já habito..."
 }`;
                 } else {
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
