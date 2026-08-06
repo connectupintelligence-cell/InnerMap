@@ -2740,11 +2740,11 @@ Retorne JSON no formato exato:
 
         rewind10Seconds: function() {
             if (!this.speechSynthesis || !this.currentRawText) return;
-            const newOffset = Math.max(0, this.currentCharOffset - 35);
+            const newOffset = Math.max(0, this.currentCharOffset - 45);
             this.currentCharOffset = newOffset;
 
             this.speechSynthesis.cancel();
-            showToast("Voltando 10 segundos...");
+            showToast("⏪ Voltando 10 segundos...");
             setTimeout(() => {
                 this._speakFromOffset(newOffset);
             }, 100);
@@ -2752,6 +2752,7 @@ Retorne JSON no formato exato:
 
         togglePauseResume: function() {
             if (!this.speechSynthesis) return;
+            const player = document.getElementById("floating-audio-player");
             const playIcon = document.getElementById("player-play-icon");
             const statusText = document.getElementById("player-status-text");
 
@@ -2760,13 +2761,15 @@ Retorne JSON no formato exato:
 
             if (this.speechSynthesis.speaking && !this.speechSynthesis.paused) {
                 this.speechSynthesis.pause();
+                if (player) player.classList.add("paused");
                 if (playIcon) playIcon.innerHTML = playSvg;
-                if (statusText) statusText.textContent = "Em pausa";
+                if (statusText) statusText.textContent = "Áudio em pausa";
                 showToast("Áudio pausado");
             } else if (this.speechSynthesis.paused) {
                 this.speechSynthesis.resume();
+                if (player) player.classList.remove("paused");
                 if (playIcon) playIcon.innerHTML = pauseSvg;
-                if (statusText) statusText.textContent = this.isRepeatPractice ? "Em execução (Repita comigo por gentileza)" : "Leitura Diagnóstica em execução";
+                if (statusText) statusText.textContent = this.isRepeatPractice ? "Prática em execução (Repita comigo por gentileza)" : "Leitura em execução";
                 showToast("Continuando leitura");
             }
         },
@@ -2778,12 +2781,15 @@ Retorne JSON no formato exato:
 
             const pauseSvg = '<svg viewBox="0 0 24 24" fill="currentColor" style="width: 15px; height: 15px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
 
-            if (player) player.style.display = "block";
+            if (player) {
+                player.style.display = "block";
+                player.classList.remove("paused");
+            }
             if (playIcon) playIcon.innerHTML = pauseSvg;
             if (statusText) {
                 statusText.textContent = this.isRepeatPractice 
-                    ? "Em execução (Repita comigo por gentileza)" 
-                    : "Leitura Diagnóstica em execução";
+                    ? "Prática em execução (Repita comigo por gentileza)" 
+                    : "Leitura em execução";
             }
 
             if (this.progressInterval) clearInterval(this.progressInterval);
@@ -2814,7 +2820,10 @@ Retorne JSON no formato exato:
 
             setTimeout(() => {
                 const player = document.getElementById("floating-audio-player");
-                if (player) player.style.display = "none";
+                if (player) {
+                    player.style.display = "none";
+                    player.classList.remove("paused");
+                }
                 if (fill) fill.style.width = "0%";
             }, 800);
         },
@@ -2834,7 +2843,10 @@ Retorne JSON no formato exato:
             this.currentCharOffset = 0;
             this.activeButtonEl = null;
             const player = document.getElementById("floating-audio-player");
-            if (player) player.style.display = "none";
+            if (player) {
+                player.style.display = "none";
+                player.classList.remove("paused");
+            }
         }
     };
 

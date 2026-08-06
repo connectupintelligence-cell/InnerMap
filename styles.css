@@ -2162,9 +2162,14 @@ body.mode-therapist .main-content {
 
 @media (max-width: 768px) {
     .floating-player-bar {
-        bottom: 75px;
+        bottom: 80px;
         width: 92%;
     }
+}
+
+.floating-player-bar.paused .wave-bar {
+    animation-play-state: paused !important;
+    opacity: 0.4;
 }
 
 .player-content-wrapper {
