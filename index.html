@@ -39,7 +39,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=54">
+    <link rel="stylesheet" href="styles.css?v=55">
 </head>
 <body>
 
@@ -170,6 +170,22 @@
                                 Conte com suas próprias palavras o que você está sentindo ou vivenciando (seus medos, conflitos, sentimentos, situações financeiras ou de relacionamento). Nossa inteligência ajudará a construir sua prática de liberação.
                             </p>
                             
+                            <!-- Chips de Temas Prontos no Modo Motivação Rápida -->
+                            <div id="quick-motivation-topics" style="display: none; margin-bottom: 1rem;">
+                                <p style="font-size: 0.78rem; font-weight: 600; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; color: var(--color-primary);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    Sugestões de Temas Prontos (Clique para escolher):
+                                </p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <button type="button" class="quick-topic-chip" data-value="Prosperidade financeira e fartura">Prosperidade Financeira</button>
+                                    <button type="button" class="quick-topic-chip" data-value="Saúde, vitalidade e regeneração física">Saúde & Vitalidade</button>
+                                    <button type="button" class="quick-topic-chip" data-value="Foco, clareza e produtividade no trabalho">Foco no Trabalho</button>
+                                    <button type="button" class="quick-topic-chip" data-value="Autoconfiança, coragem e determinação">Autoconfiança & Coragem</button>
+                                    <button type="button" class="quick-topic-chip" data-value="Serenidade, paz interna e equilíbrio emocional">Serenidade & Paz Interna</button>
+                                    <button type="button" class="quick-topic-chip" data-value="Harmonia, diálogo e leveza nos relacionamentos">Harmonia nos Relacionamentos</button>
+                                </div>
+                            </div>
+
                             <div class="input-with-mic-container">
                                 <textarea id="input-ai-relato" class="textarea-quantum" style="height: 140px; font-size: 0.95rem; margin-bottom: 0; line-height: 1.6; padding-right: 50px;" placeholder="Escreva aqui o que você sente (Ex: Sinto muita cobrança e medo de falhar no meu trabalho. Acho que isso vem de quando era criança e meus pais me cobravam muito pelas notas. Hoje sinto que preciso ser forte o tempo todo...)"></textarea>
                                 <button type="button" class="btn-mic-input" data-target="input-ai-relato" title="Ditado por voz (falar relato)">🎤</button>
@@ -1149,7 +1165,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=54"></script>
+    <script src="app.js?v=55"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

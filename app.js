@@ -1338,22 +1338,40 @@ document.addEventListener("DOMContentLoaded", () => {
             card.classList.add("active");
             state.selectedMode = parseInt(card.dataset.mode || "1");
 
+            const quickTopicsContainer = document.getElementById("quick-motivation-topics");
+
             if (state.selectedMode === 1) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
+                }
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
                 if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
-                if (inputAiRelato) inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
             } else if (state.selectedMode === 2) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+                }
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
                 if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
-                if (inputAiRelato) inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
             } else if (state.selectedMode === 3) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "70px";
+                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
+                }
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
                 if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
-                if (inputAiRelato) inputAiRelato.placeholder = "Digite o foco desejado (Ex: Quero motivação e foco para finalizar meu projeto esta semana, com serenidade e autoconfiança...)";
             } else if (state.selectedMode === 4) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
+                }
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
                 if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
-                if (inputAiRelato) inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
             }
             updateRelatoCounter();
         });
@@ -1363,6 +1381,18 @@ document.addEventListener("DOMContentLoaded", () => {
         inputAiRelato.addEventListener("input", updateRelatoCounter);
         updateRelatoCounter();
     }
+
+    const quickTopicChips = document.querySelectorAll(".quick-topic-chip");
+    quickTopicChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+            quickTopicChips.forEach(c => c.classList.remove("selected"));
+            chip.classList.add("selected");
+            if (inputAiRelato) {
+                inputAiRelato.value = chip.dataset.value;
+                updateRelatoCounter();
+            }
+        });
+    });
 
     const inputAprofundamentoElem = document.getElementById("input-ai-aprofundamento");
     if (inputAprofundamentoElem) {
@@ -1688,15 +1718,20 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
 
                 let prompt = "";
                 if (state.selectedMode === 3) {
+                    const seed = Math.floor(Math.random() * 10000);
                     prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado (Modo Rápido: sem traumas passados, sem fatos nem frases de limpeza de pensamentos negativos).
 
 Objetivo/Foco do Cliente:
 "${relato}"
 
+DIRETRIZ DE CAPRICHO E VARIAÇÃO DILIGENTE (Semente de Inovação: ${seed}):
+- Traga uma mensagem poética, inspiradora, profunda e extremamente fortalecedora.
+- VARIE a perspectiva e as metáforas: evite repetição de clichês se o usuário estiver repetindo o mesmo tema. Traga uma luz nova de contemplação, coragem e virtude pessoal.
+
 Retorne um objeto JSON válido no formato exato:
 {
-  "tema": "substantivo abstrato de foco (ex: Autoconfiança, Foco, Clareza, Serenidade, Determinação)",
+  "tema": "substantivo abstrato de foco (ex: Autoconfiança, Foco, Clareza, Serenidade, Fartura)",
   "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
   "fatos": [],
   "comportamentos": [],
