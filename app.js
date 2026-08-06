@@ -2491,9 +2491,10 @@ Retorne JSON no formato exato:
         currentCharOffset: 0,
         progressInterval: null,
         activeButtonEl: null,
+        isRepeatPractice: false,
 
         // 2. LEITURA POR VOZ (TEXT-TO-SPEECH)
-        speakText: function(text, buttonEl) {
+        speakText: function(text, buttonEl, isRepeatPractice = false) {
             if (!this.speechSynthesis) {
                 showToast("Síntese de voz não disponível no navegador.");
                 return;
@@ -2510,14 +2511,17 @@ Retorne JSON no formato exato:
 
             let cleanText = text.replace(/<[^>]*>/g, '').trim();
 
-            // ✨ Prepend "Repita comigo por gentileza!" se não estiver presente (Requisito 2)
-            if (!cleanText.toLowerCase().startsWith("repita comigo")) {
+            // ✨ Prepend "Repita comigo por gentileza!" APENAS para práticas de Ajustes Informacionais (Tela 3)
+            const shouldPrependRepeat = isRepeatPractice || (buttonEl && (buttonEl.id === "btn-tts-full-practice" || buttonEl.dataset.repeat === "true"));
+            
+            if (shouldPrependRepeat && !cleanText.toLowerCase().startsWith("repita comigo")) {
                 cleanText = "Repita comigo por gentileza! " + cleanText;
             }
 
             this.currentRawText = cleanText;
             this.currentCharOffset = 0;
             this.activeButtonEl = buttonEl;
+            this.isRepeatPractice = shouldPrependRepeat;
 
             this._speakFromOffset(0);
         },
@@ -2593,7 +2597,7 @@ Retorne JSON no formato exato:
             } else if (this.speechSynthesis.paused) {
                 this.speechSynthesis.resume();
                 if (playIcon) playIcon.textContent = "⏸️";
-                if (statusText) statusText.textContent = "🔊 Em execução (Repita comigo por gentileza)";
+                if (statusText) statusText.textContent = this.isRepeatPractice ? "🔊 Em execução (Repita comigo por gentileza)" : "🔊 Leitura Diagnóstica em execução";
                 showToast("▶️ Continuando leitura");
             }
         },
@@ -2605,7 +2609,11 @@ Retorne JSON no formato exato:
 
             if (player) player.style.display = "block";
             if (playIcon) playIcon.textContent = "⏸️";
-            if (statusText) statusText.textContent = "🔊 Em execução (Repita comigo por gentileza)";
+            if (statusText) {
+                statusText.textContent = this.isRepeatPractice 
+                    ? "🔊 Em execução (Repita comigo por gentileza)" 
+                    : "🔊 Leitura Diagnóstica em execução";
+            }
 
             if (this.progressInterval) clearInterval(this.progressInterval);
             this.progressInterval = setInterval(() => this.updatePlayerProgress(), 300);
