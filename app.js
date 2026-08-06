@@ -1702,15 +1702,16 @@ Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estru
 
 Definições de conceitos do método:
 - TEMA: O assunto/categoria central, abstrato e atemporal. É o "rótulo" do problema. Não pode conter "quando" ou "com quem". Exemplos: Escassez, Timidez, Rejeição, Ansiedade, Medo de crescer.
-- FATO (MFI): Recorte específico, datável e sintetizado.
-  REGRAS OBRIGATÓRIAS DE SÍNTESE DO FATO:
-  1. INTERPRETAR E RESOLVER AUTO-CORREÇÕES DO CLIENTE: Se o relato contiver hesitações ou correções do próprio cliente (ex: "era do meu pai, na verdade da minha mãe", "ou melhor...", "digo X"), INTERPRETE A CORREÇÃO E USE APENAS A CONCLUSÃO FINAL CORRIGIDA (ex: "repetir um comportamento da minha mãe"). NUNCA inclua frases de auto-correção cruas na frase do fato.
-  2. FLUIDEZ E ENCAIXE EM DECRETOS: Escreva a frase do fato sem pronomes pessoais iniciais ("Eu"), usando infinitivo ou forma nominal para se encaixar com perfeita concordância gramatical nos decretos de liberação (ex: "repetir comportamento da mãe", "mãe ser agressiva na infância").
+- FATOS (MFI): Recortes específicos, datados e sintetizados de TODAS as memórias, episódios ou eventos contados pelo cliente.
+  REGRAS OBRIGATÓRIAS PARA EXTRAÇÃO E SÍNTESE DE FATOS:
+  1. EXTRAIR MÚLTIPLOS FATOS SE HOUVER: Se o relato do cliente contiver mais de um fato, conflito ou memória (ex: briga na infância + demissão recente + cobrança dos pais), A I.A DEVE EXTRAIR TODOS OS FATOS DISTINTOS E RETORNÁ-LOS SEPARADAMENTE NA LISTA "fatos". NUNCA reduza um relato rico a um único fato!
+  2. INTERPRETAR E RESOLVER AUTO-CORREÇÕES DO CLIENTE: Se o relato contiver hesitações ou correções do próprio cliente (ex: "era do meu pai, na verdade da minha mãe", "ou melhor...", "digo X"), INTERPRETE A CORREÇÃO E USE APENAS A CONCLUSÃO FINAL CORRIGIDA.
+  3. FLUIDEZ E ENCAIXE EM DECRETOS: Escreva a frase de cada fato sem pronomes pessoais iniciais ("Eu"), usando infinitivo, substantivo verbal ou forma nominal para se encaixar com perfeita concordância gramatical nos decretos de liberação (ex: "briga pesada com o marido", "pai gritar quando tirava nota baixa", "demissão do primeiro emprego").
 - COMPORTAMENTOS E CONDICIONAMENTOS INCONSCIENTES (MDI): Condicionamentos, crenças implícitas, pensamentos automáticos e comportamentos involuntários que o cliente NÃO ESTÁ CONSEGUINDO VER SOZINHO ao relatar o fato ou problema. A I.A deve analisar com profundidade o fato/queixa e identificar os condicionamentos inconscientes e atitudes reativas que o cliente está sustentando sem perceber.
 - GANHOS APARENTES (MFPI): Forças aparentes que o cliente acha positivas mas o aprisionam (ex: "ser forte o tempo todo", "resolver tudo sozinha").
 - MICROAÇÃO: Orientação comportamental empática e prática, sob medida, para aplicar hoje na rotina.
 - REFLEXAO: Uma frase empática e acolhedora (2-3 linhas) que resume o que você compreendeu da história do cliente.
-- PERGUNTA_APROFUNDAMENTO: Uma única pergunta orgânica, fluida, acolhedora e profunda focada em CONSTATAR os desmembramentos e impactos reais do fato ou queixa relatada.
+- PERGUNTA_APROFUNDAMENTO: Uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas).
   REGRAS OBRIGATÓRIAS PARA A PERGUNTA:
   1. GRAMÁTICA E CONCORDÂNCIA IMPECÁVEIS: Escreva uma pergunta em português 100% natural e gramaticalmente perfeita (atenção rigorosa à concordância de gênero: "essa briga", "este conflito", "essa ausência"). NUNCA use modelos de frases prontas ou substituição mecânica de palavras.
   2. SEM HIPÓTESES ("SE"): JAMAIS pergunte cenários hipotéticos ou como a vida seria se o fato não tivesse acontecido (ex: NUNCA pergunte "como sua vida seria se...").
@@ -1728,8 +1729,12 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "categoria": "Prosperidade, Trabalho, Relacionamentos ou Autoconhecimento",
   "fatos": [
     {
-      "phrase": "mãe/pai/esposa/etc. [ação ou característica]: [detalhe do que aconteceu]",
-      "sentiments": ["lista de sentimentos em minúsculas de: culpa, injustiça, dor, tristeza, solidão, rejeição, desaprovação, carência, raiva, medo"]
+      "phrase": "primeiro fato sintetizado extraído da narrativa",
+      "sentiments": ["lista de sentimentos em minúsculas do primeiro fato: culpa, injustiça, dor, tristeza, solidão, rejeição, raiva, medo"]
+    },
+    {
+      "phrase": "segundo fato sintetizado extraído da narrativa (se houver)",
+      "sentiments": ["lista de sentimentos em minúsculas do segundo fato"]
     }
   ],
   "comportamentos": [
