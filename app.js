@@ -1084,6 +1084,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (activeNav === mTherapist && navTherapist) navTherapist.classList.add("active");
         }
         if (activeSection) activeSection.style.display = "block";
+        updateFaqVisibility();
     }
 
     if (navApp) {
@@ -1836,6 +1837,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
                 if (subStep1a) { subStep1a.style.display = "none"; subStep1a.classList.remove("active"); }
                 if (subExplore) { subExplore.style.display = "block"; setTimeout(() => subExplore.classList.add("active"), 50); }
+                updateFaqVisibility();
 
             } catch (err) {
                 console.error("Erro na triagem por IA:", err);
@@ -2194,6 +2196,7 @@ Retorne JSON no formato exato:
             subExplore.style.display = "none";
             subExplore.classList.remove("active");
         }
+        updateFaqVisibility("step1");
     }
 
     // Tela 2 (Consciência Informacional) -> Tela 3: Ir para Ajustes Informacionais
@@ -2733,6 +2736,27 @@ Retorne JSON no formato exato:
         });
     }
 
+    // Controle Dinâmico de Exibição do F.A.Q (Apenas na página inicial de relato e página de login)
+    function updateFaqVisibility(screenId) {
+        const faqSection = document.querySelector(".faq-section") || document.getElementById("como-funciona");
+        if (!faqSection) return;
+
+        const isAuthActive = screens["auth"] && screens["auth"].classList.contains("active");
+        const subStep1a = document.getElementById("sub-step-1a");
+        const isSubStep1aVisible = subStep1a && (subStep1a.style.display !== "none");
+        const isStep1Active = screens["step1"] && screens["step1"].classList.contains("active");
+        const isHomeWorkspaceActive = sectionApp && (sectionApp.style.display !== "none");
+
+        const isInitialHomePage = isStep1Active && isSubStep1aVisible && isHomeWorkspaceActive;
+        const isLoginPage = isAuthActive || screenId === "auth";
+
+        if (isLoginPage || isInitialHomePage) {
+            faqSection.style.display = "block";
+        } else {
+            faqSection.style.display = "none";
+        }
+    }
+
     // Helper: Mostrar tela específica com interceptações de autenticação e paywall
     function showScreen(screenId) {
         VoiceManager.stopSpeaking();
@@ -2749,6 +2773,7 @@ Retorne JSON no formato exato:
             if (screens["auth"]) screens["auth"].classList.add("active");
             state.currentStep = 0;
             updateUserUI();
+            updateFaqVisibility("auth");
             return;
         }
         
@@ -2759,6 +2784,7 @@ Retorne JSON no formato exato:
                 if (screens["paywall"]) screens["paywall"].classList.add("active");
                 state.currentStep = 0;
                 updateUserUI();
+                updateFaqVisibility("paywall");
                 return;
             }
         }
@@ -2778,6 +2804,7 @@ Retorne JSON no formato exato:
             document.body.classList.remove("mode-therapist");
         }
         updateUserUI();
+        updateFaqVisibility(screenId);
     }
 
     // ==========================================================================
