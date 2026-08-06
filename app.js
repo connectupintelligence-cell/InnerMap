@@ -3323,6 +3323,38 @@ Retorne JSON no formato exato:
         });
     }
 
+    // Helper para higienização e correção de caracteres corrompidos (Mojibake UTF-8)
+    function fixMojibake(str) {
+        if (!str || typeof str !== "string") return str;
+        return str
+            .replace(/Ã£/g, "ã")
+            .replace(/Ã¡/g, "á")
+            .replace(/Ãª/g, "ê")
+            .replace(/Ã§/g, "ç")
+            .replace(/Ã³/g, "ó")
+            .replace(/Ã­/g, "í")
+            .replace(/Ã©/g, "é")
+            .replace(/Ãµ/g, "õ")
+            .replace(/Ã¢/g, "â")
+            .replace(/Ã¼/g, "ü")
+            .replace(/Ã /g, "à")
+            .replace(/Ã\u0081/g, "Á")
+            .replace(/Ã\u0089/g, "É")
+            .replace(/Ã\u008D/g, "Í")
+            .replace(/Ã\u0093/g, "Ó")
+            .replace(/Ã\u009A/g, "Ú")
+            .replace(/Ã\u0083/g, "Ã")
+            .replace(/Ã\u0095/g, "Õ")
+            .replace(/Ã\u0087/g, "Ç")
+            .replace(/âš ï¸ /g, "⚠️")
+            .replace(/âœ“/g, "✓")
+            .replace(/Ã“/g, "Ó")
+            .replace(/estÃ¡/g, "está")
+            .replace(/padrÃ£o/g, "padrão")
+            .replace(/automÃ¡ticas/g, "automáticas")
+            .replace(/informaÃ§Ãµes/g, "informações");
+    }
+
     // Helper: Renderizar Biblioteca (Histórico)
     function renderLibrary() {
         libraryContainer.innerHTML = "";
@@ -3360,6 +3392,12 @@ Retorne JSON no formato exato:
             const listContainer = catSection.querySelector(".library-items-list");
             
             grouped[cat].forEach(item => {
+                const cleanPhrase = fixMojibake(item.phrase);
+                const cleanAjuste = fixMojibake(item.data ? item.data.ajuste : 'Nenhum');
+                const cleanEspecifica = fixMojibake(item.data ? item.data.declaracaoEspecifica : '');
+                const cleanNaoEspecifica = fixMojibake(item.data ? item.data.declaracaoNaoEspecifica : '');
+                const cleanMicroacao = fixMojibake(item.data ? item.data.microacao : 'Nenhuma');
+
                 const card = document.createElement("div");
                 card.className = "library-item-card";
                 card.innerHTML = `
@@ -3367,28 +3405,28 @@ Retorne JSON no formato exato:
                         <span class="card-date">${item.date}</span>
                         <span class="card-status-pill">${item.rating}</span>
                     </div>
-                    <p class="card-phrase">"<strong>${item.phrase}</strong>"</p>
+                    <p class="card-phrase">"<strong>${cleanPhrase}</strong>"</p>
                     <div class="card-details" style="display: none;">
                         <div class="card-divider"></div>
                         <div class="detail-section">
                             <strong>Ajuste Observado:</strong>
-                            <p>${item.data.ajuste || 'Nenhum'}</p>
+                            <p>${cleanAjuste}</p>
                         </div>
-                        ${item.data && item.data.declaracaoEspecifica ? `
+                        ${cleanEspecifica ? `
                         <div class="detail-section">
                             <strong>Liberação de Registros Específicos (1x na vida):</strong>
-                            <p class="hqi-box" style="background: rgba(234, 67, 53, 0.03); border: 1px solid rgba(234, 67, 53, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem;">${item.data.declaracaoEspecifica}</p>
+                            <p class="hqi-box" style="background: rgba(234, 67, 53, 0.03); border: 1px solid rgba(234, 67, 53, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem;">${cleanEspecifica}</p>
                         </div>
                         ` : ''}
-                        ${item.data && item.data.declaracaoNaoEspecifica ? `
+                        ${cleanNaoEspecifica ? `
                         <div class="detail-section">
                             <strong>Liberação dos Não Específicos (1x por dia / 15 dias):</strong>
-                            <p class="hqi-box-fortify" style="background: rgba(102, 252, 241, 0.03); border: 1px solid rgba(102, 252, 241, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem; color: var(--color-primary);">${item.data.declaracaoNaoEspecifica}</p>
+                            <p class="hqi-box-fortify" style="background: rgba(102, 252, 241, 0.03); border: 1px solid rgba(102, 252, 241, 0.1); border-radius: 6px; padding: 0.5rem; font-family: monospace; white-space: pre-wrap; font-size: 0.82rem; color: var(--color-primary);">${cleanNaoEspecifica}</p>
                         </div>
                         ` : ''}
                         <div class="detail-section">
                             <strong>Ação de Integração:</strong>
-                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">🎯 ${item.data.microacao || 'Nenhuma'}</p>
+                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">🎯 ${cleanMicroacao}</p>
                         </div>
                     </div>
                     <button class="btn-toggle-details">Ver detalhes ↓</button>
@@ -3554,7 +3592,7 @@ Retorne JSON no formato exato:
                         
                         let contextBlock = "";
                         if (relevantMatches.length > 0) {
-                            contextBlock = `--- MEMÃ“RIA INTELIGENTE (Histórico relevante recuperado) ---\n`;
+                            contextBlock = `--- MEMÓRIA INTELIGENTE (Histórico relevante recuperado) ---\n`;
                             relevantMatches.forEach((m, idx) => {
                                 contextBlock += `- Registro antigo ${idx+1}: '${m.phrase}' | Feedback emocional pós-prática: ${m.rating}\n`;
                             });
