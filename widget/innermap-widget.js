@@ -217,7 +217,7 @@
       isOpen = !isOpen;
       box.classList.toggle('open', isOpen);
       if (isOpen && messages.length === 0) {
-        const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao Innermap.\n\nEstou aqui para tirar dúvidas sobre psicoterapia, apresentar o Método InnerMap ou te ajudar a organizar seu agendamento.\n\nComo posso te apoiar hoje?';
+        const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao Innermap.\n\nEstou aqui para tirar dúvidas sobre a terapia, apresentar o Método InnerMap ou te ajudar a organizar seu agendamento com um profissional qualificado.\n\nComo posso te apoiar hoje?';
         messages.push({ role: 'assistant', content: welcomeTxt });
         appendMessage('assistant', welcomeTxt, null, [
           'Quero agendar uma sessão',
