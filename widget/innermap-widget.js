@@ -217,7 +217,7 @@
       isOpen = !isOpen;
       box.classList.toggle('open', isOpen);
       if (isOpen && messages.length === 0) {
-        const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao Innermap.\n\nEstou aqui para tirar dúvidas sobre a terapia, apresentar o Método InnerMap ou te ajudar a organizar seu agendamento para atendimento individual online com um profissional qualificado.\n\nPara começarmos, qual o seu Nome, E-mail e WhatsApp?';
+        const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao InnerMap. 😊\n\nEstou aqui para te ouvir, tirar dúvidas sobre a abordagem informacional ou te ajudar no uso do aplicativo.\n\nComo posso te apoiar hoje?';
         messages.push({ role: 'assistant', content: welcomeTxt });
         appendMessage('assistant', welcomeTxt, null, [
           'Como funciona o aplicativo INNERMAP',
