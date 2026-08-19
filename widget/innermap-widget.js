@@ -194,7 +194,7 @@
 
         let chips = null;
         if (messages.length <= 2) {
-          chips = ['Quero agendar uma sessão', 'O que é o Método InnerMap?', 'Como funciona a 1ª sessão?', 'Entender Ansiedade'];
+          chips = ['Como funciona o aplicativo INNERMAP', 'Quero agendar uma sessão', 'O que é o Método InnerMap?', 'Como funciona a 1ª sessão?'];
         }
 
         appendMessage('assistant', data.reply, null, chips);
@@ -220,10 +220,10 @@
         const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao Innermap.\n\nEstou aqui para tirar dúvidas sobre a terapia, apresentar o Método InnerMap ou te ajudar a organizar seu agendamento com um profissional qualificado.\n\nComo posso te apoiar hoje?';
         messages.push({ role: 'assistant', content: welcomeTxt });
         appendMessage('assistant', welcomeTxt, null, [
+          'Como funciona o aplicativo INNERMAP',
           'Quero agendar uma sessão',
           'O que é o Método InnerMap?',
-          'Como funciona a 1ª sessão?',
-          'Entender Ansiedade'
+          'Como funciona a 1ª sessão?'
         ]);
       }
     });
