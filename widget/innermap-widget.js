@@ -9,7 +9,7 @@
   window.InnerMapWidgetInitialized = true;
 
   const CONFIG = {
-    apiEndpoint: window.INNERMAP_API_URL || 'https://innermap-agent-api.brave-tuesday.workers.dev/api/chat',
+    apiEndpoint: window.INNERMAP_API_URL || 'https://innermap-agent-api.glamorous-ant.workers.dev/api/chat',
     title: 'Innermap Atendimento',
     subtitle: 'Acolhimento & Triagem'
   };
