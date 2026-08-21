@@ -10,7 +10,7 @@
   window.InnerMapWidgetInitialized = true;
 
   const CONFIG = {
-    apiEndpoint: window.INNERMAP_API_URL || 'https://innermap-agent-api.glamorous-ant.workers.dev/api/chat',
+    apiEndpoint: window.INNERMAP_API_URL || 'https://innermap-agent-api.ordinary-fright.workers.dev/api/chat',
     title: 'InnerMap',
     subtitle: 'Atendimento & Acolhimento'
   };
