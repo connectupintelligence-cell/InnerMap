@@ -1487,14 +1487,16 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAprofundamentoCounter();
     }
 
-    // Helper para chamadas de IA via Groq com fallback automático de modelos
+    // Helper para chamadas de IA via Groq com fallback automático de modelos e parâmetros
     async function fetchGroqCompletion(apiKey, basePayload) {
         const modelsToTry = [
             "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
             "llama-3.1-70b-versatile",
             "llama3-70b-8192",
             "llama3-8b-8192",
-            "mixtral-8x7b-32768"
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it"
         ];
 
         let lastResponse = null;
@@ -1519,18 +1521,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 lastResponse = res;
                 const errText = await res.text();
                 lastErrorText = errText;
-                console.warn(`Groq modelo '${model}' falhou (${res.status}):`, errText);
+                console.warn(`Groq modelo '${model}' retornou status ${res.status}:`, errText);
 
-                // Se o erro NÃO for 404/model_not_found, interromper a tentativa de outros modelos
-                if (res.status !== 404 && !errText.includes("model_not_found")) {
-                    return res;
+                // Se o erro for 400 por causa de response_format, tenta o mesmo modelo sem response_format
+                if (res.status === 400 && basePayload.response_format) {
+                    console.warn(`Tentando modelo '${model}' sem response_format...`);
+                    const bodyWithoutFormat = Object.assign({}, basePayload, { model: model });
+                    delete bodyWithoutFormat.response_format;
+
+                    const res2 = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify(bodyWithoutFormat)
+                    });
+
+                    if (res2.ok) return res2;
                 }
             } catch (err) {
                 console.warn(`Erro na tentativa do modelo '${model}':`, err);
             }
         }
 
-        return lastResponse || new Response(JSON.stringify({ error: { message: lastErrorText || "Modelos Groq indisponíveis." } }), { status: 404 });
+        return lastResponse || new Response(JSON.stringify({ error: { message: lastErrorText || "Modelos Groq indisponíveis no momento." } }), { status: 400 });
     }
 
     // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
@@ -2019,8 +2034,21 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 updateFaqVisibility();
 
             } catch (err) {
-                console.error("Erro na triagem por IA:", err);
-                alert("Não foi possível realizar a triagem automática. Detalhe do erro: " + err.message);
+                console.warn("Instabilidade/erro na API de IA. Ativando Motor Local de Reorganização Informacional:", err);
+                showToast("Processando reorganização no modo inteligente local...");
+
+                // Fallback gracioso para o Motor Local sem travar a experiência do cliente
+                state.relatoOriginal = relato;
+                state.tempTheme = relato.length > 30 ? relato.substring(0, 30) + "..." : relato;
+                state.customLlmAjuste = `O relato de "${relato}" sinaliza um padrão que busca reorganização, clareza e fortalecimento consciente no presente.`;
+                state.customLlmMovimento = "Acolha esta percepção com presença e direcione sua atenção para o cultivo diário das suas virtudes e metas.";
+                state.customLlmMicroaction = "Praticar os decretos afirmativos diariamente com calma e constância.";
+                state.customLlmDeclaracaoFortalecimento = ReorganizationEngine.generateEuEscolhoManifesto(relato);
+                state.isHereditary = state.selectedMode === 3 ? false : true;
+                state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
+
+                // Avançar direto para a emissão dos ajustes informacionais
+                triggerFinalGeneration();
             } finally {
                 btnRunAiAnalysis.disabled = false;
                 if (aiSpinner) aiSpinner.style.display = "none";
