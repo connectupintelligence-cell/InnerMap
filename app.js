@@ -1487,6 +1487,52 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAprofundamentoCounter();
     }
 
+    // Helper para chamadas de IA via Groq com fallback automático de modelos
+    async function fetchGroqCompletion(apiKey, basePayload) {
+        const modelsToTry = [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-70b-versatile",
+            "llama3-70b-8192",
+            "llama3-8b-8192",
+            "mixtral-8x7b-32768"
+        ];
+
+        let lastResponse = null;
+        let lastErrorText = "";
+
+        for (const model of modelsToTry) {
+            try {
+                const bodyPayload = Object.assign({}, basePayload, { model: model });
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                if (res.ok) {
+                    return res;
+                }
+
+                lastResponse = res;
+                const errText = await res.text();
+                lastErrorText = errText;
+                console.warn(`Groq modelo '${model}' falhou (${res.status}):`, errText);
+
+                // Se o erro NÃO for 404/model_not_found, interromper a tentativa de outros modelos
+                if (res.status !== 404 && !errText.includes("model_not_found")) {
+                    return res;
+                }
+            } catch (err) {
+                console.warn(`Erro na tentativa do modelo '${model}':`, err);
+            }
+        }
+
+        return lastResponse || new Response(JSON.stringify({ error: { message: lastErrorText || "Modelos Groq indisponíveis." } }), { status: 404 });
+    }
+
     // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
     async function generateMgiCommands(tema) {
         if (!tema || !tema.trim()) tema = "esta queixa";
@@ -1509,10 +1555,9 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
   "vivenciei": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)"
 }`;
 
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMgi }] })
+                const res = await fetchGroqCompletion(state.apiKey, {
+                    response_format: { type: "json_object" },
+                    messages: [{ role: "user", content: promptMgi }]
                 });
 
                 if (res.ok) {
@@ -1897,17 +1942,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 let response;
 
                 if (isGroq) {
-                    response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: "llama-3.3-70b-versatile",
-                            response_format: { type: "json_object" },
-                            messages: [{ role: "user", content: prompt }]
-                        })
+                    response = await fetchGroqCompletion(apiKey, {
+                        response_format: { type: "json_object" },
+                        messages: [{ role: "user", content: prompt }]
                     });
                 } else {
                     const geminiUrl = isLegacyGemini
@@ -2043,10 +2080,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
                     let mergeResponse;
                     if (state.apiKey && state.apiKey.startsWith("gsk_")) {
-                        mergeResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                            body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                        mergeResponse = await fetchGroqCompletion(state.apiKey, {
+                            response_format: { type: "json_object" },
+                            messages: [{ role: "user", content: promptMerge }]
                         });
                         if (mergeResponse.ok) {
                             const mergeData = await mergeResponse.json();
@@ -2107,10 +2143,9 @@ Retorne JSON no formato exato:
   "sentiments": ["culpa", "dor", "tristeza", "raiva", "medo", "insegurança"]
 }`;
 
-                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                        body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptExtract }] })
+                    const res = await fetchGroqCompletion(state.apiKey, {
+                        response_format: { type: "json_object" },
+                        messages: [{ role: "user", content: promptExtract }]
                     });
 
                     if (res.ok) {
@@ -2188,10 +2223,8 @@ Retorne JSON no formato exato:
 
             let response;
             if (state.apiKey.startsWith("gsk_")) {
-                response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }] })
+                response = await fetchGroqCompletion(state.apiKey, {
+                    messages: [{ role: "user", content: prompt }]
                 });
                 if (!response.ok) return rawText;
                 const data = await response.json();
