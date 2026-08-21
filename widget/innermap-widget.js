@@ -135,7 +135,7 @@
     if (lower.includes('aplicativo') || lower.includes('app')) {
       return {
         isCrisis: false,
-        reply: 'Como funciona o aplicativo InnerMap:\n\nO aplicativo InnerMap guia você na identificação de registros e padrões emocionais limitantes através da Abordagem Informacional.\n\nCom ele, você pode:\n• Relatar desconfortos recentes ou históricos e receber uma análise guiada.\n• Praticar a reorganização nos 4 movimentos (MSI, MFI, MRI e MGI) para liberar o passado e alinhar novas escolhas.\n• Acompanhar sua agenda de práticas de forma simples e intuitiva.\n\nComo posso te ajudar no uso do aplicativo hoje?'
+        reply: 'O InnerMap é um aplicativo que organiza suas informações e emoções em quatro movimentos simples, ajudando você a ter clareza e agir de forma mais consciente.\n\nComo funciona:\n\n1. Desconforto Recente: Permite relatar um fato ou conflito atual que você esteja vivenciando para receber uma análise guiada e liberação prática.\n\n2. História / Passado: Investiga memórias da sua infância, histórico familiar ou antepassados para identificar e ressignificar padrões herdados.\n\n3. Motivação Rápida: Oferece fortalecimento, clareza e foco prático para o seu dia ou semana.\n\n4. Reorganização Profunda: Proporciona um panorama completo da sua jornada para uma transformação emocional consistente.\n\nVocê relata o que está sentindo e a nossa inteligência ajuda a construir a sua prática de liberação personalizada!\n\nComo posso te ajudar no uso do aplicativo hoje?'
       };
     }
 
