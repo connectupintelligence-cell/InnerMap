@@ -1,5 +1,6 @@
 /**
  * INNERMAP CHAT WIDGET ENGINE (WaveQuantum / Innermap.com.br Integration)
+ * Com Logo Oficial do InnerMap no Header, Trigger e Avatares de Mensagem
  */
 
 (function () {
@@ -10,9 +11,31 @@
 
   const CONFIG = {
     apiEndpoint: window.INNERMAP_API_URL || 'https://innermap-agent-api.glamorous-ant.workers.dev/api/chat',
-    title: 'Innermap Atendimento',
-    subtitle: 'Acolhimento & Triagem'
+    title: 'InnerMap',
+    subtitle: 'Atendimento & Acolhimento'
   };
+
+  const INNERMAP_LOGO_SVG = `
+    <svg class="innermap-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="im-widget-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#66FCF1" />
+          <stop offset="50%" stop-color="#a855f7" />
+          <stop offset="100%" stop-color="#8A2BE2" />
+        </linearGradient>
+        <filter id="im-logo-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="2" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+      <circle cx="50" cy="50" r="44" fill="none" stroke="url(#im-widget-logo-grad)" stroke-width="3" stroke-dasharray="12 6" opacity="0.5"/>
+      <path d="M 22 50 C 35 25, 45 25, 50 50 C 55 75, 65 75, 78 50" fill="none" stroke="url(#im-widget-logo-grad)" stroke-width="5" stroke-linecap="round" filter="url(#im-logo-glow)"/>
+      <path d="M 25 50 C 38 68, 45 68, 50 50 C 55 32, 62 32, 75 50" fill="none" stroke="url(#im-widget-logo-grad)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+      <circle cx="50" cy="50" r="7" fill="url(#im-widget-logo-grad)"/>
+      <circle cx="35" cy="37.5" r="3.5" fill="#66FCF1"/>
+      <circle cx="65" cy="62.5" r="3.5" fill="#8A2BE2"/>
+    </svg>
+  `;
 
   let messages = [];
   let isOpen = false;
@@ -26,6 +49,7 @@
       link.href = 'https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css';
       document.head.appendChild(link);
     }
+
     if (!document.getElementById('innermap-widget-css')) {
       const linkCss = document.createElement('link');
       linkCss.id = 'innermap-widget-css';
@@ -43,12 +67,12 @@
         <div class="innermap-widget-header">
           <div class="innermap-header-info">
             <div class="innermap-avatar">
-              <i class="ri-heart-pulse-fill"></i>
+              ${INNERMAP_LOGO_SVG}
             </div>
             <div>
               <div class="innermap-header-title">${CONFIG.title}</div>
               <div class="innermap-header-subtitle">
-                <span class="status-dot"></span> Online agora
+                <span class="status-dot"></span> ${CONFIG.subtitle}
               </div>
             </div>
           </div>
@@ -72,9 +96,12 @@
         </div>
       </div>
 
-      <button class="innermap-widget-trigger" id="imTriggerBtn" title="Falar com o Innermap">
+      <button class="innermap-widget-trigger" id="imTriggerBtn" title="Falar com o InnerMap">
         <span class="unread-badge"></span>
-        <i class="ri-chat-3-line"></i>
+        <div class="im-trigger-icon-logo">
+          ${INNERMAP_LOGO_SVG}
+        </div>
+        <i class="ri-close-line im-trigger-icon-close"></i>
       </button>
     `;
 
@@ -87,6 +114,11 @@
 
     const row = document.createElement('div');
     row.className = `im-msg-row ${role}`;
+
+    let avatarHtml = '';
+    if (role === 'assistant') {
+      avatarHtml = `<div class="im-msg-avatar">${INNERMAP_LOGO_SVG}</div>`;
+    }
 
     let contentHtml = `<div class="im-msg-bubble">${escapeHtml(text)}</div>`;
 
@@ -113,152 +145,152 @@
       `;
 
       const input = document.getElementById('imInput');
-      const sendBtn = document.getElementById('imSendBtn');
       if (input) {
         input.disabled = true;
         input.placeholder = 'Atendimento suspenso para suporte a emergência.';
       }
-      if (sendBtn) sendBtn.disabled = true;
     }
 
-    if (quickReplies && Array.isArray(quickReplies) && quickReplies.length > 0 && !isCrisisMode) {
-      contentHtml += `<div class="im-quick-replies">`;
-      quickReplies.forEach(chipText => {
-        contentHtml += `<button class="im-chip" data-chip="${escapeHtml(chipText)}">${escapeHtml(chipText)}</button>`;
+    row.innerHTML = avatarHtml + `<div class="im-msg-content-wrap">${contentHtml}</div>`;
+    chatBody.appendChild(row);
+
+    if (quickReplies && quickReplies.length > 0 && !isCrisisMode) {
+      const chipContainer = document.createElement('div');
+      chipContainer.className = 'im-quick-replies';
+      quickReplies.forEach(replyText => {
+        const chip = document.createElement('button');
+        chip.className = 'im-quick-chip';
+        chip.innerText = replyText;
+        chip.onclick = () => {
+          chipContainer.remove();
+          sendMessage(replyText);
+        };
+        chipContainer.appendChild(chip);
       });
-      contentHtml += `</div>`;
+      chatBody.appendChild(chipContainer);
     }
 
-    row.innerHTML = contentHtml;
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function showTypingIndicator() {
+    const chatBody = document.getElementById('imChatBody');
+    if (!chatBody) return;
+    const row = document.createElement('div');
+    row.className = 'im-msg-row assistant typing-row';
+    row.id = 'imTypingIndicator';
+    row.innerHTML = `
+      <div class="im-msg-avatar">${INNERMAP_LOGO_SVG}</div>
+      <div class="im-msg-content-wrap">
+        <div class="im-msg-bubble im-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    `;
     chatBody.appendChild(row);
     chatBody.scrollTop = chatBody.scrollHeight;
   }
 
-  function showTyping() {
-    const chatBody = document.getElementById('imChatBody');
-    if (!chatBody || document.getElementById('imTypingElem')) return;
-
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'im-msg-row assistant';
-    typingDiv.id = 'imTypingElem';
-    typingDiv.innerHTML = `
-      <div class="im-typing">
-        <div class="im-typing-dot"></div>
-        <div class="im-typing-dot"></div>
-        <div class="im-typing-dot"></div>
-      </div>
-    `;
-    chatBody.appendChild(typingDiv);
-    chatBody.scrollTop = chatBody.scrollHeight;
+  function removeTypingIndicator() {
+    const typing = document.getElementById('imTypingIndicator');
+    if (typing) typing.remove();
   }
 
-  function hideTyping() {
-    const elem = document.getElementById('imTypingElem');
-    if (elem) elem.remove();
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, function (m) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-    });
-  }
-
-  async function sendMessage(textToSend) {
-    const text = textToSend || (document.getElementById('imInput').value || '').trim();
-    if (!text || isCrisisMode) return;
+  async function sendMessage(textOverride = null) {
+    if (isCrisisMode) return;
 
     const input = document.getElementById('imInput');
+    const userText = textOverride || (input ? input.value.trim() : '');
+    if (!userText) return;
+
     if (input) input.value = '';
 
-    messages.push({ role: 'user', content: text });
-    appendMessage('user', text);
-
-    showTyping();
+    messages.push({ role: 'user', content: userText });
+    appendMessage('user', userText);
+    showTypingIndicator();
 
     try {
-      const response = await fetch(CONFIG.apiEndpoint, {
+      const res = await fetch(CONFIG.apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages })
       });
 
-      const data = await response.json();
-      hideTyping();
+      const data = await res.json();
+      removeTypingIndicator();
 
       if (data.isCrisis) {
         messages.push({ role: 'assistant', content: data.reply });
         appendMessage('assistant', data.reply, data.crisisData);
-      } else if (data.reply) {
+      } else {
         messages.push({ role: 'assistant', content: data.reply });
-
-        let chips = null;
-        if (messages.length <= 2) {
-          chips = ['Como funciona o aplicativo INNERMAP', 'Quero agendar uma sessão', 'O que é o Método InnerMap?', 'Como funciona a 1ª sessão?'];
-        }
-
-        appendMessage('assistant', data.reply, null, chips);
+        appendMessage('assistant', data.reply);
       }
     } catch (err) {
-      hideTyping();
-      appendMessage('assistant', 'Desculpe, ocorreu uma instabilidade de conexão. Por favor, tente novamente em instantes.');
+      removeTypingIndicator();
+      const fallbackTxt = 'Desculpe, ocorreu uma instabilidade momentânea na conexão. Por favor, tente novamente em instantes.';
+      appendMessage('assistant', fallbackTxt);
     }
   }
 
-  function initEvents() {
-    const triggerBtn = document.getElementById('imTriggerBtn');
-    const closeBtn = document.getElementById('imCloseBtn');
+  function toggleWidget() {
     const box = document.getElementById('imWidgetBox');
-    const sendBtn = document.getElementById('imSendBtn');
-    const input = document.getElementById('imInput');
-    const chatBody = document.getElementById('imChatBody');
-
-    triggerBtn.addEventListener('click', () => {
+    const trigger = document.getElementById('imTriggerBtn');
+    if (box) {
       isOpen = !isOpen;
       box.classList.toggle('open', isOpen);
+      if (trigger) trigger.classList.toggle('open', isOpen);
+
       if (isOpen && messages.length === 0) {
         const welcomeTxt = 'Olá! Seja muito bem-vindo(a) ao InnerMap. 😊\n\nEstou aqui para te ouvir, tirar dúvidas sobre a abordagem informacional ou te ajudar no uso do aplicativo.\n\nPara começarmos de forma mais próxima, como posso te chamar?';
         messages.push({ role: 'assistant', content: welcomeTxt });
         appendMessage('assistant', welcomeTxt, null, [
           'Como funciona o aplicativo INNERMAP',
-          'Quero agendar uma sessão',
-          'O que é o Método InnerMap?',
-          'Como funciona a 1ª sessão?'
+          'O que é o Método InnerMap',
+          'Agendar consulta online'
         ]);
       }
-    });
-
-    closeBtn.addEventListener('click', () => {
-      isOpen = false;
-      box.classList.remove('open');
-    });
-
-    sendBtn.addEventListener('click', () => sendMessage());
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    chatBody.addEventListener('click', (e) => {
-      const chip = e.target.closest('.im-chip');
-      if (chip) {
-        const text = chip.getAttribute('data-chip');
-        if (text) sendMessage(text);
-      }
-    });
+    }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      injectDependencies();
-      createWidgetDOM();
-      initEvents();
-    });
-  } else {
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML.replace(/\n/g, '<br/>');
+  }
+
+  function bindEvents() {
+    const trigger = document.getElementById('imTriggerBtn');
+    const closeBtn = document.getElementById('imCloseBtn');
+    const sendBtn = document.getElementById('imSendBtn');
+    const input = document.getElementById('imInput');
+
+    if (trigger) trigger.onclick = toggleWidget;
+    if (closeBtn) closeBtn.onclick = toggleWidget;
+    if (sendBtn) sendBtn.onclick = () => sendMessage();
+
+    if (input) {
+      input.onkeypress = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage();
+        }
+      };
+    }
+  }
+
+  function init() {
     injectDependencies();
-    createWidgetDOM();
-    initEvents();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        createWidgetDOM();
+        bindEvents();
+      });
+    } else {
+      createWidgetDOM();
+      bindEvents();
+    }
   }
+
+  init();
 })();
