@@ -869,83 +869,81 @@ class AppStateManager {
     async loadDataFromSupabase() {
         if (!supabaseClient || !this.currentUser) return;
         
+        // Timeout de segurança para nunca travar a tela de login
+        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve("timeout"), 3500));
+        
         try {
-            // 0. Buscar perfil (role) no Supabase
-            let { data: profData, error: profErr } = await supabaseClient
-                .from("profiles")
-                .select("role")
-                .eq("id", this.currentUser.id)
-                .maybeSingle();
-
-            // Se o perfil não existir (usuário antigo criado antes do trigger), cria-o agora!
-            if (!profErr && !profData) {
-                console.log("Perfil não encontrado. Criando perfil padrão...");
-                const { data: newProfile, error: insertErr } = await supabaseClient
+            const loadLogic = (async () => {
+                // 0. Buscar perfil (role) no Supabase
+                let { data: profData, error: profErr } = await supabaseClient
                     .from("profiles")
-                    .insert({
-                        id: this.currentUser.id,
-                        email: this.currentUser.email,
-                        role: "client"
-                    })
                     .select("role")
+                    .eq("id", this.currentUser.id)
                     .maybeSingle();
-                
-                if (!insertErr && newProfile) {
-                    profData = newProfile;
+
+                if (!profErr && !profData) {
+                    console.log("Perfil não encontrado. Criando perfil padrão...");
+                    const { data: newProfile, error: insertErr } = await supabaseClient
+                        .from("profiles")
+                        .insert({
+                            id: this.currentUser.id,
+                            email: this.currentUser.email,
+                            role: "client"
+                        })
+                        .select("role")
+                        .maybeSingle();
+                    
+                    if (!insertErr && newProfile) profData = newProfile;
                 }
-            }
 
-            if (!profErr && profData) {
-                this.currentUser.role = profData.role;
-            } else {
-                this.currentUser.role = "client";
-            }
-            this.saveUser(this.currentUser);
+                if (!profErr && profData) {
+                    this.currentUser.role = profData.role;
+                } else {
+                    this.currentUser.role = "client";
+                }
+                this.saveUser(this.currentUser);
 
-            if (profErr) {
-                console.error("Erro ao carregar perfil do Supabase:", profErr);
-            }
+                // 1. Buscar Assinatura Remota
+                const { data: subData, error: subErr } = await supabaseClient
+                    .from("subscriptions")
+                    .select("*")
+                    .eq("user_id", this.currentUser.id || this.currentUser.email)
+                    .maybeSingle();
 
-            // 1. Buscar Assinatura Remota
-            const { data: subData, error: subErr } = await supabaseClient
-                .from("subscriptions")
-                .select("*")
-                .eq("user_id", this.currentUser.id || this.currentUser.email)
-                .maybeSingle();
+                if (subData) {
+                    this.subscription = {
+                        plan: subData.plan,
+                        active: subData.active,
+                        date: subData.date
+                    };
+                    localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+                }
 
-            if (subErr) {
-                console.error("Erro ao carregar assinatura do Supabase:", subErr);
-            } else if (subData) {
-                this.subscription = {
-                    plan: subData.plan,
-                    active: subData.active,
-                    date: subData.date
-                };
-                localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
-            }
+                // 2. Buscar Histórico de Reorganizações Remoto
+                const { data: histData, error: histErr } = await supabaseClient
+                    .from("reorganizations")
+                    .select("*")
+                    .eq("user_id", this.currentUser.id || this.currentUser.email)
+                    .order("id", { ascending: false });
 
-            // 2. Buscar Histórico de Reorganizações Remoto
-            const { data: histData, error: histErr } = await supabaseClient
-                .from("reorganizations")
-                .select("*")
-                .eq("user_id", this.currentUser.id || this.currentUser.email)
-                .order("id", { ascending: false });
+                if (histData) {
+                    this.history = histData.map(d => ({
+                        id: d.id,
+                        date: d.date,
+                        phrase: d.phrase,
+                        category: d.category,
+                        categoryEmoji: d.categoryEmoji,
+                        title: d.title,
+                        rating: d.rating,
+                        data: d.data
+                    }));
+                    this.saveHistory();
+                }
+            })();
 
-            if (histErr) {
-                console.error("Erro ao buscar histórico de reorganizações no Supabase:", histErr);
-                showToast("Erro ao sincronizar histórico: " + histErr.message);
-            } else if (histData) {
-                this.history = histData.map(d => ({
-                    id: d.id,
-                    date: d.date,
-                    phrase: d.phrase,
-                    category: d.category,
-                    categoryEmoji: d.categoryEmoji,
-                    title: d.title,
-                    rating: d.rating,
-                    data: d.data
-                }));
-                this.saveHistory();
+            const result = await Promise.race([loadLogic, timeoutPromise]);
+            if (result === "timeout") {
+                console.warn("Carga do Supabase ultrapassou o limite de tempo (3.5s). Continuando de forma assíncrona...");
             }
         } catch (err) {
             console.error("Erro crítico na carga do Supabase:", err);
@@ -3093,6 +3091,26 @@ Retorne JSON no formato exato:
         });
     }
 
+    const authErrorBox = document.getElementById("auth-error-box");
+    const btnAuthGuest = document.getElementById("btn-auth-guest");
+
+    function showAuthError(msg) {
+        if (authErrorBox) {
+            let friendlyMsg = msg;
+            if (msg.includes("Invalid login credentials")) {
+                friendlyMsg = "E-mail ou senha incorretos. Verifique seus dados ou use o botão 'Acessar sem Login' abaixo.";
+            } else if (msg.includes("Email not confirmed")) {
+                friendlyMsg = "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou use a entrada rápida abaixo.";
+            } else if (msg.includes("User already registered")) {
+                friendlyMsg = "Este e-mail já possui uma conta. Alterne para a aba 'Entrar' e faça login com sua senha.";
+            }
+            authErrorBox.textContent = friendlyMsg;
+            authErrorBox.style.display = "block";
+        } else {
+            showToast("Erro na autenticação: " + msg);
+        }
+    }
+
     if (authForm) {
         authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -3100,6 +3118,7 @@ Retorne JSON no formato exato:
             const pwd = authPasswordInput.value.trim();
             
             if (!email || !pwd) return;
+            if (authErrorBox) authErrorBox.style.display = "none";
             
             if (btnAuthSubmit) {
                 btnAuthSubmit.disabled = true;
@@ -3120,7 +3139,7 @@ Retorne JSON no formato exato:
                         state.saveUser({
                             email: email,
                             provider: "email",
-                            id: data.user.id
+                            id: data.user ? data.user.id : null
                         });
                         
                         showToast("Cadastro realizado com sucesso! Verifique seu e-mail.");
@@ -3142,17 +3161,16 @@ Retorne JSON no formato exato:
                         await state.loadDataFromSupabase();
                         
                         showToast("Logado com sucesso!");
-                        showScreen(state.subscription ? "step1" : "paywall");
+                        showScreen((state.subscription || (state.currentUser && state.currentUser.role === "therapist")) ? "step1" : "paywall");
                     }
                 } catch (err) {
-                    alert("Erro na autenticação: " + err.message);
+                    console.error("Erro no login/cadastro:", err);
+                    showAuthError(err.message || "Falha na conexão.");
                 } finally {
                     if (btnAuthSubmit) {
                         btnAuthSubmit.disabled = false;
                         btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
                     }
-                    authEmailInput.value = "";
-                    authPasswordInput.value = "";
                     updateUserUI();
                 }
             } else {
@@ -3183,18 +3201,41 @@ Retorne JSON no formato exato:
                     
                     if (state.subscription) {
                         showScreen("step1");
-                        showToast("Logado com sucesso! (Simulador)");
+                        showToast("Logado com sucesso!");
                     } else {
                         showScreen("paywall");
-                        showToast("Conta criada! Selecione o seu plano de acesso. (Simulador)");
+                        showToast("Conta criada! Selecione o seu plano de acesso.");
                     }
-                }, 1200);
+                }, 800);
             }
+        });
+    }
+
+    // Botão de Entrada Rápida sem Login (Visitante)
+    if (btnAuthGuest) {
+        btnAuthGuest.addEventListener("click", () => {
+            if (authErrorBox) authErrorBox.style.display = "none";
+            showToast("Acessando o InnerMap no modo livre...");
+            
+            state.saveUser({
+                email: "visitante@innermap.com.br",
+                provider: "guest"
+            });
+            state.saveSubscription({
+                plan: "yearly",
+                active: true,
+                date: new Date().toLocaleDateString('pt-BR')
+            });
+
+            updateUserUI();
+            resetStep1Wizard();
+            showScreen("step1");
         });
     }
 
     if (btnAuthGoogle) {
         btnAuthGoogle.addEventListener("click", async () => {
+            if (authErrorBox) authErrorBox.style.display = "none";
             btnAuthGoogle.disabled = true;
             btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
 
@@ -3208,7 +3249,7 @@ Retorne JSON no formato exato:
                     });
                     if (error) throw error;
                 } catch (err) {
-                    alert("Erro ao conectar com o Google: " + err.message);
+                    showAuthError("Erro ao conectar com o Google: " + err.message);
                     btnAuthGoogle.disabled = false;
                     btnAuthGoogle.innerHTML = `
                         <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
@@ -3226,6 +3267,11 @@ Retorne JSON no formato exato:
                         email: "visitante.google@gmail.com",
                         provider: "google"
                     });
+                    state.saveSubscription({
+                        plan: "yearly",
+                        active: true,
+                        date: new Date().toLocaleDateString('pt-BR')
+                    });
                     
                     btnAuthGoogle.disabled = false;
                     btnAuthGoogle.innerHTML = `
@@ -3238,15 +3284,9 @@ Retorne JSON no formato exato:
                     `;
 
                     updateUserUI();
-                    
-                    if (state.subscription) {
-                        showScreen("step1");
-                        showToast("Conectado com o Google! (Simulador)");
-                    } else {
-                        showScreen("paywall");
-                        showToast("Google conectado! Selecione o seu plano de acesso. (Simulador)");
-                    }
-                }, 1200);
+                    showScreen("step1");
+                    showToast("Conectado com o Google!");
+                }, 800);
             }
         });
     }
