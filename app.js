@@ -3092,15 +3092,14 @@ Retorne JSON no formato exato:
     }
 
     const authErrorBox = document.getElementById("auth-error-box");
-    const btnAuthGuest = document.getElementById("btn-auth-guest");
 
     function showAuthError(msg) {
         if (authErrorBox) {
             let friendlyMsg = msg;
             if (msg.includes("Invalid login credentials")) {
-                friendlyMsg = "E-mail ou senha incorretos. Verifique seus dados ou use o botão 'Acessar sem Login' abaixo.";
+                friendlyMsg = "E-mail ou senha incorretos. Verifique seus dados e tente novamente.";
             } else if (msg.includes("Email not confirmed")) {
-                friendlyMsg = "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada ou use a entrada rápida abaixo.";
+                friendlyMsg = "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada.";
             } else if (msg.includes("User already registered")) {
                 friendlyMsg = "Este e-mail já possui uma conta. Alterne para a aba 'Entrar' e faça login com sua senha.";
             }
@@ -3208,28 +3207,6 @@ Retorne JSON no formato exato:
                     }
                 }, 800);
             }
-        });
-    }
-
-    // Botão de Entrada Rápida sem Login (Visitante)
-    if (btnAuthGuest) {
-        btnAuthGuest.addEventListener("click", () => {
-            if (authErrorBox) authErrorBox.style.display = "none";
-            showToast("Acessando o InnerMap no modo livre...");
-            
-            state.saveUser({
-                email: "visitante@innermap.com.br",
-                provider: "guest"
-            });
-            state.saveSubscription({
-                plan: "yearly",
-                active: true,
-                date: new Date().toLocaleDateString('pt-BR')
-            });
-
-            updateUserUI();
-            resetStep1Wizard();
-            showScreen("step1");
         });
     }
 
