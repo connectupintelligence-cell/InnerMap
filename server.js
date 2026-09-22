@@ -21,6 +21,7 @@ const server = http.createServer((req, res) => {
     if (reqUrl === '/') reqUrl = '/index.html';
     else if (reqUrl === '/teste' || reqUrl === '/teste/') reqUrl = '/teste/index.html';
     else if (reqUrl === '/testedeperfil' || reqUrl === '/testedeperfil/') reqUrl = '/testedeperfil/index.html';
+    else if (reqUrl === '/testemascaras' || reqUrl === '/testemascaras/') reqUrl = '/testemascaras/index.html';
 
     let filePath = path.join(PUBLIC_DIR, reqUrl);
     const ext = path.extname(filePath).toLowerCase();
