@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qual máscara você usa nos relacionamentos? | InnerMap Teste de Perfil</title>
+    <meta name="description" content="Descubra em 3 minutos o padrão que pode estar te afastando da família que você quer construir.">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    
+    <!-- Open Graph / Meta Tag de Compartilhamento -->
+    <meta property="og:title" content="Qual máscara você usa nos relacionamentos? | InnerMap">
+    <meta property="og:description" content="Descubra em 3 minutos o padrão invisível nos seus relacionamentos.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.innermap.com.br/teste">
+
+    <style>
+        :root {
+            --bg-top: #0D0B14;
+            --bg-bottom: #2A1F3D;
+            --gold-primary: #E8A855;
+            --gold-light: #FDF1DC;
+            --gold-glow: rgba(232, 168, 85, 0.25);
+            --text-main: #F2E6D0;
+            --text-muted: #B8A9C9;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(232, 168, 85, 0.18);
+            --card-hover: rgba(232, 168, 85, 0.12);
+            
+            /* Cores das Máscaras */
+            --color-fugitivo: #4A7A96;
+            --color-controlador: #8C3B3B;
+            --color-anulacao: #6B6F8C;
+            --color-idealista: #A78BC9;
+            --color-protetor: #3B5C4A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-top) 0%, #1A1329 45%, var(--bg-bottom) 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.5rem 1rem 3rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Halo Dourado de Fundo */
+        body::before {
+            content: "";
+            position: absolute;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--gold-glow) 0%, rgba(13, 11, 20, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 620px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header / Logo */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+        }
+
+        .logo-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-title span {
+            color: var(--gold-primary);
+        }
+
+        /* Card Container das Telas */
+        .quiz-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (max-width: 480px) {
+            .quiz-card {
+                padding: 1.5rem 1.15rem;
+            }
+        }
+
+        /* Barra de Progresso */
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.75rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-primary), var(--gold-light));
+            width: 10%;
+            transition: width 0.4s ease, background 0.4s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--gold-primary);
+        }
+
+        /* Tipografia das Perguntas e Headlines */
+        h1.headline {
+            font-size: 1.85rem;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #FFFFFF;
+            margin-bottom: 0.85rem;
+            text-align: center;
+        }
+
+        p.subheadline {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.45;
+            color: #FFFFFF;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Opções (Cards clicáveis) */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.22s ease-in-out;
+            text-align: left;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        .option-card:hover {
+            border-color: var(--gold-primary);
+            background: var(--card-hover);
+            transform: translateY(-2px);
+        }
+
+        .option-card:active {
+            transform: scale(0.99);
+        }
+
+        .option-card.selected {
+            border-color: var(--gold-primary);
+            background: rgba(232, 168, 85, 0.18);
+            box-shadow: 0 0 16px var(--gold-glow);
+        }
+
+        .option-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--gold-primary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-card.selected .option-badge {
+            background: var(--gold-primary);
+            color: #0D0B14;
+            border-color: var(--gold-primary);
+        }
+
+        /* Botões Principais (CTA) */
+        .btn-cta {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold-primary) 0%, #D4933E 100%);
+            color: #0D0B14;
+            font-size: 1.05rem;
+            font-weight: 800;
+            padding: 1.15rem 1.5rem;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 24px rgba(232, 168, 85, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cta:hover {
+            background: linear-gradient(135deg, #FDF1DC 0%, var(--gold-primary) 100%);
+            box-shadow: 0 12px 30px rgba(232, 168, 85, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-cta:active {
+            transform: translateY(0);
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s ease;
+        }
+
+        .btn-back:hover {
+            color: var(--gold-primary);
+        }
+
+        /* Tela 3: Loading de Transição */
+        .loading-container {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(232, 168, 85, 0.15);
+            border-top: 4px solid var(--gold-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Form de Captura de Contato (Gate) */
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 0.95rem 1.15rem;
+            color: #FFFFFF;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold-primary);
+            background: rgba(232, 168, 85, 0.05);
+            box-shadow: 0 0 12px var(--gold-glow);
+        }
+
+        /* Tela 5: Resultado */
+        .result-header-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            background: rgba(232, 168, 85, 0.15);
+            color: var(--gold-primary);
+            border: 1px solid var(--card-border);
+            margin-bottom: 1.25rem;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+        }
+
+        .secondary-trait-box {
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .result-description-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .result-description-text {
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+        }
+
+        .result-gancho-box {
+            background: rgba(232, 168, 85, 0.08);
+            border: 1px dashed rgba(232, 168, 85, 0.35);
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            line-height: 1.5;
+        }
+
+        /* Animação suave entre passos */
+        .step-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .step-view.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        footer a {
+            color: rgba(255, 255, 255, 0.45);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header com Logo InnerMap -->
+        <header>
+            <a href="/" style="display: flex; align-items: center; gap: 0.6rem; text-decoration: none;">
+                <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="wave-grad-quiz" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#E8A855" />
+                            <stop offset="50%" stop-color="#a855f7" />
+                            <stop offset="100%" stop-color="#8A2BE2" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="url(#wave-grad-quiz)" stroke-width="3" stroke-dasharray="12 6" opacity="0.4"/>
+                    <path d="M 22 50 C 35 25, 45 25, 50 50 C 55 75, 65 75, 78 50" fill="none" stroke="url(#wave-grad-quiz)" stroke-width="5" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="6" fill="url(#wave-grad-quiz)"/>
+                </svg>
+                <span class="logo-title">Inner<span>Map</span></span>
+            </a>
+        </header>
+
+        <!-- Main Card -->
+        <main class="quiz-card">
+
+            <!-- TELA 1: ABERTURA DO QUIZ -->
+            <div id="step-intro" class="step-view active">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <span style="font-size: 0.78rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-primary); background: rgba(232, 168, 85, 0.12); padding: 0.35rem 0.85rem; border-radius: 20px; border: 1px solid var(--card-border);">
+                        ✨ DIAGNÓSTICO DE RELACIONAMENTO
+                    </span>
+                </div>
+                <h1 class="headline">Qual máscara você usa nos relacionamentos?</h1>
+                <p class="subheadline">Descubra em 3 minutos o padrão que pode estar te afastando da família que você quer construir.</p>
+                <button type="button" id="btn-start" class="btn-cta">
+                    Iniciar Teste Gratuito →
+                </button>
+            </div>
+
+            <!-- TELA DE PERGUNTAS (1 A 10 e 11) -->
+            <div id="step-question" class="step-view">
+                <div class="progress-header">
+                    <span id="progress-text">Pergunta 1 de 10</span>
+                    <span id="progress-percent">10%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-fill" class="progress-bar-fill"></div>
+                </div>
+
+                <h2 id="question-title" class="question-title"></h2>
+                
+                <div id="options-container" class="options-list">
+                    <!-- Opções geradas dinamicamente via JS -->
+                </div>
+
+                <button type="button" id="btn-prev-question" class="btn-back" style="display: none;">
+                    ← Voltar para a pergunta anterior
+                </button>
+            </div>
+
+            <!-- TELA DE TRANSIÇÃO (LOADING SIMULADO) -->
+            <div id="step-loading" class="step-view">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <h2 class="question-title" style="text-align: center; margin-bottom: 0.5rem;">Calculando seu resultado...</h2>
+                    <p class="subheadline" style="margin-bottom: 0;">Analisando suas respostas e mapeando o seu arquétipo de proteção nos relacionamentos.</p>
+                </div>
+            </div>
+
+            <!-- TELA DE CAPTURA DE CONTATO (GATE) -->
+            <div id="step-contact" class="step-view">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <span style="font-size: 0.78rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-primary); background: rgba(232, 168, 85, 0.12); padding: 0.35rem 0.85rem; border-radius: 20px; border: 1px solid var(--card-border);">
+                        🎯 RESULTADO PRONTO
+                    </span>
+                </div>
+                <h2 class="headline" style="font-size: 1.6rem;">Seu resultado está pronto!</h2>
+                <p class="subheadline" style="font-size: 0.95rem; margin-bottom: 1.5rem;">Deixe seu contato para ver qual máscara você usa e o que fazer a partir disso.</p>
+
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="lead-name" class="form-label">Seu Nome Completo *</label>
+                        <input type="text" id="lead-name" class="form-input" placeholder="Digite seu nome" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lead-phone" class="form-label">Seu WhatsApp (com DDD) *</label>
+                        <input type="tel" id="lead-phone" class="form-input" placeholder="+55 (11) 99999-9999" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lead-email" class="form-label">Seu E-mail Principal *</label>
+                        <input type="email" id="lead-email" class="form-input" placeholder="seu@email.com" required>
+                    </div>
+
+                    <button type="submit" id="btn-submit-lead" class="btn-cta" style="margin-top: 0.5rem;">
+                        Ver Meu Resultado Agora →
+                    </button>
+                </form>
+            </div>
+
+            <!-- TELA DE RESULTADO FINAL -->
+            <div id="step-result" class="step-view">
+                <div style="text-align: center;">
+                    <span class="result-header-badge">DIAGNÓSTICO DE RELACIONAMENTO</span>
+                    <h2 id="result-title" class="result-title"></h2>
+                    
+                    <div id="secondary-trait-container" class="secondary-trait-box" style="display: none;">
+                        <!-- Caso haja desempate -->
+                    </div>
+
+                    <div class="result-description-card">
+                        <p id="result-description" class="result-description-text"></p>
+                        <div id="result-gancho" class="result-gancho-box"></div>
+                    </div>
+
+                    <a id="btn-whatsapp-cta" href="#" target="_blank" class="btn-cta" style="margin-top: 0.5rem;">
+                        Quero entender esse padrão comigo →
+                    </a>
+                </div>
+            </div>
+
+        </main>
+
+        <footer>
+            InnerMap &copy; 2026. Método Informacional de Reorganização Interna.<br>
+            <a href="/">Voltar para o site principal</a>
+        </footer>
+    </div>
+
+    <!-- Script de Lógica do Quiz e Captura -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Perguntas do Quiz (1 a 10)
+            const QUESTIONS = [
+                {
+                    id: 1,
+                    title: "1. Quando alguém demonstra interesse genuíno em você, sua primeira reação interna é:",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Pensar em uma desculpa pra criar distância" },
+                        { letter: "B", archetype: "Controlador", text: "Avaliar se consigo manter o controle da situação" },
+                        { letter: "C", archetype: "Anulação", text: "Sentir que preciso corresponder, mesmo sem certeza" },
+                        { letter: "D", archetype: "Idealista", text: "Analisar se essa pessoa \"está à altura\" do que eu imagino" },
+                        { letter: "E", archetype: "Protetor", text: "Levantar a guarda e observar de longe antes de me abrir" }
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "2. Nos seus relacionamentos passados, o que mais se repete?",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Terminar assim que fica sério demais" },
+                        { letter: "B", archetype: "Controlador", text: "Discussões sobre quem decide o quê" },
+                        { letter: "C", archetype: "Anulação", text: "Sentir que abri mão de quem eu era" },
+                        { letter: "D", archetype: "Idealista", text: "Terminar por perceber que \"não era bem isso que eu queria\"" },
+                        { letter: "E", archetype: "Protetor", text: "Manter uma distância mesmo estando junto" }
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "3. Diante de um conflito no relacionamento, você costuma:",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Se afastar física ou emocionalmente até esfriar" },
+                        { letter: "B", archetype: "Controlador", text: "Insistir até resolver do seu jeito" },
+                        { letter: "C", archetype: "Anulação", text: "Ceder rápido pra evitar o desconforto" },
+                        { letter: "D", archetype: "Idealista", text: "Comparar com como \"deveria ter sido\"" },
+                        { letter: "E", archetype: "Protetor", text: "Ficar quieto, guardando o que sente" }
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "4. O que mais te assusta na ideia de construir uma família?",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Perder a própria liberdade e individualidade" },
+                        { letter: "B", archetype: "Controlador", text: "Não conseguir controlar tudo que pode dar errado" },
+                        { letter: "C", archetype: "Anulação", text: "Se anular tanto que deixo de existir enquanto pessoa" },
+                        { letter: "D", archetype: "Idealista", text: "Não encontrar a pessoa \"certa\" a tempo" },
+                        { letter: "E", archetype: "Protetor", text: "Repetir dores que vivi na minha própria família" }
+                    ]
+                },
+                {
+                    id: 5,
+                    title: "5. Como você reage quando o parceiro(a) quer saber mais sobre seus sentimentos?",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Mudo de assunto ou minimizo" },
+                        { letter: "B", archetype: "Controlador", text: "Conto só o que considero \"seguro\" contar" },
+                        { letter: "C", archetype: "Anulação", text: "Conto tudo, mesmo sem processar direito antes" },
+                        { letter: "D", archetype: "Idealista", text: "Avalio se essa pessoa \"merece\" essa abertura" },
+                        { letter: "E", archetype: "Protetor", text: "Sinto vontade, mas travo antes de falar" }
+                    ]
+                },
+                {
+                    id: 6,
+                    title: "6. Olhando pra trás, seus pais tinham um relacionamento que:",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Você quer evitar a todo custo repetir" },
+                        { letter: "B", archetype: "Controlador", text: "Um dos dois sempre mandava mais que o outro" },
+                        { letter: "C", archetype: "Anulação", text: "Um deles se anulava pelo outro" },
+                        { letter: "D", archetype: "Idealista", text: "Nunca foi bom o suficiente pra ser exemplo" },
+                        { letter: "E", archetype: "Protetor", text: "Era distante emocionalmente, mesmo morando junto" }
+                    ]
+                },
+                {
+                    id: 7,
+                    title: "7. Quando um relacionamento começa a ficar sério, você:",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Sente vontade de recuar ou \"dar um tempo\"" },
+                        { letter: "B", archetype: "Controlador", text: "Passa a se preocupar em não perder o controle da relação" },
+                        { letter: "C", archetype: "Anulação", text: "Passa a priorizar o outro acima de si mesmo" },
+                        { letter: "D", archetype: "Idealista", text: "Começa a notar mais os defeitos da pessoa" },
+                        { letter: "E", archetype: "Protetor", text: "Mantém uma parte de si em reserva, \"por garantia\"" }
+                    ]
+                },
+                {
+                    id: 8,
+                    title: "8. O que você mais teme que aconteça se realmente se entregar a alguém?",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Ficar preso e perder quem eu sou" },
+                        { letter: "B", archetype: "Controlador", text: "Ser traído ou enganado sem perceber" },
+                        { letter: "C", archetype: "Anulação", text: "Desaparecer dentro da relação" },
+                        { letter: "D", archetype: "Idealista", text: "Descobrir que não era a pessoa certa afinal" },
+                        { letter: "E", archetype: "Protetor", text: "Me machucar como já me machuquei antes" }
+                    ]
+                },
+                {
+                    id: 9,
+                    title: "9. Como você descreveria sua relação com a solidão?",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Prefiro ficar sozinho a me sentir preso" },
+                        { letter: "B", archetype: "Controlador", text: "Sozinho eu pelo menos sei o que esperar" },
+                        { letter: "C", archetype: "Anulação", text: "Sozinho eu não sei bem quem eu sou" },
+                        { letter: "D", archetype: "Idealista", text: "Prefiro esperar sozinho a me conformar com \"qualquer um\"" },
+                        { letter: "E", archetype: "Protetor", text: "Estou acostumado, mesmo quando não é o que eu queria" }
+                    ]
+                },
+                {
+                    id: 10,
+                    title: "10. Se pudesse mudar uma coisa em como você se relaciona, seria:",
+                    options: [
+                        { letter: "A", archetype: "Fugitivo", text: "Conseguir ficar sem sentir que estou perdendo algo" },
+                        { letter: "B", archetype: "Controlador", text: "Conseguir confiar sem precisar controlar" },
+                        { letter: "C", archetype: "Anulação", text: "Conseguir me colocar sem culpa" },
+                        { letter: "D", archetype: "Idealista", text: "Conseguir aceitar imperfeição sem desistir" },
+                        { letter: "E", archetype: "Protetor", text: "Conseguir abrir o que sinto sem medo" }
+                    ]
+                }
+            ];
+
+            // Pergunta Extra de Desempate (Pergunta 11)
+            const QUESTION_TIE_BREAKER = {
+                id: 11,
+                title: "11. Entre as opções abaixo, qual soa mais como \"isso sou eu, sem dúvida\"?",
+                options: [
+                    { letter: "A", archetype: "Fugitivo", text: "\"Eu preciso de espaço pra respirar, sempre\"" },
+                    { letter: "B", archetype: "Controlador", text: "\"Eu preciso saber que está tudo sob controle\"" },
+                    { letter: "C", archetype: "Anulação", text: "\"Eu preciso que o outro esteja bem, mesmo que custe caro pra mim\"" },
+                    { letter: "D", archetype: "Idealista", text: "\"Eu preciso sentir que vale a pena continuar\"" },
+                    { letter: "E", archetype: "Protetor", text: "\"Eu preciso me sentir seguro antes de me abrir\"" }
+                ]
+            };
+
+            // Dados dos 5 Arquétipos (Textos e Cores)
+            const ARCHETYPES = {
+                "Fugitivo": {
+                    title: "A Máscara do Fugitivo",
+                    color: "#4A7A96",
+                    description: "Diante da intimidade, seu impulso é abrir espaço: some, arruma uma desculpa, cria distância assim que a relação começa a pedir mais presença. No fundo, existe um medo antigo de perder a própria liberdade ou identidade dentro de um vínculo. Esse padrão pode estar te afastando exatamente da conexão profunda que você diz querer.",
+                    gancho: "Vale entender de onde vem esse impulso de fuga antes de ele decidir por você de novo."
+                },
+                "Controlador": {
+                    title: "A Máscara do Controlador",
+                    color: "#8C3B3B",
+                    description: "Você precisa manter as rédeas da relação nas próprias mãos. Confiar de verdade parece perigoso, então o controle vira uma forma (inconsciente) de se proteger de ser pego de surpresa ou traído. O problema é que esse mesmo controle, que parece proteção, pode ser exatamente o que impede a intimidade real de acontecer.",
+                    gancho: "Esse padrão pode estar sendo o maior obstáculo entre você e a família que você quer construir."
+                },
+                "Anulação": {
+                    title: "A Máscara da Anulação",
+                    color: "#6B6F8C",
+                    description: "Você se perde de si mesmo pra manter o outro por perto — tem dificuldade de pedir o que precisa, e teme desaparecer dentro do relacionamento se parar de ceder. Mas uma família sólida não se constrói sobre a ausência de si mesmo.",
+                    gancho: "Vamos entender juntos como você pode se colocar sem medo de perder o outro?"
+                },
+                "Idealista": {
+                    title: "A Máscara do Idealista",
+                    color: "#A78BC9",
+                    description: "Nunca é bem essa pessoa. Uma expectativa alta demais funciona como proteção contra se machucar de novo — comparar com um ideal impede ver quem está de fato na sua frente. A busca pelo perfeito pode estar adiando indefinidamente a família que você quer construir.",
+                    gancho: "Esse padrão pode estar sendo o maior obstáculo entre você e a família que você quer construir."
+                },
+                "Protetor": {
+                    title: "A Máscara do Protetor",
+                    color: "#3B5C4A",
+                    description: "Você constrói barreiras silenciosas, mesmo desejando se abrir de verdade. O medo de repetir uma dor antiga fala mais alto que a vontade de se conectar. A proteção que fez sentido um dia pode estar sendo hoje o maior obstáculo.",
+                    gancho: "Vamos entender de onde vem esse padrão antes que ele continue decidindo por você?"
+                }
+            };
+
+            // Estado do Quiz
+            let currentQuestionIndex = 0;
+            let userAnswers = []; // ["A", "B", "C", ...]
+            let isTieBreakerMode = false;
+            let finalPredominantArchetype = null;
+            let finalSecondaryArchetype = null;
+
+            // Elementos DOM
+            const stepIntro = document.getElementById("step-intro");
+            const stepQuestion = document.getElementById("step-question");
+            const stepLoading = document.getElementById("step-loading");
+            const stepContact = document.getElementById("step-contact");
+            const stepResult = document.getElementById("step-result");
+
+            const btnStart = document.getElementById("btn-start");
+            const progressText = document.getElementById("progress-text");
+            const progressPercent = document.getElementById("progress-percent");
+            const progressFill = document.getElementById("progress-fill");
+            const questionTitle = document.getElementById("question-title");
+            const optionsContainer = document.getElementById("options-container");
+            const btnPrevQuestion = document.getElementById("btn-prev-question");
+
+            const contactForm = document.getElementById("contact-form");
+            const leadNameInput = document.getElementById("lead-name");
+            const leadPhoneInput = document.getElementById("lead-phone");
+            const leadEmailInput = document.getElementById("lead-email");
+            const btnSubmitLead = document.getElementById("btn-submit-lead");
+
+            const resultTitle = document.getElementById("result-title");
+            const secondaryTraitContainer = document.getElementById("secondary-trait-container");
+            const resultDescription = document.getElementById("result-description");
+            const resultGancho = document.getElementById("result-gancho");
+            const btnWhatsappCta = document.getElementById("btn-whatsapp-cta");
+
+            // Função para alternar visibilidade de telas com transição suave
+            function showStepView(viewElement) {
+                document.querySelectorAll(".step-view").forEach(el => {
+                    el.classList.remove("active");
+                });
+                setTimeout(() => {
+                    viewElement.classList.add("active");
+                }, 50);
+            }
+
+            // Iniciar Quiz
+            btnStart.addEventListener("click", () => {
+                currentQuestionIndex = 0;
+                userAnswers = [];
+                isTieBreakerMode = false;
+                renderQuestion();
+                showStepView(stepQuestion);
+            });
+
+            // Renderizar Pergunta Atual
+            function renderQuestion() {
+                const isTieQuestion = isTieBreakerMode;
+                const q = isTieQuestion ? QUESTION_TIE_BREAKER : QUESTIONS[currentQuestionIndex];
+
+                // Atualizar Barra de Progresso
+                if (isTieQuestion) {
+                    progressText.textContent = "Pergunta de Desempate";
+                    progressPercent.textContent = "100%";
+                    progressFill.style.width = "100%";
+                } else {
+                    const currentNum = currentQuestionIndex + 1;
+                    const totalNum = QUESTIONS.length;
+                    const pct = Math.round((currentNum / totalNum) * 100);
+                    progressText.textContent = `Pergunta ${currentNum} de ${totalNum}`;
+                    progressPercent.textContent = `${pct}%`;
+                    progressFill.style.width = `${pct}%`;
+                }
+
+                questionTitle.textContent = q.title;
+                optionsContainer.innerHTML = "";
+
+                // Exibir ou ocultar botão de voltar
+                if (currentQuestionIndex > 0 && !isTieQuestion) {
+                    btnPrevQuestion.style.display = "inline-flex";
+                } else {
+                    btnPrevQuestion.style.display = "none";
+                }
+
+                // Renderizar Opções
+                q.options.forEach(opt => {
+                    const card = document.createElement("button");
+                    card.type = "button";
+                    card.className = "option-card";
+                    
+                    // Verificar se já havia sido respondido antes
+                    if (!isTieQuestion && userAnswers[currentQuestionIndex] === opt.letter) {
+                        card.classList.add("selected");
+                    }
+
+                    card.innerHTML = `
+                        <span class="option-badge">${opt.letter}</span>
+                        <span style="flex: 1;">${opt.text}</span>
+                    `;
+
+                    card.addEventListener("click", () => {
+                        // Marcar seleção visualmente
+                        optionsContainer.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
+                        card.classList.add("selected");
+
+                        // Avanço automático após 250ms
+                        setTimeout(() => {
+                            handleAnswerSelection(opt.letter, isTieQuestion);
+                        }, 250);
+                    });
+
+                    optionsContainer.appendChild(card);
+                });
+            }
+
+            // Lidar com seleção de resposta
+            function handleAnswerSelection(letter, isTieQuestion) {
+                if (isTieQuestion) {
+                    // Armazena a resposta de desempate e prossegue para a transição
+                    userAnswers.push(letter);
+                    calculateFinalScore(letter);
+                    startLoadingTransition();
+                } else {
+                    userAnswers[currentQuestionIndex] = letter;
+                    if (currentQuestionIndex < QUESTIONS.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestion();
+                    } else {
+                        // Chegou ao fim das 10 perguntas: verificar se há empate!
+                        checkScoreAndProceed();
+                    }
+                }
+            }
+
+            // Botão Voltar
+            btnPrevQuestion.addEventListener("click", () => {
+                if (currentQuestionIndex > 0 && !isTieBreakerMode) {
+                    currentQuestionIndex--;
+                    renderQuestion();
+                }
+            });
+
+            // Verificar pontuação após a pergunta 10
+            function checkScoreAndProceed() {
+                const counts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+                userAnswers.forEach(ans => {
+                    if (counts[ans] !== undefined) counts[ans]++;
+                });
+
+                // Encontrar a pontuação máxima
+                let maxCount = 0;
+                Object.keys(counts).forEach(key => {
+                    if (counts[key] > maxCount) maxCount = counts[key];
+                });
+
+                // Quais letras empataram no topo?
+                const tiedLetters = Object.keys(counts).filter(key => counts[key] === maxCount);
+
+                if (tiedLetters.length > 1) {
+                    // HÁ EMPATE: exibir pergunta de desempate (Pergunta 11)!
+                    isTieBreakerMode = true;
+                    renderQuestion();
+                } else {
+                    // NÃO HÁ EMPATE: calcular resultado direto!
+                    calculateFinalScore(null);
+                    startLoadingTransition();
+                }
+            }
+
+            // Calcular Arquétipo Predominante e Secundário
+            function calculateFinalScore(tieBreakerLetter) {
+                const counts = { A: 0, B: 0, C: 0, D: 0, E: 0 };
+                // Considera as 10 primeiras perguntas
+                for (let i = 0; i < 10; i++) {
+                    const ans = userAnswers[i];
+                    if (ans && counts[ans] !== undefined) counts[ans]++;
+                }
+
+                const letterToArchetype = {
+                    A: "Fugitivo",
+                    B: "Controlador",
+                    C: "Anulação",
+                    D: "Idealista",
+                    E: "Protetor"
+                };
+
+                if (tieBreakerLetter) {
+                    // Em caso de desempate na Pergunta 11:
+                    // A letra escolhida na P11 torna-se o predominante
+                    finalPredominantArchetype = letterToArchetype[tieBreakerLetter];
+                    
+                    // O outro empatado (ou o segundo com maior pontuação) vira o secundário
+                    let maxCount = 0;
+                    Object.keys(counts).forEach(k => { if (counts[k] > maxCount) maxCount = counts[k]; });
+                    const tiedLetters = Object.keys(counts).filter(k => counts[k] === maxCount);
+                    const secondaryLetter = tiedLetters.find(l => l !== tieBreakerLetter) || (Object.keys(counts).sort((a,b) => counts[b] - counts[a])[1]);
+                    
+                    if (secondaryLetter && secondaryLetter !== tieBreakerLetter) {
+                        finalSecondaryArchetype = letterToArchetype[secondaryLetter];
+                    }
+                } else {
+                    // Sem empate direto
+                    const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+                    finalPredominantArchetype = letterToArchetype[sorted[0]];
+                    // Se o segundo colocado tiver pontuação expressiva (ex: apenas 1 a menos que o primeiro), citamos como secundário
+                    if (counts[sorted[1]] > 0 && counts[sorted[0]] - counts[sorted[1]] <= 1) {
+                        finalSecondaryArchetype = letterToArchetype[sorted[1]];
+                    } else {
+                        finalSecondaryArchetype = null;
+                    }
+                }
+            }
+
+            // Transição Simulada de 1.8 segundos
+            function startLoadingTransition() {
+                showStepView(stepLoading);
+                setTimeout(() => {
+                    showStepView(stepContact);
+                }, 1800);
+            }
+
+            // Submissão do Formulário de Contato
+            contactForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const name = leadNameInput.value.trim();
+                const phone = leadPhoneInput.value.trim();
+                const email = leadEmailInput.value.trim();
+
+                if (!name || !phone || !email) return;
+
+                btnSubmitLead.disabled = true;
+                btnSubmitLead.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; border-width: 2px; margin: 0;"></span> Processando...';
+
+                // Captura UTMs da URL se houver
+                const urlParams = new URLSearchParams(window.location.search);
+                const utmCampaign = urlParams.get("utm_campaign") || urlParams.get("utm_source") || "orgânico";
+
+                // Payload técnico conforme Seção 4 da Spec
+                const webhookPayload = {
+                    nome: name,
+                    whatsapp: phone,
+                    arquetipo_resultado: finalPredominantArchetype,
+                    arquetipo_secundario: finalSecondaryArchetype,
+                    respostas: userAnswers,
+                    origem: "teste-innermap",
+                    utm_campaign: utmCampaign,
+                    data_hora: new Date().toISOString()
+                };
+
+                console.log("Payload de Lead para Webhook:", webhookPayload);
+
+                // Enviar via fetch assíncrono para o backend/webhook se configurado
+                try {
+                    fetch("/api/quiz-lead", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(webhookPayload)
+                    }).catch(err => console.log("Webhook em background:", err));
+                } catch(e) {}
+
+                // Salvar também no localStorage local para persistência de sessão
+                localStorage.setItem("innermap_quiz_lead", JSON.stringify(webhookPayload));
+
+                // Exibir Tela de Resultado
+                setTimeout(() => {
+                    renderResultScreen(webhookPayload);
+                    showStepView(stepResult);
+                }, 600);
+            });
+
+            // Renderizar Tela de Resultado
+            function renderResultScreen(leadData) {
+                const arch = ARCHETYPES[finalPredominantArchetype] || ARCHETYPES["Protetor"];
+
+                // Título e Cor temática
+                resultTitle.textContent = arch.title;
+                resultTitle.style.color = arch.color;
+
+                // Traço secundário se houver
+                if (finalSecondaryArchetype && ARCHETYPES[finalSecondaryArchetype]) {
+                    const secArch = ARCHETYPES[finalSecondaryArchetype];
+                    secondaryTraitContainer.innerHTML = `
+                        💡 <strong>Padrão Misto Detectado:</strong> Seu padrão predominante é <strong>${arch.title}</strong>, mas você também carrega traços fortes de <strong>${secArch.title}</strong>.
+                    `;
+                    secondaryTraitContainer.style.display = "block";
+                } else {
+                    secondaryTraitContainer.style.display = "none";
+                }
+
+                // Descrição e Gancho
+                resultDescription.textContent = arch.description;
+                resultGancho.innerHTML = `📌 <strong>Gancho para Transformação:</strong> ${arch.gancho}`;
+
+                // Link do WhatsApp com mensagem personalizada para o Felipe/Agente IA
+                const msgText = encodeURIComponent(
+                    `Olá Felipe! Fiz o teste no InnerMap e meu resultado foi: ${arch.title}.\n\nQuero entender esse padrão comigo e ver como reorganizar isso!`
+                );
+                
+                // Número do WhatsApp oficial do Felipe/InnerMap (ex: 5511999999999)
+                const whatsappNumber = "5511999999999"; 
+                btnWhatsappCta.href = `https://wa.me/${whatsappNumber}?text=${msgText}`;
+            }
+
+            // Máscara simples para o input de telefone
+            leadPhoneInput.addEventListener("input", (e) => {
+                let v = e.target.value.replace(/\D/g, "");
+                if (v.startsWith("55")) v = v.substring(2);
+                if (v.length > 11) v = v.substring(0, 11);
+                
+                if (v.length > 6) {
+                    e.target.value = `+55 (${v.substring(0,2)}) ${v.substring(2,7)}-${v.substring(7)}`;
+                } else if (v.length > 2) {
+                    e.target.value = `+55 (${v.substring(0,2)}) ${v.substring(2)}`;
+                } else if (v.length > 0) {
+                    e.target.value = `+55 (${v}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

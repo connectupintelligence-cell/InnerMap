@@ -17,9 +17,14 @@ const mimeTypes = {
 };
 
 const server = http.createServer((req, res) => {
-    let filePath = path.join(PUBLIC_DIR, req.url === '/' ? 'index.html' : req.url);
+    let reqUrl = req.url.split('?')[0];
+    if (reqUrl === '/') reqUrl = '/index.html';
+    else if (reqUrl === '/teste' || reqUrl === '/teste/') reqUrl = '/teste/index.html';
+    else if (reqUrl === '/testedeperfil' || reqUrl === '/testedeperfil/') reqUrl = '/testedeperfil/index.html';
+
+    let filePath = path.join(PUBLIC_DIR, reqUrl);
     const ext = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    const contentType = mimeTypes[ext] || 'text/html; charset=utf-8';
 
     fs.readFile(filePath, (err, content) => {
         if (err) {
