@@ -13,6 +13,9 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.innermap.com.br/teste">
 
+    <!-- Supabase Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
     <style>
         :root {
             --bg-top: #0D0B14;
@@ -972,7 +975,42 @@
                     data_hora: new Date().toISOString()
                 };
 
-                console.log("Payload de Lead para Webhook:", webhookPayload);
+                // Inicialização do Supabase Client para salvar leads na nuvem
+                const SUPABASE_URL = "https://vyhwpjktsdvfnwvvjnbh.supabase.co";
+                const SUPABASE_ANON_KEY = "sb_publishable_vfK43gvWRToO8gR9cd9ttA_dzDrAqHI";
+                let supabaseClient = null;
+                if (window.supabase) {
+                    try {
+                        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    } catch(err) {
+                        console.warn("Erro ao inicializar Supabase no Quiz:", err);
+                    }
+                }
+
+                // Salvar Lead no Banco de Dados do Supabase
+                if (supabaseClient) {
+                    const leadRecord = {
+                        nome: name,
+                        whatsapp: phone,
+                        email: email,
+                        arquetipo_resultado: finalPredominantArchetype,
+                        arquetipo_secundario: finalSecondaryArchetype,
+                        respostas: userAnswers,
+                        origem: "teste-innermap",
+                        utm_campaign: utmCampaign,
+                        created_at: new Date().toISOString()
+                    };
+
+                    // Tentar salvar na tabela 'quiz_leads'
+                    supabaseClient.from("quiz_leads").insert(leadRecord).then(({ error }) => {
+                        if (error) {
+                            console.warn("Tabela quiz_leads ausente ou erro, tentando tabela 'leads':", error);
+                            supabaseClient.from("leads").insert(leadRecord).catch(e => console.warn(e));
+                        } else {
+                            console.log("Lead do Quiz salvo no Supabase com sucesso!");
+                        }
+                    }).catch(e => console.warn("Erro ao enviar lead:", e));
+                }
 
                 // Enviar via fetch assíncrono para o backend/webhook se configurado
                 try {
@@ -1021,8 +1059,8 @@
                     `Olá Felipe! Fiz o teste no InnerMap e meu resultado foi: ${arch.title}.\n\nQuero entender esse padrão comigo e ver como reorganizar isso!`
                 );
                 
-                // Número do WhatsApp oficial do Felipe/InnerMap (ex: 5511999999999)
-                const whatsappNumber = "5511999999999"; 
+                // Número do WhatsApp oficial do Felipe/InnerMap (12997843187)
+                const whatsappNumber = "55129997843187"; 
                 btnWhatsappCta.href = `https://wa.me/${whatsappNumber}?text=${msgText}`;
             }
 
