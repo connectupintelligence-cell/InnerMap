@@ -1024,10 +1024,26 @@
                 // Salvar também no localStorage local para persistência de sessão
                 localStorage.setItem("innermap_quiz_lead", JSON.stringify(webhookPayload));
 
-                // Exibir Tela de Resultado
+                // Exibir Tela de Resultado e abrir a conversa do WhatsApp
                 setTimeout(() => {
                     renderResultScreen(webhookPayload);
                     showStepView(stepResult);
+
+                    // Abertura automática do WhatsApp do Felipe com a notificação detalhada do lead
+                    const arch = ARCHETYPES[finalPredominantArchetype] || ARCHETYPES["Protetor"];
+                    const secInfo = finalSecondaryArchetype ? ` (Secundário: ${ARCHETYPES[finalSecondaryArchetype]?.title || finalSecondaryArchetype})` : "";
+                    const waMsg = encodeURIComponent(
+                        `Olá Felipe! Acabei de fazer o Teste das Máscaras no InnerMap:\n\n` +
+                        `👤 *Nome:* ${name}\n` +
+                        `📱 *WhatsApp:* ${phone}\n` +
+                        `📧 *E-mail:* ${email}\n` +
+                        `🎭 *Resultado:* ${arch.title}${secInfo}\n\n` +
+                        `Quero entender esse padrão comigo e ver como reorganizar isso!`
+                    );
+                    const waUrl = `https://wa.me/55129997843187?text=${waMsg}`;
+                    
+                    // Abrir em nova aba para que o usuário chegue diretamente no WhatsApp do Felipe
+                    window.open(waUrl, "_blank");
                 }, 600);
             });
 
@@ -1055,8 +1071,11 @@
                 resultGancho.innerHTML = `📌 <strong>Gancho para Transformação:</strong> ${arch.gancho}`;
 
                 // Link do WhatsApp com mensagem personalizada para o Felipe/Agente IA
+                const secInfo = finalSecondaryArchetype ? ` (Secundário: ${ARCHETYPES[finalSecondaryArchetype]?.title || finalSecondaryArchetype})` : "";
                 const msgText = encodeURIComponent(
-                    `Olá Felipe! Fiz o teste no InnerMap e meu resultado foi: ${arch.title}.\n\nQuero entender esse padrão comigo e ver como reorganizar isso!`
+                    `Olá Felipe! Fiz o teste no InnerMap e meu resultado foi: ${arch.title}${secInfo}.\n\n` +
+                    `👤 *Nome:* ${leadNameInput.value.trim()}\n` +
+                    `Quero entender esse padrão comigo e ver como reorganizar isso!`
                 );
                 
                 // Número do WhatsApp oficial do Felipe/InnerMap (12997843187)
