@@ -900,6 +900,9 @@ class AppStateManager {
 
     loadUser() {
         try {
+            if (localStorage.getItem("innermap_logged_out") === "true") {
+                return null;
+            }
             const stored = localStorage.getItem("innermap_user");
             return stored ? JSON.parse(stored) : null;
         } catch (e) {
@@ -913,8 +916,10 @@ class AppStateManager {
         try {
             if (user) {
                 localStorage.setItem("innermap_user", JSON.stringify(user));
+                localStorage.removeItem("innermap_logged_out");
             } else {
                 localStorage.removeItem("innermap_user");
+                localStorage.setItem("innermap_logged_out", "true");
             }
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
@@ -4091,7 +4096,8 @@ Pergunta atual: "${query}"
 
         // 1. Obter sessão inicial de forma imediata (Promise)
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (session && session.user) {
+            const isExplicitLoggedOut = localStorage.getItem("innermap_logged_out") === "true";
+            if (session && session.user && !isExplicitLoggedOut) {
                 state.saveUser({
                     email: session.user.email,
                     provider: session.user.app_metadata.provider || "email",
@@ -4112,6 +4118,9 @@ Pergunta atual: "${query}"
                     }
                 });
             } else {
+                if (isExplicitLoggedOut && session) {
+                    supabaseClient.auth.signOut().catch(() => {});
+                }
                 state.saveUser(null);
                 state.saveSubscription(null);
                 state.history = [];
@@ -4127,7 +4136,8 @@ Pergunta atual: "${query}"
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === "SIGNED_IN" && session) {
+            const isExplicitLoggedOut = localStorage.getItem("innermap_logged_out") === "true";
+            if (event === "SIGNED_IN" && session && !isExplicitLoggedOut) {
                 state.saveUser({
                     email: session.user.email,
                     provider: session.user.app_metadata.provider || "email",
@@ -4140,7 +4150,7 @@ Pergunta atual: "${query}"
                 if (checkSubscriptionStatus()) {
                     showScreen((state.subscription || (state.currentUser && state.currentUser.role === "therapist")) ? "step1" : "paywall");
                 }
-            } else if (event === "SIGNED_OUT") {
+            } else if (event === "SIGNED_OUT" || isExplicitLoggedOut) {
                 state.saveUser(null);
                 state.saveSubscription(null);
                 state.history = [];
