@@ -1804,7 +1804,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 let prompt = "";
                 if (state.selectedMode === 3) {
                     const seed = Math.floor(Math.random() * 10000);
-                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
+                    prompt = `Você é um assistente de prática guiada especialista no Método InnerMap.
 O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado: "${relato}".
 
 REGRAS RÍGIDAS E OBRIGATÓRIAS DO MÉTODO PARA O CAMPO "declaracao_fortalecimento":
@@ -1837,7 +1837,7 @@ Retorne um objeto JSON válido no formato exato:
   "declaracao_fortalecimento": "Espírito, eu escolho...\\nEspírito, eu escolho...\\nEspírito, eu escolho...\\nAlma, eu já me sinto...\\nAlma, eu já vivencio...\\nAlma, eu já sinto...\\nAlma, eu já habito..."
 }`;
                 } else {
-                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
+                    prompt = `Você é um assistente de prática guiada especialista no Método InnerMap.
 Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estruturados do método, com sensibilidade e profundidade.
 
 Definições de conceitos do método:
@@ -1888,7 +1888,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
   "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)",
   "leitura_ajuste": "diagnóstico informacional profundo (2-3 linhas) revelando a causa raiz e por que este padrão se formou como defesa inconsciente no relato do cliente",
-  "movimento_sugerido": "orientação de conscientização (2-3 linhas) explicando como desativar o automatismo e ressignificar a percepção com clareza"
+  "movimento_sugerido": "orientação de conscientização (2-3 linhas) explicando como atualizar a percepção e trazer clareza"
 }`;
                 }
 
