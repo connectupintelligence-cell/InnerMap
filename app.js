@@ -2991,8 +2991,10 @@ Retorne JSON no formato exato:
 
     function updateUserUI() {
         if (!userNavContainer) return;
+        const mobileBtnLogout = document.getElementById("mobile-btn-logout");
         if (state.currentUser) {
             userNavContainer.style.display = "flex";
+            if (mobileBtnLogout) mobileBtnLogout.style.display = "flex";
             if (btnLoginTrigger) btnLoginTrigger.style.display = "none";
             if (btnHeroLogin) btnHeroLogin.style.display = "none";
             document.body.classList.add("user-logged-in");
@@ -3052,6 +3054,7 @@ Retorne JSON no formato exato:
             if (window.checkDailyReminder) window.checkDailyReminder();
         } else {
             userNavContainer.style.display = "none";
+            if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
             if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
             if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
             document.body.classList.remove("user-logged-in");
@@ -3268,24 +3271,32 @@ Retorne JSON no formato exato:
         });
     }
 
-    if (btnLogout) {
-        btnLogout.addEventListener("click", async (e) => {
+    // Event listener global delegado para garantir que o logout SEMPRE funcione instantaneamente em qualquer dispositivo ou botão
+    document.addEventListener("click", (e) => {
+        const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
+        if (logoutTarget) {
             e.preventDefault();
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.auth.signOut();
-                } catch (err) {
-                    console.error("Erro ao sair do Supabase:", err);
-                }
-            }
+            e.stopPropagation();
+
+            // 1. Limpar dados locais e atualizar UI imediatamente sem aguardar a rede
             state.saveUser(null);
             state.saveSubscription(null);
-            
+            state.history = [];
+
             updateUserUI();
             showScreen("auth");
             showToast("Você saiu da sua conta.");
-        });
-    }
+
+            // 2. Encerrar sessão remota no Supabase em segundo plano
+            if (supabaseClient) {
+                try {
+                    supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
+                } catch (err) {
+                    console.warn("Erro ao sair do Supabase:", err);
+                }
+            }
+        }
+    });
 
     // Elementos do Checkout
     const checkoutModal = document.getElementById("checkout-modal");
