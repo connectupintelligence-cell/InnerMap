@@ -45,7 +45,7 @@ const INFORMATIONAL_DATABASE = {
     "medo_crescer": {
         keywords: ["crescer", "sucesso", "expandir", "escala", "tamanho", "responsabilidade", "liderança", "crescimento"],
         category: "Trabalho",
-        categoryEmoji: "💼 Trabalho",
+        categoryEmoji: " Trabalho",
         title: "Medo de Crescer",
         ajuste: "Você pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidão.",
         movimento: "Desenvolver uma expansão sustentável, delegando com confiança e acolhendo novas oportunidades.",
@@ -58,7 +58,7 @@ const INFORMATIONAL_DATABASE = {
     "culpa_descansar": {
         keywords: ["descansar", "pausa", "parar", "lazer", "tempo livre", "ócio", "dormir", "férias", "descanso"],
         category: "Prosperidade",
-        categoryEmoji: "💰 Prosperidade",
+        categoryEmoji: " Prosperidade",
         title: "Culpa por Descansar",
         ajuste: "A percepção de que seu valor pessoal depende exclusivamente do seu nível de produtividade diária.",
         movimento: "Reconhecer que a pausa é essencial para a criatividade e a sustentabilidade de suas realizações.",
@@ -71,7 +71,7 @@ const INFORMATIONAL_DATABASE = {
     "dificuldade_vender": {
         keywords: ["vender", "vendas", "cobrar", "preço", "dinheiro", "cliente", "oferta", "negociar", "pedir valor"],
         category: "Trabalho",
-        categoryEmoji: "💼 Trabalho",
+        categoryEmoji: " Trabalho",
         title: "Dificuldade de Vender ou Cobrar",
         ajuste: "A associação da venda e da cobrança a importunar os outros, medo da rejeição ou sensação sutil de não merecimento.",
         movimento: "Enxergar a venda como uma troca justa de valor, onde você apoia genuinamente a resolução de uma necessidade real.",
@@ -84,7 +84,7 @@ const INFORMATIONAL_DATABASE = {
     "medo_negocios": {
         keywords: ["medo nos negócios", "errar", "falhar", "quebrar", "falência", "empreender", "risco", "perder dinheiro", "decisão"],
         category: "Coragem",
-        categoryEmoji: "🦁 Coragem",
+        categoryEmoji: " Coragem",
         title: "Medo de Errar ou Falhar nos Negócios",
         ajuste: "O receio do fracasso ou da perda de controle organizando suas decisões sob um viés de paralisação e autoproteção.",
         movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptação.",
@@ -97,7 +97,7 @@ const INFORMATIONAL_DATABASE = {
     "carencia_emocional": {
         keywords: ["carência", "abandono", "rejeição", "solteiro", "solidão", "ciúmes", "dependência", "relacionamento", "amor", "parceiro", "carência emocional"],
         category: "Relacionamentos",
-        categoryEmoji: "❤️ Relacionamentos",
+        categoryEmoji: "️ Relacionamentos",
         title: "Carência e Dependência Emocional",
         ajuste: "A busca externa pela validação, segurança e afeto que você sente faltar em sua própria organização interna.",
         movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua própria base de segurança afetiva.",
@@ -110,7 +110,7 @@ const INFORMATIONAL_DATABASE = {
     "medo_julgamento": {
         keywords: ["julgamento", "crítica", "opinião", "exposição", "falar em público", "vergonha", "timidez", "esconder", "aparência"],
         category: "Autoestima",
-        categoryEmoji: "✨ Autoestima",
+        categoryEmoji: " Autoestima",
         title: "Medo do Julgamento e da Crítica",
         ajuste: "A necessidade de aprovação externa atuando como um filtro limitador da sua expressão e do seu potencial autêntico.",
         movimento: "Acolher sua verdade interna e compreender que a percepção do outro reflete a realidade dele, não o seu valor real.",
@@ -123,7 +123,7 @@ const INFORMATIONAL_DATABASE = {
     "sobrecarga_cansaco": {
         keywords: ["cansaço", "cansado", "esgotado", "sobrecarga", "estresse", "ansiedade", "energia", "vitalidade", "corpo", "limite"],
         category: "Saúde emocional",
-        categoryEmoji: "🌿 Saúde emocional",
+        categoryEmoji: " Saúde emocional",
         title: "Sobrecarga e Falta de Energia",
         ajuste: "Assumir responsabilidades e demandas que não são suas como uma forma inconsciente de buscar utilidade ou aceitação.",
         movimento: "Estabelecer limites claros e saudáveis, preservando seu estado interno e sua energia para o que é essencial.",
@@ -633,28 +633,28 @@ class ReorganizationEngine {
     static generateDynamicFallback(phrase) {
         const text = phrase.toLowerCase().trim();
         let category = "Autoconhecimento";
-        let categoryEmoji = "🧘 Autoconhecimento";
+        let categoryEmoji = " Autoconhecimento";
         let title = "Processo de Reorganização";
         
         if (text.includes("dinheiro") || text.includes("escassez") || text.includes("financeiro") || text.includes("rico") || text.includes("pobre") || text.includes("prosperar") || text.includes("economia")) {
             category = "Prosperidade";
-            categoryEmoji = "💰 Prosperidade";
+            categoryEmoji = " Prosperidade";
             title = "Ajuste de Prosperidade";
         } else if (text.includes("trabalho") || text.includes("empresa") || text.includes("negócio") || text.includes("carreira") || text.includes("vender") || text.includes("chefe") || text.includes("emprego")) {
             category = "Trabalho";
-            categoryEmoji = "💼 Trabalho";
+            categoryEmoji = " Trabalho";
             title = "Ajuste de Trabalho";
         } else if (text.includes("relacionamento") || text.includes("namorado") || text.includes("amor") || text.includes("casamento") || text.includes("traição") || text.includes("solidão") || text.includes("abandono") || text.includes("ciúme") || text.includes("marido") || text.includes("esposa")) {
             category = "Relacionamentos";
-            categoryEmoji = "❤️ Relacionamentos";
+            categoryEmoji = "️ Relacionamentos";
             title = "Ajuste de Relacionamento";
         } else if (text.includes("saúde") || text.includes("dor") || text.includes("doente") || text.includes("corpo") || text.includes("sono") || text.includes("cansado") || text.includes("energia") || text.includes("doença")) {
             category = "Saúde emocional";
-            categoryEmoji = "🌿 Saúde emocional";
+            categoryEmoji = " Saúde emocional";
             title = "Ajuste de Saúde Emocional";
         } else if (text.includes("medo") || text.includes("receio") || text.includes("pavor")) {
             category = "Coragem";
-            categoryEmoji = "🦁 Coragem";
+            categoryEmoji = " Coragem";
             title = "Ajuste de Coragem";
         }
 
@@ -1486,7 +1486,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAprofundamentoCounter();
     }
 
-    // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
+    //  Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
     async function generateMgiCommands(tema) {
         if (!tema || !tema.trim()) tema = "esta queixa";
 
@@ -1643,7 +1643,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 const isSelected = currentSentiments.includes(sentiment.toLowerCase());
                 const tag = document.createElement("span");
                 tag.className = `sentiment-tag-toggle ${isSelected ? "active" : ""}`;
-                tag.innerHTML = `${isSelected ? "✓ " : "+ "}${sentiment}`;
+                tag.innerHTML = `${isSelected ? " " : "+ "}${sentiment}`;
 
                 tag.addEventListener("click", () => {
                     const idx = state.addedFacts[factIndex].sentiments.findIndex(s => s.toLowerCase() === sentiment.toLowerCase());
@@ -1654,7 +1654,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                     } else {
                         state.addedFacts[factIndex].sentiments.push(sentiment);
                         tag.classList.add("active");
-                        tag.innerHTML = `✓ ${sentiment}`;
+                        tag.innerHTML = ` ${sentiment}`;
                     }
                 });
 
@@ -1667,7 +1667,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
 
             const customInput = document.createElement("input");
             customInput.type = "text";
-            customInput.placeholder = "➕ Digite outro sentimento (ex: vergonha, desespero)...";
+            customInput.placeholder = " Digite outro sentimento (ex: vergonha, desespero)...";
             customInput.style.cssText = "flex: 1; font-size: 0.78rem; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--color-border); background: rgba(255,255,255,0.06); color: var(--color-text); outline: none;";
 
             const btnAddCustom = document.createElement("button");
@@ -1685,7 +1685,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 if (!state.addedFacts[factIndex].sentiments.map(s => s.toLowerCase()).includes(val)) {
                     state.addedFacts[factIndex].sentiments.push(val);
                 }
-                showToast(`✨ Sentimento "${val}" adicionado à sua lista!`);
+                showToast(` Sentimento "${val}" adicionado à sua lista!`);
                 renderFactsEditor();
             };
 
@@ -2005,7 +2005,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             } finally {
                 btnRunAiAnalysis.disabled = false;
                 if (aiSpinner) aiSpinner.style.display = "none";
-                btnRunAiAnalysis.innerHTML = "🪄 Descobrir Minha Reorganização Informacional";
+                btnRunAiAnalysis.innerHTML = " Descobrir Minha Reorganização Informacional";
             }
         });
     }
@@ -2023,13 +2023,13 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         const hasFacts = state.addedFacts && state.addedFacts.length > 0;
 
         if (state.selectedMode === 3) {
-            btnSpan.textContent = "🚀 Ver Meus Ajustes de Motivação →";
+            btnSpan.textContent = " Ver Meus Ajustes de Motivação →";
         } else if (hasText) {
             btnSpan.textContent = "Analisar resposta e gerar reorganização →";
         } else if (hasFacts) {
             btnSpan.textContent = "Gerar Reorganização com Fatos Mapeados →";
         } else {
-            btnSpan.textContent = "✨ Gerar Meus Ajustes Informacionais →";
+            btnSpan.textContent = " Gerar Meus Ajustes Informacionais →";
         }
     }
 
@@ -2175,7 +2175,7 @@ Retorne JSON no formato exato:
                 // Limpar textarea, atualizar botão de continuar e notificar usuário
                 inputAprofundamento.value = "";
                 updateContinueButtonText();
-                showToast("✨ Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
+                showToast(" Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
 
                 // Rolar suavemente até o editor de fatos
                 if (mfiSection) {
@@ -2202,7 +2202,7 @@ Retorne JSON no formato exato:
     // ==========================================================================
 
 
-    // ✨ Corrige concordância gramatical das frases usando a IA (Groq/Gemini)
+    //  Corrige concordância gramatical das frases usando a IA (Groq/Gemini)
     async function correctConcordance(rawText) {
         if (!state.apiKey || !rawText || !rawText.trim()) return rawText;
         try {
@@ -2519,7 +2519,7 @@ Retorne JSON no formato exato:
             await this.stopSpeechRecognition();
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showToast("⚠️ Gravador de áudio não suportado neste navegador.");
+                showToast("️ Gravador de áudio não suportado neste navegador.");
                 return;
             }
 
@@ -2533,9 +2533,9 @@ Retorne JSON no formato exato:
                 this.audioChunks = [];
 
                 buttonEl.classList.add("listening");
-                buttonEl.innerHTML = "🔴";
+                buttonEl.innerHTML = "";
                 buttonEl.title = "Ouvindo... Clique para encerrar e converter em texto";
-                showToast("🎤 Gravando áudio! Fale normalmente. Clique em 🔴 quando terminar.");
+                showToast(" Gravando áudio! Fale normalmente. Clique em  quando terminar.");
 
                 // 1. Iniciar MediaRecorder para gravação nativa do áudio sem interrupções
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 
@@ -2586,7 +2586,7 @@ Retorne JSON no formato exato:
 
             } catch (micErr) {
                 console.warn("Permissão de microfone negada ou erro ao iniciar:", micErr);
-                showToast("⚠️ Permissão de microfone negada. Permita o microfone nas configurações do seu navegador.");
+                showToast("️ Permissão de microfone negada. Permita o microfone nas configurações do seu navegador.");
                 this.stopSpeechRecognition();
             }
         },
@@ -2669,18 +2669,18 @@ Retorne JSON no formato exato:
                                 }
                                 targetInput.dispatchEvent(new Event("input", { bubbles: true }));
                             }
-                            showToast("✨ Áudio transcrito com sucesso!");
+                            showToast(" Áudio transcrito com sucesso!");
                         }
                     }
                 } catch (wErr) {
                     console.warn("Erro ao transcrever com Groq Whisper:", wErr);
                 }
             } else if (audioBlob && audioBlob.size > 1000) {
-                showToast("✅ Ditado concluído!");
+                showToast(" Ditado concluído!");
             }
 
             if (buttonEl) {
-                buttonEl.innerHTML = "🎤";
+                buttonEl.innerHTML = "";
                 buttonEl.title = "Ditado por voz";
             }
 
@@ -2712,7 +2712,7 @@ Retorne JSON no formato exato:
 
             let cleanText = text.replace(/<[^>]*>/g, '').trim();
 
-            // ✨ Prepend "Repita comigo por gentileza!" APENAS para práticas de Ajustes Informacionais (Tela 3)
+            //  Prepend "Repita comigo por gentileza!" APENAS para práticas de Ajustes Informacionais (Tela 3)
             const shouldPrependRepeat = isRepeatPractice || (buttonEl && (buttonEl.id === "btn-tts-full-practice" || buttonEl.dataset.repeat === "true"));
             
             if (shouldPrependRepeat && !cleanText.toLowerCase().startsWith("repita comigo")) {
@@ -2870,7 +2870,7 @@ Retorne JSON no formato exato:
             document.querySelectorAll(".btn-tts-speak.speaking").forEach(btn => {
                 btn.classList.remove("speaking");
                 if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
-                else btn.innerHTML = "🔊 Ouvir";
+                else btn.innerHTML = " Ouvir";
             });
             this.currentUtterance = null;
             this.currentRawText = "";
@@ -3049,7 +3049,7 @@ Retorne JSON no formato exato:
 
             if (userStatusDisplay) {
                 if (state.currentUser.role === "therapist") {
-                    userStatusDisplay.innerText = "Terapeuta 🔑";
+                    userStatusDisplay.innerText = "Terapeuta ";
                     userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
                     userStatusDisplay.style.color = "var(--color-primary)";
                     userStatusDisplay.style.borderColor = "var(--color-primary)";
@@ -3503,7 +3503,7 @@ Retorne JSON no formato exato:
             }).then(() => {
                 inputEl.value = "";
                 updateUserUI();
-                showToast("Código ativado! Seus 7 dias de teste começaram agora. 🎉");
+                showToast("Código ativado! Seus 7 dias de teste começaram agora. ");
                 showScreen("step1");
             }).catch(err => {
                 console.error(err);
@@ -3620,8 +3620,8 @@ Retorne JSON no formato exato:
             .replace(/Ã\u0083/g, "Ã")
             .replace(/Ã\u0095/g, "Õ")
             .replace(/Ã\u0087/g, "Ç")
-            .replace(/âš ï¸ /g, "⚠️")
-            .replace(/âœ“/g, "✓")
+            .replace(/âš ï¸ /g, "️")
+            .replace(/âœ“/g, "")
             .replace(/Ã“/g, "Ó")
             .replace(/estÃ¡/g, "está")
             .replace(/padrÃ£o/g, "padrão")
@@ -3700,7 +3700,7 @@ Retorne JSON no formato exato:
                         ` : ''}
                         <div class="detail-section">
                             <strong>Ação de Integração:</strong>
-                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">🎯 ${cleanMicroacao}</p>
+                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;"> ${cleanMicroacao}</p>
                         </div>
                     </div>
                     <button class="btn-toggle-details">Ver detalhes ↓</button>
@@ -4072,7 +4072,7 @@ Pergunta atual: "${query}"
         }
     }
 
-    // 🔐 Segurança: se após 3s nenhuma tela estiver visível, força auth
+    //  Segurança: se após 3s nenhuma tela estiver visível, força auth
     setTimeout(() => {
         const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
         if (!anyActive) {
@@ -4375,7 +4375,7 @@ Pergunta atual: "${query}"
                 card.className = "practice-item-card";
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted);">
-                        <span>📅 ${r.date}</span>
+                        <span> ${r.date}</span>
                         <span style="font-weight: 600; color: var(--color-primary-glow);">${r.categoryEmoji}</span>
                     </div>
                     <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.75rem; color: var(--color-text-main);">"${r.phrase}"</div>
@@ -4396,14 +4396,14 @@ Pergunta atual: "${query}"
 
                         ${r.data && r.data.declaracaoNaoEspecifica ? `
                         <div>
-                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">🔄 Liberação Não Específica (1x por dia / 15 dias)</strong>
+                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;"> Liberação Não Específica (1x por dia / 15 dias)</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(102, 252, 241, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoNaoEspecifica}</p>
                         </div>
                         ` : ''}
 
                         ${r.data && r.data.microacao ? `
                         <div>
-                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">💡 Microação & Sugestão de Melhoria</strong>
+                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;"> Microação & Sugestão de Melhoria</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 4px; font-size: 0.8rem; color: var(--color-text-muted); white-space: pre-wrap;">${r.data.microacao}</p>
                         </div>
                         ` : ''}
@@ -4897,7 +4897,7 @@ Pergunta atual: "${query}"
                             }
                         }
                         if (allDone) {
-                            showToast("🎉 Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
+                            showToast(" Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
                         }
                     }
                 });
@@ -4938,7 +4938,7 @@ Pergunta atual: "${query}"
                             icon: "favicon.ico"
                         });
                     } else {
-                        showToast(`📌 Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
+                        showToast(` Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
                     }
                 }
             }
@@ -4954,12 +4954,12 @@ Pergunta atual: "${query}"
             const enabled = localStorage.getItem("reminders_enabled") === "true";
             if (enabled) {
                 btnToggleReminders.className = "btn btn-outline active";
-                btnToggleReminders.innerHTML = `<span>🔕 Desativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span> Desativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-primary)";
                 btnToggleReminders.style.color = "var(--color-primary)";
             } else {
                 btnToggleReminders.className = "btn btn-outline";
-                btnToggleReminders.innerHTML = `<span>🔔 Ativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span> Ativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-border)";
                 btnToggleReminders.style.color = "var(--color-text-muted)";
             }
