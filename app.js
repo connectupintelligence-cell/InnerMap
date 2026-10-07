@@ -3391,48 +3391,70 @@ Retorne JSON no formato exato:
         });
     });
 
-    // Código de convite / Reivindicar Assinatura Gratuita
     const btnClaimInvite = document.getElementById("btn-claim-invite");
     const inputInviteCode = document.getElementById("input-invite-code");
+    const btnAuthClaimInvite = document.getElementById("btn-auth-claim-invite");
+    const inputAuthInviteCode = document.getElementById("input-auth-invite-code");
+
+    function processInviteClaim(inputEl, btnEl) {
+        if (!inputEl) return;
+        const rawCode = inputEl.value.trim();
+        if (!rawCode) {
+            showToast("Digite o código de convite.");
+            return;
+        }
+        const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const validCodes = [
+            "euescolhoasminhasrealidades",
+            "innermap7",
+            "7dias",
+            "vip7",
+            "felipe7"
+        ];
+
+        if (validCodes.includes(codeNormalized)) {
+            if (btnEl) {
+                btnEl.disabled = true;
+                btnEl.innerHTML = `<span class="spinner"></span> Validando...`;
+            }
+
+            // Se o usuário ainda não tiver conta, salvar um perfil local de convidado
+            if (!state.currentUser) {
+                state.saveUser({
+                    email: "convidado@innermap.com.br",
+                    provider: "invite"
+                });
+            }
+
+            state.saveSubscription({
+                plan: "trial",
+                active: true,
+                date: new Date().toISOString()
+            }).then(() => {
+                inputEl.value = "";
+                updateUserUI();
+                showToast("Código ativado! Seus 7 dias de teste começaram agora. 🎉");
+                showScreen("step1");
+            }).catch(err => {
+                console.error(err);
+                showToast("Erro ao processar ativação do convite.");
+            }).finally(() => {
+                if (btnEl) {
+                    btnEl.disabled = false;
+                    btnEl.innerText = "Ativar 7 Dias";
+                }
+            });
+        } else {
+            showToast("Código de convite inválido ou expirado.");
+        }
+    }
 
     if (btnClaimInvite && inputInviteCode) {
-        btnClaimInvite.addEventListener("click", () => {
-            const rawCode = inputInviteCode.value.trim();
-            // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
-            const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            
-            const validCodes = [
-                "euescolhoasminhasrealidades",
-                "innermap7",
-                "7dias",
-                "vip7",
-                "felipe7"
-            ];
+        btnClaimInvite.addEventListener("click", () => processInviteClaim(inputInviteCode, btnClaimInvite));
+    }
 
-            if (validCodes.includes(codeNormalized)) {
-                btnClaimInvite.disabled = true;
-                btnClaimInvite.innerHTML = `<span class="spinner"></span> Validando...`;
-                
-                state.saveSubscription({
-                    plan: "trial",
-                    active: true,
-                    date: new Date().toISOString()
-                }).then(() => {
-                    inputInviteCode.value = "";
-                    updateUserUI();
-                    showToast("Código de convite ativado! Seus 7 dias de teste começaram agora. 🎉");
-                    showScreen("step1");
-                }).catch(err => {
-                    console.error(err);
-                    showToast("Erro ao processar ativação do convite.");
-                }).finally(() => {
-                    btnClaimInvite.disabled = false;
-                    btnClaimInvite.innerText = "Reivindicar";
-                });
-            } else {
-                showToast("Código de convite inválido ou expirado.");
-            }
-        });
+    if (btnAuthClaimInvite && inputAuthInviteCode) {
+        btnAuthClaimInvite.addEventListener("click", () => processInviteClaim(inputAuthInviteCode, btnAuthClaimInvite));
     }
 
     if (btnCloseCheckout) {
