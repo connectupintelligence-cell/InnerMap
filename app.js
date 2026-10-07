@@ -8,6 +8,98 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 window.appLoaded = true;
 
+// Função global de logout 100% resiliente e infalível
+window.handleAppLogout = function(e) {
+    if (e) {
+        try { if (e.preventDefault) e.preventDefault(); } catch(err){}
+        try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
+    }
+    console.log("Executando logout completo do usuário...");
+
+    // 1. Limpar todas as chaves de persistência no localStorage
+    try {
+        localStorage.removeItem("innermap_user");
+        localStorage.removeItem("innermap_subscription");
+        localStorage.removeItem("innermap_history");
+        localStorage.removeItem("innermap_custom_sentiments");
+        
+        // Limpar tokens do Supabase se existirem
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("sb-") || key.includes("supabase")) {
+                localStorage.removeItem(key);
+            }
+        });
+    } catch(err) {
+        console.warn("Erro ao limpar localStorage no logout:", err);
+    }
+
+    // 2. Limpar estado global em memória
+    if (window.state) {
+        window.state.currentUser = null;
+        window.state.subscription = null;
+        window.state.history = [];
+        window.state.currentStep = 0;
+    }
+
+    // 3. Remover classes do body
+    document.body.classList.remove("user-logged-in");
+    document.body.classList.remove("mode-therapist");
+
+    // 4. Garantir que o workspace do app esteja visível
+    const sectionApp = document.getElementById("app-workspace");
+    const sectionAgenda = document.getElementById("agenda-workspace");
+    const sectionLib = document.getElementById("library-workspace");
+    const sectionRag = document.getElementById("rag-workspace");
+    if (sectionApp) sectionApp.style.display = "block";
+    if (sectionAgenda) sectionAgenda.style.display = "none";
+    if (sectionLib) sectionLib.style.display = "none";
+    if (sectionRag) sectionRag.style.display = "none";
+
+    // 5. Esconder elementos de usuário logado e mostrar botões de login no header
+    const userNavContainer = document.getElementById("user-nav-container");
+    if (userNavContainer) userNavContainer.style.display = "none";
+
+    const mobileBtnLogout = document.getElementById("mobile-btn-logout");
+    if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
+
+    const btnLoginTrigger = document.getElementById("btn-login-trigger");
+    if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
+
+    const btnHeroLogin = document.getElementById("btn-hero-login");
+    if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
+
+    const navTherapist = document.getElementById("nav-therapist");
+    if (navTherapist) navTherapist.style.display = "none";
+
+    const mobileNavTherapist = document.getElementById("mobile-nav-therapist");
+    if (mobileNavTherapist) mobileNavTherapist.style.display = "none";
+
+    // 6. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
+    const screens = document.querySelectorAll(".app-screen");
+    screens.forEach(s => s.classList.remove("active"));
+    const screenAuth = document.getElementById("screen-auth");
+    if (screenAuth) {
+        screenAuth.classList.add("active");
+        screenAuth.style.display = "block";
+    }
+
+    // 7. Encerrar sessão remota no Supabase
+    if (window.supabaseClient) {
+        try {
+            window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
+        } catch (err) {
+            console.warn("Erro ao sair do Supabase:", err);
+        }
+    }
+
+    // 8. Forçar reload da página para garantir sessão limpa sem resíduos
+    setTimeout(() => {
+        window.location.reload();
+    }, 150);
+
+    return false;
+};
+
 /**
  * InnerMap - Motor de Reorganização Informacional
  * Core Logic, State Management & Supabase Backend Integration
