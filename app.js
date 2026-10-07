@@ -1030,7 +1030,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(({ data }) => { if (data && data.value) state.apiKey = data.value; })
             .catch(e => console.warn("Chave de API não carregada no startup:", e));
     }
-    if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_gemini_key") || null;
+    const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
+    if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
     
     
     const screens = {
@@ -1489,8 +1490,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function generateMgiCommands(tema) {
         if (!tema || !tema.trim()) tema = "esta queixa";
 
-        // Tentar contextualização gramatical via IA (Groq/Gemini)
-        if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+        // Tentar contextualização gramatical via IA (Groq/OpenAI/Gemini)
+        if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
             try {
                 const promptMgi = `Você é um psicoterapeuta especialista no Método InnerMap.
 O cliente forneceu o tema central: "${tema}".
@@ -1507,10 +1508,14 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
   "vivenciei": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)"
 }`;
 
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const isSk = state.apiKey.startsWith("sk-");
+                const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+
+                const res = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMgi }] })
+                    body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMgi }] })
                 });
 
                 if (res.ok) {
@@ -1764,7 +1769,8 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
 
     if (btnRunAiAnalysis && inputAiRelato) {
         btnRunAiAnalysis.addEventListener("click", async () => {
-            let apiKey = state.apiKey || "";
+            const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
+            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
 
             if (!apiKey) {
                 try {
@@ -1776,7 +1782,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
             }
 
             if (!apiKey) {
-                apiKey = prompt("Por favor, insira sua chave de API Groq (gsk_...) ou Gemini:");
+                apiKey = prompt("Por favor, insira sua chave de API OpenAI (sk-...), Groq (gsk_...) ou Gemini:");
                 if (!apiKey) return;
                 state.apiKey = apiKey;
                 localStorage.setItem("innermap_gemini_key", apiKey);
@@ -1798,6 +1804,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
             btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando com IA...';
 
             try {
+                const isOpenAi = apiKey.startsWith("sk-");
                 const isGroq = apiKey.startsWith("gsk_");
                 const isLegacyGemini = apiKey.startsWith("AIza");
 
@@ -1894,7 +1901,20 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
                 let response;
 
-                if (isGroq) {
+                if (isOpenAi) {
+                    response = await fetch("https://api.openai.com/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-4o-mini",
+                            response_format: { type: "json_object" },
+                            messages: [{ role: "user", content: prompt }]
+                        })
+                    });
+                } else if (isGroq) {
                     response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
                         headers: {
@@ -1931,9 +1951,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
                 const responseData = await response.json();
 
-                // Extrai o texto da resposta (formato diferente entre Groq e Gemini)
+                // Extrai o texto da resposta (formato diferente entre OpenAI/Groq e Gemini)
                 let textResponse;
-                if (isGroq) {
+                if (isOpenAi || isGroq) {
                     textResponse = responseData.choices[0].message.content;
                 } else {
                     textResponse = responseData.candidates[0].content.parts[0].text;
@@ -2040,11 +2060,15 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                     const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
 
                     let mergeResponse;
-                    if (state.apiKey && state.apiKey.startsWith("gsk_")) {
-                        mergeResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
+                        const isSk = state.apiKey.startsWith("sk-");
+                        const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                        const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+
+                        mergeResponse = await fetch(endpoint, {
                             method: "POST",
                             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                            body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                            body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
                         });
                         if (mergeResponse.ok) {
                             const mergeData = await mergeResponse.json();
@@ -2088,8 +2112,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             try {
                 let newFact = null;
 
-                // Tentar extração via IA (Groq/Gemini)
-                if (state.apiKey && state.apiKey.startsWith("gsk_")) {
+                // Tentar extração via IA (Groq/OpenAI/Gemini)
+                if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
                     const promptExtract = `Você é um psicoterapeuta sênior do Método InnerMap.
 O cliente respondeu à pergunta de aprofundamento com: "${resposta}"
 Relato anterior: "${state.relatoOriginal || ""}"
@@ -2105,10 +2129,14 @@ Retorne JSON no formato exato:
   "sentiments": ["culpa", "dor", "tristeza", "raiva", "medo", "insegurança"]
 }`;
 
-                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    const isSk = state.apiKey.startsWith("sk-");
+                    const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                    const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+
+                    const res = await fetch(endpoint, {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                        body: JSON.stringify({ model: "llama-3.3-70b-versatile", response_format: { type: "json_object" }, messages: [{ role: "user", content: promptExtract }] })
+                        body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptExtract }] })
                     });
 
                     if (res.ok) {
@@ -2185,11 +2213,15 @@ Retorne JSON no formato exato:
             const prompt = `Você é um especialista em língua portuguesa. Corrija apenas a concordância gramatical e as preposições do texto abaixo. Regras:\n1. NÃO altere palavras, não parafraseie, não adicione nem remova frases.\n2. Ajuste concordância gramatical (gênero, número, preposições como "ao/à", "pelo/pela").\n3. Resolva palavras entre parênteses como "pleno(a)", "seguro(a)", "criticado(a)" escolhendo a forma correta de acordo com o gênero inferido do contexto.\n4. Retorne apenas o texto corrigido, sem explicações nem formatação extra.${contextoGenero}\n\nTexto a corrigir:\n${rawText}`;
 
             let response;
-            if (state.apiKey.startsWith("gsk_")) {
-                response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            if (state.apiKey.startsWith("sk-") || state.apiKey.startsWith("gsk_")) {
+                const isSk = state.apiKey.startsWith("sk-");
+                const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+
+                response = await fetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }] })
+                    body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
                 });
                 if (!response.ok) return rawText;
                 const data = await response.json();
@@ -2597,8 +2629,9 @@ Retorne JSON no formato exato:
             this.mediaRecorder = null;
             this.audioChunks = [];
 
-            // Transcrever áudio via Groq Whisper API se houver chave configurada
-            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || "";
+            // Transcrever áudio via Whisper API (OpenAI/Groq) se houver chave configurada
+            const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
+            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
             if (!apiKey && supabaseClient) {
                 try {
                     const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
@@ -2606,16 +2639,19 @@ Retorne JSON no formato exato:
                 } catch(e) {}
             }
 
-            if (audioBlob && audioBlob.size > 1000 && apiKey && apiKey.startsWith("gsk_")) {
+            if (audioBlob && audioBlob.size > 1000 && apiKey && (apiKey.startsWith("gsk_") || apiKey.startsWith("sk-"))) {
                 showToast("⏳ Transcrevendo áudio com IA Whisper...");
                 try {
+                    const isSk = apiKey.startsWith("sk-");
                     const formData = new FormData();
                     formData.append("file", audioBlob, "speech.webm");
-                    formData.append("model", "whisper-large-v3-turbo");
+                    formData.append("model", isSk ? "whisper-1" : "whisper-large-v3-turbo");
                     formData.append("language", "pt");
                     formData.append("response_format", "json");
 
-                    const whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+                    const whisperEndpoint = isSk ? "https://api.openai.com/v1/audio/transcriptions" : "https://api.groq.com/openai/v1/audio/transcriptions";
+
+                    const whisperRes = await fetch(whisperEndpoint, {
                         method: "POST",
                         headers: { "Authorization": `Bearer ${apiKey}` },
                         body: formData
