@@ -3401,7 +3401,15 @@ Retorne JSON no formato exato:
             // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
             const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             
-            if (codeNormalized === "euescolhoasminhasrealidades") {
+            const validCodes = [
+                "euescolhoasminhasrealidades",
+                "innermap7",
+                "7dias",
+                "vip7",
+                "felipe7"
+            ];
+
+            if (validCodes.includes(codeNormalized)) {
                 btnClaimInvite.disabled = true;
                 btnClaimInvite.innerHTML = `<span class="spinner"></span> Validando...`;
                 
