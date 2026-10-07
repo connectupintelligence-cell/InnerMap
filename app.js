@@ -9,31 +9,42 @@ window.onerror = function(message, source, lineno, colno, error) {
 window.appLoaded = true;
 
 // Função global de logout 100% resiliente e infalível
-window.handleAppLogout = function(e) {
+window.handleAppLogout = async function(e) {
     if (e) {
         try { if (e.preventDefault) e.preventDefault(); } catch(err){}
         try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
     }
-    console.log("Executando logout completo do usuário...");
+    console.log("Executando logout limpo e seguro do usuário...");
 
-    // 1. Limpar todas as chaves de persistência no localStorage
+    // 1. Encerrar a sessão remota no Supabase primeiro (se conectado)
+    if (window.supabaseClient) {
+        try {
+            await window.supabaseClient.auth.signOut();
+        } catch (err) {
+            console.warn("SignOut Supabase:", err);
+        }
+    }
+
+    // 2. Limpar todas as chaves de persistência no localStorage
     try {
         localStorage.removeItem("innermap_user");
         localStorage.removeItem("innermap_subscription");
         localStorage.removeItem("innermap_history");
         localStorage.removeItem("innermap_custom_sentiments");
+        localStorage.removeItem("innermap_logged_out");
         
-        // Limpar tokens do Supabase se existirem
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith("sb-") || key.includes("supabase")) {
+        // Limpar tokens do Supabase no localStorage
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
                 localStorage.removeItem(key);
             }
-        });
+        }
     } catch(err) {
         console.warn("Erro ao limpar localStorage no logout:", err);
     }
 
-    // 2. Limpar estado global em memória
+    // 3. Limpar estado global em memória
     if (window.state) {
         window.state.currentUser = null;
         window.state.subscription = null;
@@ -41,11 +52,11 @@ window.handleAppLogout = function(e) {
         window.state.currentStep = 0;
     }
 
-    // 3. Remover classes do body
+    // 4. Remover classes do body
     document.body.classList.remove("user-logged-in");
     document.body.classList.remove("mode-therapist");
 
-    // 4. Garantir que o workspace do app esteja visível
+    // 5. Garantir que o workspace do app esteja visível
     const sectionApp = document.getElementById("app-workspace");
     const sectionAgenda = document.getElementById("agenda-workspace");
     const sectionLib = document.getElementById("library-workspace");
@@ -55,7 +66,7 @@ window.handleAppLogout = function(e) {
     if (sectionLib) sectionLib.style.display = "none";
     if (sectionRag) sectionRag.style.display = "none";
 
-    // 5. Esconder elementos de usuário logado e mostrar botões de login no header
+    // 6. Esconder elementos de usuário logado e mostrar botões de login no header
     const userNavContainer = document.getElementById("user-nav-container");
     if (userNavContainer) userNavContainer.style.display = "none";
 
@@ -74,7 +85,7 @@ window.handleAppLogout = function(e) {
     const mobileNavTherapist = document.getElementById("mobile-nav-therapist");
     if (mobileNavTherapist) mobileNavTherapist.style.display = "none";
 
-    // 6. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
+    // 7. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
     const screens = document.querySelectorAll(".app-screen");
     screens.forEach(s => s.classList.remove("active"));
     const screenAuth = document.getElementById("screen-auth");
@@ -83,19 +94,9 @@ window.handleAppLogout = function(e) {
         screenAuth.style.display = "block";
     }
 
-    // 7. Encerrar sessão remota no Supabase
-    if (window.supabaseClient) {
-        try {
-            window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
-        } catch (err) {
-            console.warn("Erro ao sair do Supabase:", err);
-        }
+    if (typeof showToast === "function") {
+        try { showToast("Você saiu da sua conta."); } catch(err){}
     }
-
-    // 8. Forçar reload da página para garantir sessão limpa sem resíduos
-    setTimeout(() => {
-        window.location.reload();
-    }, 150);
 
     return false;
 };
@@ -900,9 +901,6 @@ class AppStateManager {
 
     loadUser() {
         try {
-            if (localStorage.getItem("innermap_logged_out") === "true") {
-                return null;
-            }
             const stored = localStorage.getItem("innermap_user");
             return stored ? JSON.parse(stored) : null;
         } catch (e) {
@@ -916,10 +914,8 @@ class AppStateManager {
         try {
             if (user) {
                 localStorage.setItem("innermap_user", JSON.stringify(user));
-                localStorage.removeItem("innermap_logged_out");
             } else {
                 localStorage.removeItem("innermap_user");
-                localStorage.setItem("innermap_logged_out", "true");
             }
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
