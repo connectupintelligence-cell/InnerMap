@@ -3307,30 +3307,64 @@ Retorne JSON no formato exato:
         });
     }
 
+    // Função global de logout resiliente para chamadas diretas ou delegadas
+    window.handleAppLogout = function(e) {
+        if (e) {
+            try { if (e.preventDefault) e.preventDefault(); } catch(err){}
+            try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
+        }
+        console.log("Executando logout do usuário...");
+        if (window.state) {
+            window.state.saveUser(null);
+            window.state.saveSubscription(null);
+            window.state.history = [];
+        }
+        document.body.classList.remove("user-logged-in");
+
+        const userNavContainer = document.getElementById("user-nav-container");
+        if (userNavContainer) userNavContainer.style.display = "none";
+
+        const mobileBtnLogout = document.getElementById("mobile-btn-logout");
+        if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
+
+        const btnLoginTrigger = document.getElementById("btn-login-trigger");
+        if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
+
+        const btnHeroLogin = document.getElementById("btn-hero-login");
+        if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
+
+        if (typeof updateUserUI === "function") {
+            try { updateUserUI(); } catch(err){}
+        }
+        if (typeof showScreen === "function") {
+            try { showScreen("auth"); } catch(err){}
+        }
+        if (typeof showToast === "function") {
+            try { showToast("Você saiu da sua conta."); } catch(err){}
+        }
+
+        if (window.supabaseClient) {
+            try {
+                window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
+            } catch (err) {
+                console.warn("Erro ao sair do Supabase:", err);
+            }
+        }
+        return false;
+    };
+
     // Event listener global delegado para garantir que o logout SEMPRE funcione instantaneamente em qualquer dispositivo ou botão
     document.addEventListener("click", (e) => {
         const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
         if (logoutTarget) {
-            e.preventDefault();
-            e.stopPropagation();
+            window.handleAppLogout(e);
+        }
+    });
 
-            // 1. Limpar dados locais e atualizar UI imediatamente sem aguardar a rede
-            state.saveUser(null);
-            state.saveSubscription(null);
-            state.history = [];
-
-            updateUserUI();
-            showScreen("auth");
-            showToast("Você saiu da sua conta.");
-
-            // 2. Encerrar sessão remota no Supabase em segundo plano
-            if (supabaseClient) {
-                try {
-                    supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
-                } catch (err) {
-                    console.warn("Erro ao sair do Supabase:", err);
-                }
-            }
+    document.addEventListener("touchend", (e) => {
+        const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
+        if (logoutTarget) {
+            window.handleAppLogout(e);
         }
     });
 
