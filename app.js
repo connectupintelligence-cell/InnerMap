@@ -26,6 +26,12 @@ window.handleAppLogout = function(e) {
 
     // 2. Limpar estado global em memória
     if (window.state) {
+        if (typeof window.state.saveUser === "function") {
+            try { window.state.saveUser(null); } catch(err){}
+        }
+        if (typeof window.state.saveSubscription === "function") {
+            try { window.state.saveSubscription(null); } catch(err){}
+        }
         window.state.currentUser = null;
         window.state.subscription = null;
         window.state.history = [];
@@ -65,18 +71,31 @@ window.handleAppLogout = function(e) {
     const mobileNavTherapist = document.getElementById("mobile-nav-therapist");
     if (mobileNavTherapist) mobileNavTherapist.style.display = "none";
 
-    // 6. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
-    const screens = document.querySelectorAll(".app-screen");
-    screens.forEach(s => {
-        if (s) {
-            s.classList.remove("active");
-            s.style.display = "none";
+    // 6. Atualizar UI e mudar para tela auth
+    if (typeof updateUserUI === "function") {
+        try { updateUserUI(); } catch(err){}
+    }
+    if (typeof renderLibrary === "function") {
+        try { renderLibrary(); } catch(err){}
+    }
+    if (typeof renderStats === "function") {
+        try { renderStats(); } catch(err){}
+    }
+    if (typeof showScreen === "function") {
+        try { showScreen("auth"); } catch(err){}
+    } else {
+        const screens = document.querySelectorAll(".app-screen");
+        screens.forEach(s => {
+            if (s) {
+                s.classList.remove("active");
+                s.style.display = "none";
+            }
+        });
+        const screenAuth = document.getElementById("screen-auth");
+        if (screenAuth) {
+            screenAuth.classList.add("active");
+            screenAuth.style.display = "block";
         }
-    });
-    const screenAuth = document.getElementById("screen-auth");
-    if (screenAuth) {
-        screenAuth.classList.add("active");
-        screenAuth.style.display = "block";
     }
 
     if (typeof showToast === "function") {
@@ -84,9 +103,10 @@ window.handleAppLogout = function(e) {
     }
 
     // 7. Encerrar a sessão remota no Supabase em segundo plano (não-bloqueante)
-    if (window.supabaseClient) {
+    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+    if (client && client.auth) {
         try {
-            window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
+            client.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
         } catch (err) {
             console.warn("SignOut Supabase:", err);
         }
@@ -3403,51 +3423,7 @@ Retorne JSON no formato exato:
         });
     }
 
-    // Função global de logout resiliente para chamadas diretas ou delegadas
-    window.handleAppLogout = function(e) {
-        if (e) {
-            try { if (e.preventDefault) e.preventDefault(); } catch(err){}
-            try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
-        }
-        console.log("Executando logout do usuário...");
-        if (window.state) {
-            window.state.saveUser(null);
-            window.state.saveSubscription(null);
-            window.state.history = [];
-        }
-        document.body.classList.remove("user-logged-in");
 
-        const userNavContainer = document.getElementById("user-nav-container");
-        if (userNavContainer) userNavContainer.style.display = "none";
-
-        const mobileBtnLogout = document.getElementById("mobile-btn-logout");
-        if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
-
-        const btnLoginTrigger = document.getElementById("btn-login-trigger");
-        if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
-
-        const btnHeroLogin = document.getElementById("btn-hero-login");
-        if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
-
-        if (typeof updateUserUI === "function") {
-            try { updateUserUI(); } catch(err){}
-        }
-        if (typeof showScreen === "function") {
-            try { showScreen("auth"); } catch(err){}
-        }
-        if (typeof showToast === "function") {
-            try { showToast("Você saiu da sua conta."); } catch(err){}
-        }
-
-        if (window.supabaseClient) {
-            try {
-                window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
-            } catch (err) {
-                console.warn("Erro ao sair do Supabase:", err);
-            }
-        }
-        return false;
-    };
 
     // Event listener global delegado para garantir que o logout SEMPRE funcione instantaneamente em qualquer dispositivo ou botão
     document.addEventListener("click", (e) => {
