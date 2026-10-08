@@ -126,9 +126,9 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
 // ==========================================================================
 // Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
 // Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
-const INFINITEPAY_TAG = "connectup"; // Ex: "wavequantum"
-const INFINITEPAY_LINK_MONTHLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-GaCy6VClhl-49,90"; // Opcional: Link estático mensal (R$ 49,90)
-const INFINITEPAY_LINK_YEARLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-n9UsJS7UiU-478,80"; // Opcional: Link estático anual (R$ 478,80)
+const INFINITEPAY_TAG = "felipefavalli"; // Ex: "wavequantum"
+const INFINITEPAY_LINK_MONTHLY = ""; // Opcional: Link estático mensal (R$ 49,90)
+const INFINITEPAY_LINK_YEARLY = ""; // Opcional: Link estático anual (R$ 478,80)
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
