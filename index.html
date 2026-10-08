@@ -6,14 +6,39 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
-        window.handleAppLogout = function(e) {
+        window.handleAppLogout = async function(e) {
             if (e) {
                 try { if (e.preventDefault) e.preventDefault(); } catch(err){}
                 try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
             }
-            console.log("Executando logout limpo e seguro do usuário...");
+            console.log("Executando logout completo no cliente e no servidor Supabase...");
+            
+            // 1. Tentar deslogar no servidor Supabase com timeout de 800ms para revogar refresh tokens
+            var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+            if (client && client.auth) {
+                try {
+                    var signOutPromise = client.auth.signOut({ scope: 'global' }).catch(function(){});
+                    var timeoutPromise = new Promise(function(resolve) { setTimeout(resolve, 800); });
+                    await Promise.race([signOutPromise, timeoutPromise]);
+                } catch (err) {}
+            }
+
+            // 2. Limpar localStorage e sessionStorage
             try { localStorage.clear(); } catch(err){}
             try { sessionStorage.clear(); } catch(err){}
+
+            // 3. Limpar IndexedDB (onde o SDK do Supabase pode manter backup de tokens)
+            try {
+                if (window.indexedDB && window.indexedDB.databases) {
+                    window.indexedDB.databases().then(function(dbs) {
+                        dbs.forEach(function(db) {
+                            if (db.name) window.indexedDB.deleteDatabase(db.name);
+                        });
+                    }).catch(function(){});
+                }
+            } catch(err) {}
+
+            // 4. Limpar cookies
             try {
                 var cookies = document.cookie.split(";");
                 for (var i = 0; i < cookies.length; i++) {
@@ -23,16 +48,17 @@
                     document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
                 }
             } catch(err) {}
+
+            // 5. Limpar estado em memória
             if (window.state) {
                 window.state.currentUser = null;
                 window.state.subscription = null;
                 window.state.history = [];
             }
-            if (window.supabaseClient && window.supabaseClient.auth) {
-                try { window.supabaseClient.auth.signOut(); } catch(err){}
-            }
-            var cleanUrl = window.location.origin + window.location.pathname + '?logout=' + Date.now();
-            window.location.href = cleanUrl;
+
+            // 6. Recarregar limpo na URL base
+            var cleanUrl = window.location.origin + window.location.pathname;
+            window.location.replace(cleanUrl);
             return false;
         };
         window.addEventListener('error', function(e) {
@@ -161,28 +187,28 @@
                                 </label>
                                 <div class="objective-grid">
                                     <div class="objective-card active" data-mode="1" id="obj-card-1">
-                                        <span class="objective-icon"></span>
+                                        <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>
                                         <div class="objective-info">
                                             <strong>Desconforto Recente</strong>
                                             <small>Contar um fato ou conflito atual</small>
                                         </div>
                                     </div>
                                     <div class="objective-card" data-mode="2" id="obj-card-2">
-                                        <span class="objective-icon"></span>
+                                        <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#E8A855" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
                                         <div class="objective-info">
                                             <strong>História / Passado</strong>
                                             <small>Memórias de infância ou antepassados</small>
                                         </div>
                                     </div>
                                     <div class="objective-card" data-mode="3" id="obj-card-3">
-                                        <span class="objective-icon"></span>
+                                        <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#66FCF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
                                         <div class="objective-info">
                                             <strong>Motivação Rápida</strong>
                                             <small>Fortalecimento e foco para o dia/semana</small>
                                         </div>
                                     </div>
                                     <div class="objective-card" data-mode="4" id="obj-card-4">
-                                        <span class="objective-icon">️</span>
+                                        <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#B19CD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></span>
                                         <div class="objective-info">
                                             <strong>Reorganização Profunda</strong>
                                             <small>Panorama completo e transformação profunda</small>
@@ -1208,7 +1234,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=84"></script>
+    <script src="app.js?v=85"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
