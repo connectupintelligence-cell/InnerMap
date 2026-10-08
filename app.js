@@ -9,42 +9,22 @@ window.onerror = function(message, source, lineno, colno, error) {
 window.appLoaded = true;
 
 // Função global de logout 100% resiliente e infalível
-window.handleAppLogout = async function(e) {
+window.handleAppLogout = function(e) {
     if (e) {
         try { if (e.preventDefault) e.preventDefault(); } catch(err){}
         try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
     }
     console.log("Executando logout limpo e seguro do usuário...");
 
-    // 1. Encerrar a sessão remota no Supabase primeiro (se conectado)
-    if (window.supabaseClient) {
-        try {
-            await window.supabaseClient.auth.signOut();
-        } catch (err) {
-            console.warn("SignOut Supabase:", err);
-        }
-    }
-
-    // 2. Limpar todas as chaves de persistência no localStorage
+    // 1. Limpar todas as chaves de persistência no localStorage e sessionStorage IMEDIATAMENTE (SÍNCRONO)
     try {
-        localStorage.removeItem("innermap_user");
-        localStorage.removeItem("innermap_subscription");
-        localStorage.removeItem("innermap_history");
-        localStorage.removeItem("innermap_custom_sentiments");
-        localStorage.removeItem("innermap_logged_out");
-        
-        // Limpar tokens do Supabase no localStorage
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-            const key = localStorage.key(i);
-            if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
-                localStorage.removeItem(key);
-            }
-        }
+        localStorage.clear();
+        sessionStorage.clear();
     } catch(err) {
         console.warn("Erro ao limpar localStorage no logout:", err);
     }
 
-    // 3. Limpar estado global em memória
+    // 2. Limpar estado global em memória
     if (window.state) {
         window.state.currentUser = null;
         window.state.subscription = null;
@@ -52,11 +32,11 @@ window.handleAppLogout = async function(e) {
         window.state.currentStep = 0;
     }
 
-    // 4. Remover classes do body
+    // 3. Remover classes do body
     document.body.classList.remove("user-logged-in");
     document.body.classList.remove("mode-therapist");
 
-    // 5. Garantir que o workspace do app esteja visível
+    // 4. Garantir que o workspace do app esteja visível
     const sectionApp = document.getElementById("app-workspace");
     const sectionAgenda = document.getElementById("agenda-workspace");
     const sectionLib = document.getElementById("library-workspace");
@@ -66,7 +46,7 @@ window.handleAppLogout = async function(e) {
     if (sectionLib) sectionLib.style.display = "none";
     if (sectionRag) sectionRag.style.display = "none";
 
-    // 6. Esconder elementos de usuário logado e mostrar botões de login no header
+    // 5. Esconder elementos de usuário logado e mostrar botões de login no header
     const userNavContainer = document.getElementById("user-nav-container");
     if (userNavContainer) userNavContainer.style.display = "none";
 
@@ -85,9 +65,14 @@ window.handleAppLogout = async function(e) {
     const mobileNavTherapist = document.getElementById("mobile-nav-therapist");
     if (mobileNavTherapist) mobileNavTherapist.style.display = "none";
 
-    // 7. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
+    // 6. Ativar a tela de Auth (#screen-auth) e remover .active de todas as outras telas
     const screens = document.querySelectorAll(".app-screen");
-    screens.forEach(s => s.classList.remove("active"));
+    screens.forEach(s => {
+        if (s) {
+            s.classList.remove("active");
+            s.style.display = "none";
+        }
+    });
     const screenAuth = document.getElementById("screen-auth");
     if (screenAuth) {
         screenAuth.classList.add("active");
@@ -98,6 +83,14 @@ window.handleAppLogout = async function(e) {
         try { showToast("Você saiu da sua conta."); } catch(err){}
     }
 
+    // 7. Encerrar a sessão remota no Supabase em segundo plano (não-bloqueante)
+    if (window.supabaseClient) {
+        try {
+            window.supabaseClient.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
+        } catch (err) {
+            console.warn("SignOut Supabase:", err);
+        }
+    }
     return false;
 };
 
