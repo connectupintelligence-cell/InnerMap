@@ -6,59 +6,91 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
-        window.handleAppLogout = async function(e) {
+        window.handleAppLogout = function(e) {
             if (e) {
                 try { if (e.preventDefault) e.preventDefault(); } catch(err){}
                 try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
             }
-            console.log("Executando logout completo no cliente e no servidor Supabase...");
-            
-            // 1. Tentar deslogar no servidor Supabase com timeout de 800ms para revogar refresh tokens
-            var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
-            if (client && client.auth) {
-                try {
-                    var signOutPromise = client.auth.signOut({ scope: 'global' }).catch(function(){});
-                    var timeoutPromise = new Promise(function(resolve) { setTimeout(resolve, 800); });
-                    await Promise.race([signOutPromise, timeoutPromise]);
-                } catch (err) {}
-            }
+            console.log("Executando logout instantâneo (0ms)...");
 
-            // 2. Limpar localStorage e sessionStorage
+            // 1. Limpeza síncrona imediata de storage (0ms)
             try { localStorage.clear(); } catch(err){}
             try { sessionStorage.clear(); } catch(err){}
 
-            // 3. Limpar IndexedDB (onde o SDK do Supabase pode manter backup de tokens)
-            try {
-                if (window.indexedDB && window.indexedDB.databases) {
-                    window.indexedDB.databases().then(function(dbs) {
-                        dbs.forEach(function(db) {
-                            if (db.name) window.indexedDB.deleteDatabase(db.name);
-                        });
-                    }).catch(function(){});
-                }
-            } catch(err) {}
-
-            // 4. Limpar cookies
-            try {
-                var cookies = document.cookie.split(";");
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies[i];
-                    var eqPos = cookie.indexOf("=");
-                    var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                    document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-                }
-            } catch(err) {}
-
-            // 5. Limpar estado em memória
+            // 2. Limpeza do estado em memória (0ms)
             if (window.state) {
                 window.state.currentUser = null;
                 window.state.subscription = null;
                 window.state.history = [];
+                window.state.currentStep = 0;
             }
 
-            // 6. Recarregar limpo na URL base
-            var cleanUrl = window.location.origin + window.location.pathname;
-            window.location.replace(cleanUrl);
+            // 3. Atualização síncrona da UI no DOM (0ms)
+            try {
+                document.body.classList.remove("user-logged-in");
+                document.body.classList.remove("mode-therapist");
+
+                var userNavContainer = document.getElementById("user-nav-container");
+                if (userNavContainer) userNavContainer.style.display = "none";
+
+                var btnLoginTrigger = document.getElementById("btn-login-trigger");
+                if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
+
+                var btnHeroLogin = document.getElementById("btn-hero-login");
+                if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
+
+                var navTherapist = document.getElementById("nav-therapist");
+                if (navTherapist) navTherapist.style.display = "none";
+
+                // Esconder todas as telas ativas e exibir a tela de Auth (#screen-auth)
+                var screens = document.querySelectorAll(".app-screen");
+                screens.forEach(function(s) {
+                    if (s) {
+                        s.classList.remove("active");
+                        s.style.display = "none";
+                    }
+                });
+                var screenAuth = document.getElementById("screen-auth");
+                if (screenAuth) {
+                    screenAuth.classList.add("active");
+                    screenAuth.style.display = "block";
+                }
+            } catch(err) {
+                console.warn("Erro ao atualizar DOM no logout:", err);
+            }
+
+            // 4. Limpar navegação e workspaces (0ms)
+            try {
+                var sectionApp = document.getElementById("app-workspace");
+                var sectionAgenda = document.getElementById("agenda-workspace");
+                var sectionLib = document.getElementById("library-workspace");
+                var sectionRag = document.getElementById("rag-workspace");
+                if (sectionApp) sectionApp.style.display = "block";
+                if (sectionAgenda) sectionAgenda.style.display = "none";
+                if (sectionLib) sectionLib.style.display = "none";
+                if (sectionRag) sectionRag.style.display = "none";
+            } catch(err) {}
+
+            // 5. Toast de confirmação (0ms)
+            if (typeof showToast === "function") {
+                try { showToast("Você saiu da sua conta."); } catch(err){}
+            }
+
+            // 6. SignOut e limpeza de segundo plano (Não-bloqueante)
+            setTimeout(function() {
+                var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+                if (client && client.auth) {
+                    try { client.auth.signOut(); } catch(err){}
+                }
+                try {
+                    if (window.indexedDB && window.indexedDB.databases) {
+                        window.indexedDB.databases().then(function(dbs) {
+                            dbs.forEach(function(db) { if (db.name) window.indexedDB.deleteDatabase(db.name); });
+                        }).catch(function(){});
+                    }
+                } catch(err) {}
+            }, 10);
+
             return false;
         };
         window.addEventListener('error', function(e) {
@@ -1234,7 +1266,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=85"></script>
+    <script src="app.js?v=86"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

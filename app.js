@@ -9,59 +9,92 @@ window.onerror = function(message, source, lineno, colno, error) {
 window.appLoaded = true;
 
 // Função global de logout 100% resiliente e infalível
+// Função global de logout 100% síncrona e instantânea (0ms)
 window.handleAppLogout = function(e) {
     if (e) {
         try { if (e.preventDefault) e.preventDefault(); } catch(err){}
         try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
     }
-    console.log("Executando logout limpo e seguro do usuário...");
+    console.log("Executando logout instantâneo (0ms)...");
 
-    // 1. Limpar todas as chaves de persistência no localStorage e sessionStorage IMEDIATAMENTE (SÍNCRONO)
-    try {
-        localStorage.clear();
-        sessionStorage.clear();
-    } catch(err) {
-        console.warn("Erro ao limpar localStorage no logout:", err);
-    }
+    // 1. Limpeza síncrona imediata de storage (0ms)
+    try { localStorage.clear(); } catch(err){}
+    try { sessionStorage.clear(); } catch(err){}
 
-    // 2. Limpar cookies acessíveis
-    try {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-        }
-    } catch(err) {}
-
-    // 3. Limpar estado global em memória
+    // 2. Limpeza do estado em memória (0ms)
     if (window.state) {
-        if (typeof window.state.saveUser === "function") {
-            try { window.state.saveUser(null); } catch(err){}
-        }
-        if (typeof window.state.saveSubscription === "function") {
-            try { window.state.saveSubscription(null); } catch(err){}
-        }
         window.state.currentUser = null;
         window.state.subscription = null;
         window.state.history = [];
         window.state.currentStep = 0;
     }
 
-    // 4. Encerrar a sessão remota no Supabase em segundo plano (não-bloqueante)
-    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
-    if (client && client.auth) {
-        try {
-            client.auth.signOut().catch(err => console.warn("SignOut Supabase:", err));
-        } catch (err) {
-            console.warn("SignOut Supabase:", err);
+    // 3. Atualização síncrona da UI no DOM (0ms)
+    try {
+        document.body.classList.remove("user-logged-in");
+        document.body.classList.remove("mode-therapist");
+
+        var userNavContainer = document.getElementById("user-nav-container");
+        if (userNavContainer) userNavContainer.style.display = "none";
+
+        var btnLoginTrigger = document.getElementById("btn-login-trigger");
+        if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
+
+        var btnHeroLogin = document.getElementById("btn-hero-login");
+        if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
+
+        var navTherapist = document.getElementById("nav-therapist");
+        if (navTherapist) navTherapist.style.display = "none";
+
+        // Esconder todas as telas ativas e exibir a tela de Auth (#screen-auth)
+        var screens = document.querySelectorAll(".app-screen");
+        screens.forEach(function(s) {
+            if (s) {
+                s.classList.remove("active");
+                s.style.display = "none";
+            }
+        });
+        var screenAuth = document.getElementById("screen-auth");
+        if (screenAuth) {
+            screenAuth.classList.add("active");
+            screenAuth.style.display = "block";
         }
+    } catch(err) {
+        console.warn("Erro ao atualizar DOM no logout:", err);
     }
 
-    // 5. Redirecionar para recarregamento 100% limpo
-    const cleanUrl = window.location.origin + window.location.pathname + '?logout=' + Date.now();
-    window.location.href = cleanUrl;
+    // 4. Limpar navegação e workspaces (0ms)
+    try {
+        var sectionApp = document.getElementById("app-workspace");
+        var sectionAgenda = document.getElementById("agenda-workspace");
+        var sectionLib = document.getElementById("library-workspace");
+        var sectionRag = document.getElementById("rag-workspace");
+        if (sectionApp) sectionApp.style.display = "block";
+        if (sectionAgenda) sectionAgenda.style.display = "none";
+        if (sectionLib) sectionLib.style.display = "none";
+        if (sectionRag) sectionRag.style.display = "none";
+    } catch(err) {}
+
+    // 5. Toast de confirmação (0ms)
+    if (typeof showToast === "function") {
+        try { showToast("Você saiu da sua conta."); } catch(err){}
+    }
+
+    // 6. SignOut e limpeza de segundo plano (Não-bloqueante)
+    setTimeout(function() {
+        var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+        if (client && client.auth) {
+            try { client.auth.signOut(); } catch(err){}
+        }
+        try {
+            if (window.indexedDB && window.indexedDB.databases) {
+                window.indexedDB.databases().then(function(dbs) {
+                    dbs.forEach(function(db) { if (db.name) window.indexedDB.deleteDatabase(db.name); });
+                }).catch(function(){});
+            }
+        } catch(err) {}
+    }, 10);
+
     return false;
 };
 
