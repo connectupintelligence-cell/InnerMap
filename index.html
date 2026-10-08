@@ -6,6 +6,35 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
+        window.handleAppLogout = function(e) {
+            if (e) {
+                try { if (e.preventDefault) e.preventDefault(); } catch(err){}
+                try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
+            }
+            console.log("Executando logout limpo e seguro do usuário...");
+            try { localStorage.clear(); } catch(err){}
+            try { sessionStorage.clear(); } catch(err){}
+            try {
+                var cookies = document.cookie.split(";");
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    var eqPos = cookie.indexOf("=");
+                    var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                    document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                }
+            } catch(err) {}
+            if (window.state) {
+                window.state.currentUser = null;
+                window.state.subscription = null;
+                window.state.history = [];
+            }
+            if (window.supabaseClient && window.supabaseClient.auth) {
+                try { window.supabaseClient.auth.signOut(); } catch(err){}
+            }
+            var cleanUrl = window.location.origin + window.location.pathname + '?logout=' + Date.now();
+            window.location.href = cleanUrl;
+            return false;
+        };
         window.addEventListener('error', function(e) {
             var errDiv = document.getElementById('debug-error-console');
             if (!errDiv) {
@@ -1190,7 +1219,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=81"></script>
+    <script src="app.js?v=82"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

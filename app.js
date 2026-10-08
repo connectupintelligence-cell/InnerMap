@@ -889,7 +889,17 @@ class AppStateManager {
     loadSubscription() {
         try {
             const stored = localStorage.getItem("innermap_subscription");
-            return stored ? JSON.parse(stored) : null;
+            if (stored) return JSON.parse(stored);
+            if (this.currentUser) {
+                const trial = {
+                    plan: "trial",
+                    active: true,
+                    date: new Date().toLocaleDateString('pt-BR')
+                };
+                localStorage.setItem("innermap_subscription", JSON.stringify(trial));
+                return trial;
+            }
+            return null;
         } catch (e) {
             console.warn("Erro ao ler assinatura no localStorage:", e);
             return null;
@@ -973,8 +983,15 @@ class AppStateManager {
                         active: subData.active,
                         date: subData.date
                     };
-                    localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+                } else {
+                    // Se o usuário não possui assinatura cadastrada no banco, concede 7 dias de teste automático
+                    this.subscription = {
+                        plan: "trial",
+                        active: true,
+                        date: new Date().toLocaleDateString('pt-BR')
+                    };
                 }
+                localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
 
                 // 2. Buscar Histórico de Reorganizações Remoto
                 const { data: histData, error: histErr } = await supabaseClient
