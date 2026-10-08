@@ -3348,17 +3348,27 @@ Retorne JSON no formato exato:
             btnAuthGoogle.disabled = true;
             btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
 
+            try {
+                localStorage.removeItem("innermap_logged_out");
+            } catch (e) {}
+
             if (supabaseClient) {
                 try {
-                    const { error } = await supabaseClient.auth.signInWithOAuth({
+                    const cleanRedirectUrl = window.location.href.split('#')[0].split('?')[0];
+                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin + window.location.pathname
+                            redirectTo: cleanRedirectUrl
                         }
                     });
                     if (error) throw error;
+
+                    if (data && data.url) {
+                        window.location.href = data.url;
+                    }
                 } catch (err) {
-                    showAuthError("Erro ao conectar com o Google: " + err.message);
+                    console.error("Erro ao conectar com o Google:", err);
+                    showAuthError("Erro ao conectar com o Google: " + (err.message || err));
                     btnAuthGoogle.disabled = false;
                     btnAuthGoogle.innerHTML = `
                         <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
@@ -4092,8 +4102,7 @@ Pergunta atual: "${query}"
 
         // 1. Obter sessão inicial de forma imediata (Promise)
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            const isExplicitLoggedOut = localStorage.getItem("innermap_logged_out") === "true";
-            if (session && session.user && !isExplicitLoggedOut) {
+            if (session && session.user) {
                 state.saveUser({
                     email: session.user.email,
                     provider: session.user.app_metadata.provider || "email",
@@ -4114,9 +4123,6 @@ Pergunta atual: "${query}"
                     }
                 });
             } else {
-                if (isExplicitLoggedOut && session) {
-                    supabaseClient.auth.signOut().catch(() => {});
-                }
                 state.saveUser(null);
                 state.saveSubscription(null);
                 state.history = [];
@@ -4132,8 +4138,7 @@ Pergunta atual: "${query}"
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            const isExplicitLoggedOut = localStorage.getItem("innermap_logged_out") === "true";
-            if (event === "SIGNED_IN" && session && !isExplicitLoggedOut) {
+            if (event === "SIGNED_IN" && session) {
                 state.saveUser({
                     email: session.user.email,
                     provider: session.user.app_metadata.provider || "email",
@@ -4146,7 +4151,7 @@ Pergunta atual: "${query}"
                 if (checkSubscriptionStatus()) {
                     showScreen((state.subscription || (state.currentUser && state.currentUser.role === "therapist")) ? "step1" : "paywall");
                 }
-            } else if (event === "SIGNED_OUT" || isExplicitLoggedOut) {
+            } else if (event === "SIGNED_OUT") {
                 state.saveUser(null);
                 state.saveSubscription(null);
                 state.history = [];
