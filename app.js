@@ -5131,7 +5131,14 @@ window.openAccountModal = function() {
         if (state.currentUser && state.currentUser.role === "therapist") {
             planEl.textContent = "Acesso Especial Terapeuta";
         } else if (state.subscription) {
-            planEl.textContent = state.subscription.plan === "yearly" ? "Plano Anual Premium" : (state.subscription.plan === "trial" ? "Período de Teste (7 Dias)" : "Plano Mensal Premium");
+            if (state.subscription.plan === "trial") {
+            planEl.innerHTML = 'Período de Teste (7 Dias) — <a href="#" onclick="document.getElementById(\'account-modal\').style.display=\'none\'; showScreen(\'paywall\'); return false;" style="color: #E8A855; font-weight: 700; text-decoration: underline;">Assinar Anual +15 Dias Bônus 🎁</a>';
+        } else if (state.subscription.plan === "yearly") {
+            const hasBonus = state.subscription.bonus_days ? ` (+ ${state.subscription.bonus_days}d bônus)` : '';
+            planEl.textContent = "Plano Anual Premium" + hasBonus;
+        } else {
+            planEl.textContent = "Plano Mensal Premium";
+        }
         } else {
             planEl.textContent = "Sem plano ativo";
         }
