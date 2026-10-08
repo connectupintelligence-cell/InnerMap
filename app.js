@@ -24,7 +24,18 @@ window.handleAppLogout = function(e) {
         console.warn("Erro ao limpar localStorage no logout:", err);
     }
 
-    // 2. Limpar estado global em memória
+    // 2. Limpar cookies acessíveis
+    try {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name.trim() + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
+    } catch(err) {}
+
+    // 3. Limpar estado global em memória
     if (window.state) {
         if (typeof window.state.saveUser === "function") {
             try { window.state.saveUser(null); } catch(err){}
@@ -38,71 +49,7 @@ window.handleAppLogout = function(e) {
         window.state.currentStep = 0;
     }
 
-    // 3. Remover classes do body
-    document.body.classList.remove("user-logged-in");
-    document.body.classList.remove("mode-therapist");
-
-    // 4. Garantir que o workspace do app esteja visível
-    const sectionApp = document.getElementById("app-workspace");
-    const sectionAgenda = document.getElementById("agenda-workspace");
-    const sectionLib = document.getElementById("library-workspace");
-    const sectionRag = document.getElementById("rag-workspace");
-    if (sectionApp) sectionApp.style.display = "block";
-    if (sectionAgenda) sectionAgenda.style.display = "none";
-    if (sectionLib) sectionLib.style.display = "none";
-    if (sectionRag) sectionRag.style.display = "none";
-
-    // 5. Esconder elementos de usuário logado e mostrar botões de login no header
-    const userNavContainer = document.getElementById("user-nav-container");
-    if (userNavContainer) userNavContainer.style.display = "none";
-
-    const mobileBtnLogout = document.getElementById("mobile-btn-logout");
-    if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
-
-    const btnLoginTrigger = document.getElementById("btn-login-trigger");
-    if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
-
-    const btnHeroLogin = document.getElementById("btn-hero-login");
-    if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
-
-    const navTherapist = document.getElementById("nav-therapist");
-    if (navTherapist) navTherapist.style.display = "none";
-
-    const mobileNavTherapist = document.getElementById("mobile-nav-therapist");
-    if (mobileNavTherapist) mobileNavTherapist.style.display = "none";
-
-    // 6. Atualizar UI e mudar para tela auth
-    if (typeof updateUserUI === "function") {
-        try { updateUserUI(); } catch(err){}
-    }
-    if (typeof renderLibrary === "function") {
-        try { renderLibrary(); } catch(err){}
-    }
-    if (typeof renderStats === "function") {
-        try { renderStats(); } catch(err){}
-    }
-    if (typeof showScreen === "function") {
-        try { showScreen("auth"); } catch(err){}
-    } else {
-        const screens = document.querySelectorAll(".app-screen");
-        screens.forEach(s => {
-            if (s) {
-                s.classList.remove("active");
-                s.style.display = "none";
-            }
-        });
-        const screenAuth = document.getElementById("screen-auth");
-        if (screenAuth) {
-            screenAuth.classList.add("active");
-            screenAuth.style.display = "block";
-        }
-    }
-
-    if (typeof showToast === "function") {
-        try { showToast("Você saiu da sua conta."); } catch(err){}
-    }
-
-    // 7. Encerrar a sessão remota no Supabase em segundo plano (não-bloqueante)
+    // 4. Encerrar a sessão remota no Supabase em segundo plano (não-bloqueante)
     const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
     if (client && client.auth) {
         try {
@@ -111,6 +58,10 @@ window.handleAppLogout = function(e) {
             console.warn("SignOut Supabase:", err);
         }
     }
+
+    // 5. Redirecionar para recarregamento 100% limpo
+    const cleanUrl = window.location.origin + window.location.pathname + '?logout=' + Date.now();
+    window.location.href = cleanUrl;
     return false;
 };
 
@@ -4153,8 +4104,15 @@ Pergunta atual: "${query}"
         }
     }, 3000);
 
-    // Verificar retorno de pagamento da InfinitePay na URL
+    // Verificar parâmetro de logout na URL
     const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("logout")) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        if (typeof showToast === "function") {
+            try { showToast("Você saiu da sua conta com sucesso."); } catch(e){}
+        }
+    }
+
     if (urlParams.get("payment") === "success") {
         const plan = urlParams.get("plan");
         // Limpar parâmetros da URL para evitar recargas ativando repetidamente
