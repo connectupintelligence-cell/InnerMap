@@ -180,6 +180,7 @@
             <div class="user-nav-container" id="user-nav-container" style="display: none; align-items: center; gap: 0.75rem;">
                 <span class="user-email" id="user-email-display" style="font-size: 0.85rem; color: var(--color-text-muted);"></span>
                 <span class="user-status-badge" id="user-status-display" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: rgba(102, 252, 241, 0.15); border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: 100px; font-weight: 600;"></span>
+                <button id="btn-account-settings" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.35rem 0.7rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem;" onclick="window.openAccountModal();" title="Minha Conta & Privacidade LGPD"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Minha Conta</button>
                 <button id="btn-logout" class="btn-logout" onclick="window.handleAppLogout(event); return false;" title="Sair da Conta">Sair da Conta <svg class="btn-logout-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
             </div>
             <button id="btn-login-trigger" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">Acessar Conta</button>
@@ -321,8 +322,8 @@
                                         </button>
                                     </div>
                                     <p id="ai-pergunta" style="font-size: 1rem; color: var(--color-text); line-height: 1.6; margin: 0 0 1rem 0; font-weight: 500;"></p>
-                                    
-                                    <div class="input-with-mic-container">
+
+                             <div class="input-with-mic-container">
                                         <textarea id="input-ai-aprofundamento" class="textarea-quantum" style="height: 100px; font-size: 0.9rem; line-height: 1.5; padding-right: 50px;" placeholder="Escreva aqui o que quiser compartilhar... (opcional)"></textarea>
                                         <button type="button" class="btn-mic-input" data-target="input-ai-aprofundamento" title="Ditado por voz">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--color-primary);"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
@@ -543,6 +544,19 @@
                                 <input type="password" id="auth-password" class="input-quantum" placeholder="••••••••" required>
                             </div>
                             
+                            
+                            <!-- LGPD Checkboxes for Registration Tab -->
+                            <div id="auth-lgpd-checkboxes" style="display: none; flex-direction: column; gap: 0.75rem; margin-top: 0.75rem; text-align: left; font-size: 0.82rem; color: var(--color-text-muted); line-height: 1.4;">
+                                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="lgpd-check-terms" style="margin-top: 2px; accent-color: var(--color-primary);">
+                                    <span>Tenho 18 anos ou mais e li os <a href="#" onclick="window.openLgpdModal(); return false;" style="color: var(--color-primary); text-decoration: underline;">Termos de Uso e Aviso de Privacidade</a>.</span>
+                                </label>
+                                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="lgpd-check-sensitive" style="margin-top: 2px; accent-color: var(--color-primary);">
+                                    <span>Consinto, de forma específica e destacada, que os meus relatos e registros, que podem conter dados sensíveis, sejam tratados pelo InnerMap e processados por inteligência artificial para gerar as minhas práticas, conforme o <a href="#" onclick="window.openLgpdModal(); return false;" style="color: var(--color-primary); text-decoration: underline;">Aviso de Privacidade</a>. Posso revogar este consentimento a qualquer momento.</span>
+                                </label>
+                            </div>
+
                             <button type="submit" id="btn-auth-submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Acessar Conta</button>
                         </form>
                         
@@ -1193,6 +1207,179 @@
 
 
 
+    
+    <!-- Modal: Minha Conta & Direitos LGPD -->
+    <div id="account-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass-card" style="max-width: 580px; max-height: 85vh; overflow-y: auto; text-align: left; padding: 2rem;">
+            <button id="btn-close-account-modal" class="modal-close-btn" onclick="document.getElementById('account-modal').style.display='none';">&times;</button>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <h3 class="modal-title" style="font-size: 1.3rem; margin: 0; color: var(--color-primary);">Minha Conta & Privacidade</h3>
+            </div>
+            <p class="modal-subtitle" style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Gerencie seus dados pessoais, preferências de consentimento e direitos LGPD.</p>
+
+            <!-- Informações do Usuário -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--color-border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 600;">E-mail Cadastrado</p>
+                <p id="account-user-email" style="margin: 0 0 1rem 0; font-size: 1rem; font-weight: 600; color: var(--color-text-main);"></p>
+
+                <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 600;">Status da Assinatura</p>
+                <p id="account-user-plan" style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--color-primary);"></p>
+            </div>
+
+            <!-- Direitos do Titular LGPD -->
+            <h4 style="font-size: 0.95rem; color: var(--color-text-main); margin: 0 0 1rem 0; font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Seus Direitos (LGPD - Lei nº 13.709/2018)
+            </h4>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+                <!-- Baixar meus dados -->
+                <button type="button" class="btn btn-outline" onclick="window.downloadUserData();" style="display: flex; align-items: center; justify-content: space-between; text-align: left; padding: 0.85rem 1rem; border-color: rgba(102, 252, 241, 0.3);">
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; color: var(--color-text-main);">Baixar Meus Dados (Portabilidade)</strong>
+                        <span style="font-size: 0.78rem; color: var(--color-text-muted);">Faça o download do seu histórico, agenda e dados em formato JSON.</span>
+                    </div>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary); flex-shrink: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+
+                <!-- Revogar consentimento -->
+                <button type="button" class="btn btn-outline" onclick="window.revokeConsent();" style="display: flex; align-items: center; justify-content: space-between; text-align: left; padding: 0.85rem 1rem; border-color: rgba(234, 168, 85, 0.4);">
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; color: #E8A855;">Revogar Consentimento de IA</strong>
+                        <span style="font-size: 0.78rem; color: var(--color-text-muted);">Cancele a autorização para processamento de relatos sensíveis por Inteligência Artificial.</span>
+                    </div>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #E8A855; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                </button>
+
+                <!-- Excluir conta e relatos -->
+                <button type="button" class="btn btn-outline" onclick="window.deleteUserAccount();" style="display: flex; align-items: center; justify-content: space-between; text-align: left; padding: 0.85rem 1rem; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; color: #f87171;">Excluir Minha Conta e Meus Relatos</strong>
+                        <span style="font-size: 0.78rem; color: var(--color-text-muted);">Elimine permanentemente seus relatos e registros armazenados.</span>
+                    </div>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #f87171; flex-shrink: 0;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+            </div>
+
+            <!-- Contato do Encarregado / DPO -->
+            <div style="background: rgba(0,0,0,0.2); border: 1px solid var(--color-border); border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.5;">
+                <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">Encarregado pelo Tratamento de Dados (DPO):</strong>
+                Felipe Chaves Favalli<br>
+                Contato: (12) 99784-3187 | <a href="mailto:contato@innermap.app" style="color: var(--color-primary); text-decoration: underline;">contato@innermap.app</a>
+            </div>
+            
+            <div style="margin-top: 1rem; text-align: center;">
+                <a href="#" onclick="window.openLgpdModal(); return false;" style="font-size: 0.82rem; color: var(--color-primary); text-decoration: underline;">Ler os Termos de Uso e Aviso de Privacidade Completo (LGPD)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Termos de Uso e Aviso de Privacidade LGPD Completo -->
+    <div id="lgpd-privacy-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass-card" style="max-width: 750px; max-height: 90vh; overflow-y: auto; text-align: left; padding: 2rem;">
+            <button id="btn-close-lgpd-modal" class="modal-close-btn" onclick="document.getElementById('lgpd-privacy-modal').style.display='none';">&times;</button>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <h3 class="modal-title" style="font-size: 1.3rem; margin: 0; color: var(--color-primary);">Termos de Uso e Aviso de Privacidade (LGPD)</h3>
+            </div>
+            <p class="modal-subtitle" style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Em conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).</p>
+
+            <div class="lgpd-terms-content" style="font-size: 0.88rem; color: var(--color-text-main); line-height: 1.7; display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">1. Quem é o controlador</strong>
+                    <p style="margin: 0.3rem 0 0 0;">O controlador dos dados pessoais tratados no InnerMap é InnerMap, inscrito no CNPJ nº 52.028.849/0001-77, com contato no e-mail contato@innermap.app. O encarregado pelo tratamento de dados pessoais (art. 41 da Lei nº 13.709/2018, a LGPD) é Felipe Chaves Favalli, contato: (12) 99784-3187 | contato@innermap.app.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">2. Quais dados tratamos</strong>
+                    <p style="margin: 0.3rem 0 0 0;">
+                        a) <em>Dados de cadastro:</em> e-mail, senha (armazenada de forma protegida) ou identificador da conta Google, e nome (se informado).<br>
+                        b) <em>Conteúdo que você produz:</em> relatos, respostas às perguntas do app, fatos e sentimentos mapeados, registros pós-prática, histórico de reorganizações, agenda e marcações de exercícios.<br>
+                        c) <em>Dados de uso e técnicos:</em> datas e horários de acesso, endereço IP, tipo de dispositivo e navegador, registros de acesso.<br>
+                        d) <em>Dados de pagamento:</em> nome, e-mail, plano contratado, valor, status e identificador da transação. O pagamento é processado pela InfinitePay (CloudWalk). <strong>Não armazenamos dados de cartão.</strong>
+                    </p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">3. Dados pessoais sensíveis</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Os relatos que você escreve podem revelar dados pessoais sensíveis, como saúde, vida sexual, convicção religiosa, origem racial ou étnica, entre outros (art. 5º, II, e art. 11 da LGPD). Esses dados só são tratados mediante o seu <strong>consentimento específico e destacado</strong> (art. 11, I), para as finalidades descritas na cláusula 4. Você escolhe o que escrever. Recomendamos não incluir dados identificáveis de terceiros (nomes completos, documentos, endereços).</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">4. Para que usamos os dados</strong>
+                    <p style="margin: 0.3rem 0 0 0;">
+                        a) Prestar o serviço: gerar a leitura, as práticas, a microação e a agenda a partir do seu relato.<br>
+                        b) Manter a sua biblioteca, o histórico e o painel de evolução.<br>
+                        c) Dar suporte e se comunicar com você sobre o serviço.<br>
+                        d) Processar pagamentos e cumprir obrigações legais e fiscais.<br>
+                        e) Garantir a segurança da plataforma e prevenir fraudes.<br>
+                        f) Melhorar o serviço, apenas com dados anonimizados ou agregados.<br>
+                        Não vendemos os seus dados, não usamos os seus relatos para publicidade e não os compartilhamos com terceiros para finalidades diferentes das descritas aqui.
+                    </p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">5. Inteligência artificial</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Para gerar a leitura e as práticas, o texto do seu relato é enviado a um provedor de inteligência artificial (OpenAI API), que atua como nosso operador. O conteúdo gerado é produzido automaticamente, pode conter erros e <strong>não constitui diagnóstico, parecer psicológico nem substitui atendimento profissional</strong>. A OpenAI não utiliza os dados enviados via API para treinar modelos públicos. <strong>Privacidade dos relatos:</strong> A equipe do InnerMap e os terapeutas NÃO têm acesso ao conteúdo dos seus relatos privados.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">6. Com quem compartilhamos</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Apenas com operadores necessários ao serviço: hospedagem e banco de dados (Supabase Cloud), inteligência artificial (OpenAI API), pagamentos (InfinitePay) e envio de e-mails. Também podemos compartilhar dados por obrigação legal ou ordem de autoridade competente.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">7. Transferência internacional</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Alguns operadores (como Supabase e OpenAI) podem tratar dados fora do Brasil (como nos EUA). Nesses casos, adotamos as garantias previstas no art. 33 da LGPD, como cláusulas contratuais adequadas e padrões de segurança da informação.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">8. Por quanto tempo guardamos</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Seus dados são mantidos por até 1 ano de inatividade ou enquanto a sua conta estiver ativa. Após o pedido de exclusão, eliminamos os seus relatos e registros em até 15 dias, salvo o que precisarmos manter por obrigação legal (por exemplo, dados fiscais e de pagamento por 5 anos) e os registros de acesso à aplicação, que a lei exige manter por 6 meses (Marco Civil da Internet, art. 15).</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">9. Segurança</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Adotamos medidas técnicas e administrativas para proteger os dados, como criptografia em trânsito (HTTPS/SSL), criptografia em repouso e controle de acesso estrito. Em caso de incidente de segurança que possa causar risco ou dano relevante, comunicaremos você e a Autoridade Nacional de Proteção de Dados (ANPD), conforme o art. 48 da LGPD.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">10. Seus direitos</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Você pode, a qualquer momento e mediante pedido: confirmar a existência de tratamento; acessar os dados; corrigir dados incompletos ou desatualizados; solicitar anonimização, bloqueio ou eliminação; pedir a portabilidade; saber com quem compartilhamos os dados; ser informado(a) sobre a possibilidade de não consentir e as consequências; <strong>revogar o consentimento</strong>; e pedir revisão de decisões tomadas unicamente de forma automatizada (arts. 8º, §5º, 18 e 20). Faça o pedido diretamente pelo app no menu "Minha Conta" ou pelo e-mail contato@innermap.app. Responderemos em até 15 dias.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">11. Revogação do consentimento</strong>
+                    <p style="margin: 0.3rem 0 0 0;">A revogação não afeta o tratamento realizado antes dela. Se você revogar o consentimento para o tratamento dos relatos, eliminaremos esses dados e talvez não seja possível continuar usando as funções que dependem deles.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">12. Maiores de 18 anos</strong>
+                    <p style="margin: 0.3rem 0 0 0;">O InnerMap é destinado a pessoas com 18 anos ou mais. Não coletamos intencionalmente dados de menores de 18 anos.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">13. Armazenamento no navegador</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Para seu conforto e melhor desempenho, preferências locais e cópias temporárias da sua biblioteca de reorganizações são armazenadas localmente no seu navegador (localStorage / IndexedDB), sendo sincronizadas com a sua conta segura na nuvem.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">14. Alterações</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Podemos atualizar este aviso. Mudanças relevantes serão comunicadas com antecedência razoável e, quando necessário, será pedido um novo consentimento.</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--color-primary); font-size: 0.95rem;">15. Foro</strong>
+                    <p style="margin: 0.3rem 0 0 0;">Fica eleito o foro do domicílio do usuário/titular dos dados para dirimir quaisquer dúvidas ou litígios decorrentes destes termos.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('lgpd-privacy-modal').style.display='none';">Entendido / Fechar</button>
+            </div>
+        </div>
+    </div>
+
     </main>
 
     <!-- Footer -->
@@ -1266,7 +1453,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=86"></script>
+    <script src="app.js?v=87"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {

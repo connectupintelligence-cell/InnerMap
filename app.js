@@ -5115,3 +5115,104 @@ Pergunta atual: "${query}"
         }
     });
 });
+
+
+// ==========================================================================
+// DIREITOS DO TITULAR LGPD & GESTÃO DE DADOS
+// ==========================================================================
+window.openAccountModal = function() {
+    const modal = document.getElementById("account-modal");
+    if (!modal) return;
+    const emailEl = document.getElementById("account-user-email");
+    const planEl = document.getElementById("account-user-plan");
+
+    if (emailEl) emailEl.textContent = (state.currentUser && state.currentUser.email) || "Não conectado";
+    if (planEl) {
+        if (state.currentUser && state.currentUser.role === "therapist") {
+            planEl.textContent = "Acesso Especial Terapeuta";
+        } else if (state.subscription) {
+            planEl.textContent = state.subscription.plan === "yearly" ? "Plano Anual Premium" : (state.subscription.plan === "trial" ? "Período de Teste (7 Dias)" : "Plano Mensal Premium");
+        } else {
+            planEl.textContent = "Sem plano ativo";
+        }
+    }
+    modal.style.display = "flex";
+};
+
+window.openLgpdModal = function() {
+    const modal = document.getElementById("lgpd-privacy-modal");
+    if (modal) modal.style.display = "flex";
+};
+
+window.downloadUserData = function() {
+    if (!state.currentUser) {
+        showToast("Faça login para baixar seus dados.");
+        return;
+    }
+    const dataExport = {
+        usuario: {
+            email: state.currentUser.email,
+            id: state.currentUser.id || null,
+            role: state.currentUser.role || "user",
+            data_exportacao: new Date().toISOString()
+        },
+        assinatura: state.subscription || null,
+        historico_reorganizacoes: state.history || [],
+        agenda_exercicios: state.agenda || null
+    };
+
+    const jsonStr = JSON.stringify(dataExport, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `innermap_dados_${(state.currentUser.email || "user").replace(/[^a-z0-9]/gi, '_')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Download dos seus dados iniciado (Formato JSON).");
+};
+
+window.revokeConsent = function() {
+    if (!state.currentUser) return;
+    const confirmRevoke = confirm("Tem certeza de que deseja revogar o consentimento para o tratamento dos seus relatos por Inteligência Artificial?\n\nAo revogar, seus relatos armazenados serão limpos e você precisará fornecer novo consentimento para realizar novas reorganizações por IA.");
+    if (!confirmRevoke) return;
+
+    if (state.currentUser) {
+        state.currentUser.consentRevoked = true;
+    }
+    state.relatoOriginal = "";
+    state.tempTheme = "";
+    state.addedFacts = [];
+    
+    showToast("Consentimento revogado com sucesso. Seus dados de relatos em memória foram limpos.");
+    const accountModal = document.getElementById("account-modal");
+    if (accountModal) accountModal.style.display = "none";
+};
+
+window.deleteUserAccount = async function() {
+    if (!state.currentUser) return;
+    const confirmDelete = confirm("ATENÇÃO: Deseja realmente excluir permanentemente sua conta e todos os seus relatos e reorganizações?\n\nEsta ação é irreversível e excluirá todo o seu histórico do InnerMap.");
+    if (!confirmDelete) return;
+
+    if (typeof supabaseClient !== "undefined" && supabaseClient && state.currentUser.id) {
+        try {
+            await supabaseClient.from("user_practices").delete().eq("user_id", state.currentUser.id);
+            await supabaseClient.from("user_subscriptions").delete().eq("user_id", state.currentUser.id);
+        } catch(err) {
+            console.warn("Erro ao deletar registros no Supabase:", err);
+        }
+    }
+
+    try {
+        localStorage.clear();
+        sessionStorage.clear();
+    } catch(e) {}
+
+    showToast("Sua conta e seus relatos foram excluídos permanentemente.");
+    
+    setTimeout(() => {
+        window.handleAppLogout();
+    }, 500);
+};
