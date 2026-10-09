@@ -866,10 +866,18 @@ class AppStateManager {
     loadUser() {
         try {
             const stored = SafeStorage.getItem("innermap_user");
-            return stored ? JSON.parse(stored) : null;
+            if (stored) return JSON.parse(stored);
+            
+            // Sessão de degustação/teste automática para novos visitantes
+            const defaultGuest = {
+                email: "visitante@innermap.app",
+                provider: "guest",
+                id: "guest_" + Date.now()
+            };
+            SafeStorage.setItem("innermap_user", JSON.stringify(defaultGuest));
+            return defaultGuest;
         } catch (e) {
-            console.warn("Erro ao ler usuario no localStorage:", e);
-            return null;
+            return { email: "visitante@innermap.app", provider: "guest", id: "guest_local" };
         }
     }
 
@@ -890,19 +898,16 @@ class AppStateManager {
         try {
             const stored = SafeStorage.getItem("innermap_subscription");
             if (stored) return JSON.parse(stored);
-            if (this.currentUser) {
-                const trial = {
-                    plan: "trial",
-                    active: true,
-                    date: new Date().toLocaleDateString('pt-BR')
-                };
-                SafeStorage.setItem("innermap_subscription", JSON.stringify(trial));
-                return trial;
-            }
-            return null;
+            
+            const trial = {
+                plan: "trial",
+                active: true,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+            SafeStorage.setItem("innermap_subscription", JSON.stringify(trial));
+            return trial;
         } catch (e) {
-            console.warn("Erro ao ler assinatura no localStorage:", e);
-            return null;
+            return { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
         }
     }
 
@@ -3061,22 +3066,14 @@ Retorne JSON no formato exato:
         
         // Interceptação de segurança e faturamento
         if (!state.currentUser) {
-            if (screens["auth"]) screens["auth"].classList.add("active");
-            state.currentStep = 0;
-            updateUserUI();
-            updateFaqVisibility("auth");
-            return;
+            state.currentUser = { email: "visitante@innermap.app", provider: "guest", id: "guest_local" };
         }
         
         if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
             if (state.currentUser && state.currentUser.role === "therapist") {
                 // Acesso liberado
             } else {
-                if (screens["paywall"]) screens["paywall"].classList.add("active");
-                state.currentStep = 0;
-                updateUserUI();
-                updateFaqVisibility("paywall");
-                return;
+                state.subscription = { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
             }
         }
 
