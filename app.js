@@ -10,21 +10,19 @@ window.appLoaded = true;
 
 // Função global de logout 100% resiliente e infalível
 // Função global de logout 100% síncrona e instantânea (0ms)
-window.handleAppLogout = async function(e) {
+window.handleAppLogout = function(e) {
     if (e) {
         try { if (e.preventDefault) e.preventDefault(); } catch(err){}
         try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
     }
-    console.log("Executando logout completo (app.js)...");
+    console.log("Executando logout instantâneo (app.js)...");
 
     try {
         var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
         if (client && client.auth) {
-            await client.auth.signOut();
+            client.auth.signOut().catch(function(){});
         }
-    } catch(err) {
-        console.warn("Erro ao fazer signOut no Supabase:", err);
-    }
+    } catch(err) {}
 
     try { localStorage.clear(); } catch(err){}
     try { sessionStorage.clear(); } catch(err){}
@@ -36,7 +34,7 @@ window.handleAppLogout = async function(e) {
         window.state.currentStep = 0;
     }
 
-    window.location.href = window.location.origin + window.location.pathname;
+    window.location.replace(window.location.origin + window.location.pathname);
     return false;
 };
 
