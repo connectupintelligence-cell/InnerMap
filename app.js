@@ -77,9 +77,9 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
 // ==========================================================================
 // Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
 // Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
-const INFINITEPAY_TAG = "felipefavalli"; // Ex: "wavequantum"
-const INFINITEPAY_LINK_MONTHLY = ""; // Opcional: Link estático mensal (R$ 49,90)
-const INFINITEPAY_LINK_YEARLY = ""; // Opcional: Link estático anual (R$ 478,80)
+const INFINITEPAY_TAG = "felipefavalli";
+const INFINITEPAY_LINK_MONTHLY = "https://pay.infinitepay.io/felipefavalli?amount=49.90";
+const INFINITEPAY_LINK_YEARLY = "https://pay.infinitepay.io/felipefavalli?amount=478.80";
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
@@ -3414,79 +3414,16 @@ Retorne JSON no formato exato:
         window.startCheckout = startCheckout;
         activeSelectedPlan = plan;
         
-        // Prioridade máxima: se links estáticos estão configurados, redirecionar na hora (evita CORS e delay)
-        const staticLink = plan === "yearly" ? INFINITEPAY_LINK_YEARLY : INFINITEPAY_LINK_MONTHLY;
-        if (staticLink) {
-            window.location.href = staticLink;
-            return;
-        }
-
-        const price = plan === "yearly" ? 47880 : 4990;
-        const description = plan === "yearly" ? "InnerMap - Plano Anual" : "InnerMap - Plano Mensal";
-        
-        if (INFINITEPAY_TAG) {
-            const btn = document.querySelector(`.btn-select-plan[data-plan="${plan}"]`);
-            const originalText = btn ? btn.innerText : "";
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `<span class="spinner"></span> Redirecionando...`;
-            }
+        console.log("Iniciando checkout instantâneo para plano:", plan);
+        const targetUrl = plan === "yearly" ? 
+            (INFINITEPAY_LINK_YEARLY || "https://pay.infinitepay.io/felipefavalli?amount=478.80") : 
+            (INFINITEPAY_LINK_MONTHLY || "https://pay.infinitepay.io/felipefavalli?amount=49.90");
             
-            try {
-                const response = await fetch("https://api.checkout.infinitepay.io/links", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        handle: INFINITEPAY_TAG,
-                        redirect_url: `${window.location.origin}${window.location.pathname}?payment=success&plan=${plan}`,
-                        items: [
-                            {
-                                description: description,
-                                price: price,
-                                quantity: 1
-                            }
-                        ]
-                    })
-                });
-                
-                if (!response.ok) throw new Error("Erro na API da InfinitePay");
-                
-                const data = await response.json();
-                if (data.url) {
-                    try {
-                        localStorage.setItem("pending_payment_plan", plan);
-                        if (data.slug) {
-                            localStorage.setItem("pending_payment_slug", data.slug);
-                        } else if (data.id) {
-                            localStorage.setItem("pending_payment_slug", data.id);
-                        }
-                    } catch (e) {
-                        console.warn("Erro ao salvar dados de pagamento pendente:", e);
-                    }
-                    window.location.href = data.url;
-                    return;
-                }
-                        } catch (err) {
-                console.warn("API dinâmica da InfinitePay offline ou bloqueada por CORS, usando a página oficial de pagamento:", err);
-                const cleanTag = (INFINITEPAY_TAG || "felipefavalli").replace(/[\$\@]/g, "").trim();
-                const amountStr = plan === "yearly" ? "478.80" : "49.90";
-                window.location.href = `https://pay.infinitepay.io/${cleanTag}?amount=${amountStr}`;
-                return;
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                }
-            }
-        }
+        try {
+            localStorage.setItem("pending_payment_plan", plan);
+        } catch(e) {}
         
-        // Se nenhuma configuração da InfinitePay estiver ativa, usa a simulação local anterior
-        if (checkoutPlanName) {
-            checkoutPlanName.innerText = plan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
-        }
-        if (checkoutModal) checkoutModal.style.display = "flex";
+        window.location.href = targetUrl;
     }
 
     document.querySelectorAll(".btn-select-plan").forEach(btn => {

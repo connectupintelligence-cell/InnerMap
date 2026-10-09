@@ -17,16 +17,13 @@
             } catch(err) {}
             return null;
         };
-        // Função global de startCheckout com fallback instantâneo
+        // Função global de startCheckout com redirecionamento síncrono instantâneo
         window.startCheckout = function(plan) {
-            console.log("window.startCheckout chamado para:", plan);
-            if (typeof window.execStartCheckout === "function") {
-                window.execStartCheckout(plan);
-            } else {
-                var cleanTag = "felipefavalli";
-                var amountStr = plan === "yearly" ? "478.80" : "49.90";
-                window.location.href = "https://pay.infinitepay.io/" + cleanTag + "?amount=" + amountStr;
-            }
+            console.log("window.startCheckout acionado diretamente para:", plan);
+            var cleanTag = "felipefavalli";
+            var amountStr = (plan === "yearly") ? "478.80" : "49.90";
+            try { localStorage.setItem("pending_payment_plan", plan); } catch(e){}
+            window.location.href = "https://pay.infinitepay.io/" + cleanTag + "?amount=" + amountStr;
         };
         // Fallback global de exibição de telas para chamadas inline do HTML
         window.showScreen = function(screenId) {
@@ -41,6 +38,14 @@
                 targetScreen.classList.add("active");
                 targetScreen.style.display = "block";
             }
+        // Fallback global de exibição do modal Minha Conta
+        window.openAccountModal = function(e) {
+            if (e) {
+                try { if (e.preventDefault) e.preventDefault(); } catch(err){}
+                try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
+            }
+            var modal = document.getElementById("account-modal");
+            if (modal) modal.style.display = "flex";
         };
 
         // Função de logout 100% síncrona e instantânea (0ms)
@@ -149,7 +154,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=101">
+    <link rel="stylesheet" href="styles.css?v=102">
 </head>
 <body>
 
@@ -1326,7 +1331,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=101"></script>
+    <script src="app.js?v=102"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
