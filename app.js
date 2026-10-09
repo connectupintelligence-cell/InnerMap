@@ -1264,13 +1264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         navApp.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(navApp, sectionApp);
-            if (!state.currentUser) {
-                showScreen("auth");
-            } else if (!state.subscription) {
-                showScreen("paywall");
-            } else if (state.currentStep === 0) {
-                showScreen("step1");
-            }
+            showScreen(state.currentStep > 0 ? ("step" + state.currentStep) : "step1");
         });
     }
 
@@ -1370,13 +1364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mApp.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(mApp, sectionApp);
-            if (!state.currentUser) {
-                showScreen("auth");
-            } else if (!state.subscription) {
-                showScreen("paywall");
-            } else if (state.currentStep === 0) {
-                showScreen("step1");
-            }
+            showScreen(state.currentStep > 0 ? ("step" + state.currentStep) : "step1");
         });
     }
 
@@ -3033,6 +3021,68 @@ Retorne JSON no formato exato:
                 if (targetEl) {
                     VoiceManager.speakText(targetEl.innerText || targetEl.value, ttsBtn);
                 }
+            }
+            return;
+        }
+
+        const objCard = safeClosest(e.target, ".objective-card");
+        if (objCard) {
+            const objCards = document.querySelectorAll(".objective-card");
+            objCards.forEach(c => c.classList.remove("active"));
+            objCard.classList.add("active");
+            state.selectedMode = parseInt(objCard.dataset.mode || "1");
+
+            const quickTopicsContainer = document.getElementById("quick-motivation-topics");
+            const inputAiRelato = document.getElementById("input-ai-relato");
+            const step1Title = document.getElementById("step1-title");
+            const step1Desc = document.getElementById("step1-desc");
+
+            if (state.selectedMode === 1) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
+                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
+            } else if (state.selectedMode === 2) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
+                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
+            } else if (state.selectedMode === 3) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "70px";
+                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
+                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
+            } else if (state.selectedMode === 4) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente...";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
+                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
+            }
+            if (typeof updateRelatoCounter === "function") updateRelatoCounter();
+            return;
+        }
+
+        const quickChip = safeClosest(e.target, ".quick-topic-chip");
+        if (quickChip) {
+            const chips = document.querySelectorAll(".quick-topic-chip");
+            chips.forEach(c => c.classList.remove("selected"));
+            quickChip.classList.add("selected");
+            const inputAiRelato = document.getElementById("input-ai-relato");
+            if (inputAiRelato) {
+                inputAiRelato.value = quickChip.dataset.value || "";
+                if (typeof updateRelatoCounter === "function") updateRelatoCounter();
             }
             return;
         }
