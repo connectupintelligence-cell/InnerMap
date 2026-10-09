@@ -3473,7 +3473,8 @@ Retorne JSON no formato exato:
                         } catch (err) {
                 console.warn("API dinâmica da InfinitePay offline ou bloqueada por CORS, usando a página oficial de pagamento:", err);
                 const cleanTag = (INFINITEPAY_TAG || "felipefavalli").replace(/[\$\@]/g, "").trim();
-                window.location.href = `https://pay.infinitepay.io/${cleanTag}`;
+                const amountStr = plan === "yearly" ? "478.80" : "49.90";
+                window.location.href = `https://pay.infinitepay.io/${cleanTag}?amount=${amountStr}`;
                 return;
             } finally {
                 if (btn) {
