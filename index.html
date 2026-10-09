@@ -6,6 +6,15 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
                 <script>
+        // Função global de startCheckout com fallback instantâneo
+        window.startCheckout = function(plan) {
+            console.log("window.startCheckout chamado para:", plan);
+            if (typeof window.execStartCheckout === "function") {
+                window.execStartCheckout(plan);
+            } else {
+                window.location.href = "https://www.infinitepay.io/$felipefavalli";
+            }
+        };
         // Fallback global de exibição de telas para chamadas inline do HTML
         window.showScreen = function(screenId) {
             console.log("window.showScreen acionado para:", screenId);
@@ -618,7 +627,7 @@
                                     <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Biblioteca de memórias local</li>
                                     <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Sem fidelidade, cancele quando quiser</li>
                                 </ul>
-                                <button class="btn btn-outline btn-block btn-select-plan" data-plan="monthly" style="margin-top: auto;">Assinar Mensal</button>
+                                <button class="btn btn-outline btn-block btn-select-plan" data-plan="monthly" onclick="window.startCheckout('monthly'); return false;" style="margin-top: auto;">Assinar Mensal</button>
                             </div>
                             
                             <!-- Yearly Card (Recommended) -->
@@ -642,7 +651,7 @@
                                     <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Economia de 20% em relação ao mensal</li>
                                     <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Relatórios e dashboard de evolução</li>
                                 </ul>
-                                <button class="btn btn-primary btn-block btn-select-plan" data-plan="yearly" style="margin-top: auto;">Assinar Anual</button>
+                                <button class="btn btn-primary btn-block btn-select-plan" data-plan="yearly" onclick="window.startCheckout('yearly'); return false;" style="margin-top: auto;">Assinar Anual</button>
                             </div>
                         </div>
                     </div>
@@ -1304,7 +1313,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=96"></script>
+    <script src="app.js?v=97"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
@@ -1367,7 +1376,7 @@
                         <span style="font-size: 1.4rem; font-weight: 800; color: var(--color-text-main);">R$ 39,90</span>
                         <span style="font-size: 0.8rem; color: var(--color-text-muted);">/mês (12x)</span>
                     </div>
-                    <button type="button" class="btn btn-primary btn-block btn-select-plan" data-plan="yearly" style="margin-top: auto; background: linear-gradient(135deg, #E8A855, #d6933f); border: none; color: #04050c; font-weight: 800; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;">
+                    <button type="button" class="btn btn-primary btn-block btn-select-plan" data-plan="yearly" onclick="window.startCheckout('yearly'); return false;" style="margin-top: auto; background: linear-gradient(135deg, #E8A855, #d6933f); border: none; color: #04050c; font-weight: 800; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;">
                         Assinar Anual com Bônus →
                     </button>
                 </div>
@@ -1380,7 +1389,7 @@
                         <span style="font-size: 1.4rem; font-weight: 800; color: var(--color-text-main);">R$ 49,90</span>
                         <span style="font-size: 0.8rem; color: var(--color-text-muted);">/mês</span>
                     </div>
-                    <button type="button" class="btn btn-outline btn-block btn-select-plan" data-plan="monthly" style="margin-top: auto; border-color: var(--color-primary); color: var(--color-primary); font-weight: 700; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;">
+                    <button type="button" class="btn btn-outline btn-block btn-select-plan" data-plan="monthly" onclick="window.startCheckout('monthly'); return false;" style="margin-top: auto; border-color: var(--color-primary); color: var(--color-primary); font-weight: 700; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;">
                         Assinar Passe 30 Dias →
                     </button>
                 </div>

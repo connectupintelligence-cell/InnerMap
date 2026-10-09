@@ -2948,6 +2948,12 @@ Retorne JSON no formato exato:
 
     // Event Delegation no documento para capturar cliques nos botões de Microfone e TTS em qualquer lugar da página
     document.addEventListener("click", (e) => {
+        const selectPlanBtn = e.target ? e.target.closest(".btn-select-plan") : null;
+        if (selectPlanBtn) {
+            const plan = selectPlanBtn.dataset.plan || "yearly";
+            window.startCheckout(plan);
+            return;
+        }
         const micBtn = e.target.closest(".btn-mic-input");
         if (micBtn) {
             e.preventDefault();
@@ -3380,6 +3386,12 @@ Retorne JSON no formato exato:
     });
 
     document.addEventListener("touchend", (e) => {
+        const selectPlanBtn = e.target ? e.target.closest(".btn-select-plan") : null;
+        if (selectPlanBtn) {
+            const plan = selectPlanBtn.dataset.plan || "yearly";
+            window.startCheckout(plan);
+            return;
+        }
         const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
         if (logoutTarget) {
             window.handleAppLogout(e);
@@ -3400,6 +3412,8 @@ Retorne JSON no formato exato:
     let activeSelectedPlan = "yearly";
 
     async function startCheckout(plan) {
+        window.execStartCheckout = startCheckout;
+        window.startCheckout = startCheckout;
         activeSelectedPlan = plan;
         
         // Prioridade máxima: se links estáticos estão configurados, redirecionar na hora (evita CORS e delay)
