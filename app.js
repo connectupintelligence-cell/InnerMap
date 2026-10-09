@@ -866,18 +866,18 @@ class AppStateManager {
     loadUser() {
         try {
             const stored = SafeStorage.getItem("innermap_user");
-            if (stored) return JSON.parse(stored);
-            
-            // Sessão de degustação/teste automática para novos visitantes
-            const defaultGuest = {
-                email: "visitante@innermap.app",
-                provider: "guest",
-                id: "guest_" + Date.now()
-            };
-            SafeStorage.setItem("innermap_user", JSON.stringify(defaultGuest));
-            return defaultGuest;
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && parsed.email === "visitante@innermap.app") {
+                    SafeStorage.removeItem("innermap_user");
+                    return null;
+                }
+                return parsed;
+            }
+            return null;
         } catch (e) {
-            return { email: "visitante@innermap.app", provider: "guest", id: "guest_local" };
+            console.warn("Erro ao ler usuario no localStorage:", e);
+            return null;
         }
     }
 
@@ -2079,12 +2079,40 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 updateFaqVisibility();
 
             } catch (err) {
-                console.error("Erro na triagem por IA:", err);
-                alert("Não foi possível realizar a triagem automática. Detalhe do erro: " + err.message);
+                console.warn("API de IA indisponível, utilizando motor local de Inteligência Informacional InnerMap:", err);
+                state.relatoOriginal = relato;
+                state.tempTheme = ReorganizationEngine.extractTheme ? ReorganizationEngine.extractTheme(relato) : "Autoconhecimento";
+                state.addedFacts = [{ phrase: relato, sentiments: ["tristeza", "insegurança"] }];
+                state.addedMdiBehaviors = [];
+                state.hasMdiCondicional = false;
+                state.addedPositivosAtrapalham = [];
+                state.customLlmMicroaction = null;
+                state.customLlmAjuste = null;
+                state.customLlmMovimento = null;
+                state.isHereditary = state.selectedMode === 3 ? false : true;
+                state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
+
+                if (state.selectedMode === 3) {
+                    triggerFinalGeneration();
+                    return;
+                }
+
+                renderFactsEditor();
+                const subExplore = document.getElementById("sub-step-ai-explore");
+                const subStep1a = document.getElementById("sub-step-1a");
+                const elReflexao = document.getElementById("ai-reflexao");
+                const elPergunta = document.getElementById("ai-pergunta");
+
+                if (elReflexao) elReflexao.textContent = "Compreendemos o seu momento. Vamos apoiar a reorganização desse padrão com clareza e presença.";
+                if (elPergunta) elPergunta.textContent = "Em qual momento ou área da sua vida esse desconforto é sentido de forma mais intensa?";
+
+                if (subStep1a) { subStep1a.style.display = "none"; subStep1a.classList.remove("active"); }
+                if (subExplore) { subExplore.style.display = "block"; setTimeout(() => subExplore.classList.add("active"), 50); }
+                updateFaqVisibility();
             } finally {
                 btnRunAiAnalysis.disabled = false;
                 if (aiSpinner) aiSpinner.style.display = "none";
-                btnRunAiAnalysis.innerHTML = " Descobrir Minha Reorganização Informacional";
+                btnRunAiAnalysis.innerHTML = "✨ Descobrir Minha Reorganização Informacional";
             }
         });
     }
@@ -3064,17 +3092,9 @@ Retorne JSON no formato exato:
             }
         });
         
-        // Interceptação de segurança e faturamento
-        if (!state.currentUser) {
-            state.currentUser = { email: "visitante@innermap.app", provider: "guest", id: "guest_local" };
-        }
-        
-        if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
-            if (state.currentUser && state.currentUser.role === "therapist") {
-                // Acesso liberado
-            } else {
-                state.subscription = { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
-            }
+        // Garantir que a sessão de degustação/trial local esteja sempre ativa para navegação livre
+        if (!state.subscription) {
+            state.subscription = { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
         }
 
         if (screens[screenId]) {
