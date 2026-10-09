@@ -4115,11 +4115,11 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("auth");
+                showScreen("step1");
             }
         }).catch(err => {
             console.error("Erro ao obter sessão inicial:", err);
-            showScreen("auth");
+            showScreen("step1");
         });
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
@@ -4144,29 +4144,21 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("auth");
+                showScreen("step1");
             }
         });
     } else {
         // Fallback local se Supabase não configurado
         updateUserUI();
-        if (checkSubscriptionStatus()) {
-            if (!state.currentUser) {
-                showScreen("auth");
-            } else if (!state.subscription && state.currentUser.role !== "therapist") {
-                showScreen("paywall");
-            } else {
-                showScreen("step1");
-            }
-        }
+        showScreen("step1");
     }
 
-    //  Segurança: se após 3s nenhuma tela estiver visível, força auth
+    //  Segurança: se após 3s nenhuma tela estiver visível, força step1
     setTimeout(() => {
         const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
         if (!anyActive) {
-            console.warn("Nenhuma tela ativa detectada após 3s — forçando tela de autenticação");
-            if (screens["auth"]) screens["auth"].classList.add("active");
+            console.warn("Nenhuma tela ativa detectada após 3s — forçando tela step1");
+            showScreen("step1");
         }
     }, 3000);
 
