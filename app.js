@@ -7,6 +7,22 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 window.appLoaded = true;
 
+// Helper ultra-seguro para localStorage e sessionStorage em qualquer modo (incluindo Anônimo / Privado no iOS/Android)
+window.SafeStorage = {
+    getItem: function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    },
+    setItem: function(key, val) {
+        try { localStorage.setItem(key, val); } catch(e) {}
+    },
+    removeItem: function(key) {
+        try { localStorage.removeItem(key); } catch(e) {}
+    },
+    clear: function() {
+        try { localStorage.clear(); } catch(e) {}
+    }
+};
+
 // Helper global ultra-seguro para buscar ancestral mais próximo sem estourar TypeError em TextNode / SVG
 window.safeClosest = window.safeClosest || function(target, selector) {
     if (!target) return null;
@@ -831,7 +847,7 @@ class AppStateManager {
 
     loadHistory() {
         try {
-            const stored = localStorage.getItem("innermap_history");
+            const stored = SafeStorage.getItem("innermap_history");
             return stored ? JSON.parse(stored) : [];
         } catch (e) {
             console.warn("Erro ao ler historico no localStorage:", e);
@@ -841,7 +857,7 @@ class AppStateManager {
 
     saveHistory() {
         try {
-            localStorage.setItem("innermap_history", JSON.stringify(this.history));
+            SafeStorage.setItem("innermap_history", JSON.stringify(this.history));
         } catch (e) {
             console.warn("Erro ao salvar historico no localStorage:", e);
         }
@@ -849,7 +865,7 @@ class AppStateManager {
 
     loadUser() {
         try {
-            const stored = localStorage.getItem("innermap_user");
+            const stored = SafeStorage.getItem("innermap_user");
             return stored ? JSON.parse(stored) : null;
         } catch (e) {
             console.warn("Erro ao ler usuario no localStorage:", e);
@@ -861,9 +877,9 @@ class AppStateManager {
         this.currentUser = user;
         try {
             if (user) {
-                localStorage.setItem("innermap_user", JSON.stringify(user));
+                SafeStorage.setItem("innermap_user", JSON.stringify(user));
             } else {
-                localStorage.removeItem("innermap_user");
+                SafeStorage.removeItem("innermap_user");
             }
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
@@ -872,7 +888,7 @@ class AppStateManager {
 
     loadSubscription() {
         try {
-            const stored = localStorage.getItem("innermap_subscription");
+            const stored = SafeStorage.getItem("innermap_subscription");
             if (stored) return JSON.parse(stored);
             if (this.currentUser) {
                 const trial = {
@@ -880,7 +896,7 @@ class AppStateManager {
                     active: true,
                     date: new Date().toLocaleDateString('pt-BR')
                 };
-                localStorage.setItem("innermap_subscription", JSON.stringify(trial));
+                SafeStorage.setItem("innermap_subscription", JSON.stringify(trial));
                 return trial;
             }
             return null;
@@ -894,9 +910,9 @@ class AppStateManager {
         this.subscription = sub;
         try {
             if (sub) {
-                localStorage.setItem("innermap_subscription", JSON.stringify(sub));
+                SafeStorage.setItem("innermap_subscription", JSON.stringify(sub));
             } else {
-                localStorage.removeItem("innermap_subscription");
+                SafeStorage.removeItem("innermap_subscription");
             }
         } catch (e) {
             console.warn("Erro ao salvar assinatura no localStorage:", e);
@@ -975,7 +991,7 @@ class AppStateManager {
                         date: new Date().toLocaleDateString('pt-BR')
                     };
                 }
-                localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+                SafeStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
 
                 // 2. Buscar Histórico de Reorganizações Remoto
                 const { data: histData, error: histErr } = await supabaseClient
@@ -1089,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(e => console.warn("Chave de API não carregada no startup:", e));
     }
     const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-    if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
+    if (!state.apiKey) state.apiKey = SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
     
     
     const screens = {
@@ -1828,7 +1844,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
     if (btnRunAiAnalysis && inputAiRelato) {
         btnRunAiAnalysis.addEventListener("click", async () => {
             const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
+            let apiKey = state.apiKey || SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
 
             if (!apiKey) {
                 try {
@@ -1843,7 +1859,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 apiKey = prompt("Por favor, insira sua chave de API OpenAI (sk-...), Groq (gsk_...) ou Gemini:");
                 if (!apiKey) return;
                 state.apiKey = apiKey;
-                localStorage.setItem("innermap_gemini_key", apiKey);
+                SafeStorage.setItem("innermap_gemini_key", apiKey);
             }
 
             const relato = inputAiRelato.value.trim();
@@ -2528,7 +2544,7 @@ Retorne JSON no formato exato:
                 startDate: new Date().toISOString(),
                 ticks: {}
             };
-            localStorage.setItem("active_agenda_" + state.currentUser.email, JSON.stringify(agenda));
+            SafeStorage.setItem("active_agenda_" + state.currentUser.email, JSON.stringify(agenda));
             if (window.renderAgenda) window.renderAgenda();
         }
 
@@ -2689,7 +2705,7 @@ Retorne JSON no formato exato:
 
             // Transcrever áudio via Whisper API (OpenAI/Groq) se houver chave configurada
             const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = state.apiKey || localStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
+            let apiKey = state.apiKey || SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
             if (!apiKey && supabaseClient) {
                 try {
                     const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
@@ -4071,8 +4087,8 @@ Pergunta atual: "${query}"
             active: true,
             date: new Date().toLocaleDateString('pt-BR')
         }).then(() => {
-            localStorage.removeItem("pending_payment_plan");
-            localStorage.removeItem("pending_payment_slug");
+            SafeStorage.removeItem("pending_payment_plan");
+            SafeStorage.removeItem("pending_payment_slug");
             updateUserUI();
             showToast(`Assinatura do Plano ${plan === "yearly" ? "Anual" : "Mensal"} ativada com sucesso! Obrigado!`);
             showScreen("step1");
@@ -4080,8 +4096,8 @@ Pergunta atual: "${query}"
     }
 
     // Verificar se há algum pagamento pendente no localStorage e consultar na API da InfinitePay
-    const pendingPlan = localStorage.getItem("pending_payment_plan");
-    const pendingSlug = localStorage.getItem("pending_payment_slug");
+    const pendingPlan = SafeStorage.getItem("pending_payment_plan");
+    const pendingSlug = SafeStorage.getItem("pending_payment_slug");
     if (pendingPlan && pendingSlug && INFINITEPAY_TAG) {
         fetch("https://api.checkout.infinitepay.io/payment_check", {
             method: "POST",
@@ -4099,8 +4115,8 @@ Pergunta atual: "${query}"
         })
         .then(data => {
             if (data && (data.status === "paid" || data.status === "approved" || data.status === "completed" || data.paid === true)) {
-                localStorage.removeItem("pending_payment_plan");
-                localStorage.removeItem("pending_payment_slug");
+                SafeStorage.removeItem("pending_payment_plan");
+                SafeStorage.removeItem("pending_payment_slug");
                 state.saveSubscription({
                     plan: pendingPlan,
                     active: true,
@@ -4809,7 +4825,7 @@ Pergunta atual: "${query}"
         }
 
         const emailKey = state.currentUser.email;
-        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
+        const agendaDataRaw = SafeStorage.getItem("active_agenda_" + emailKey);
         if (!agendaDataRaw) {
             agendaContainer.style.display = "none";
             if (emptyPlaceholder) emptyPlaceholder.style.display = "block";
@@ -4851,7 +4867,7 @@ Pergunta atual: "${query}"
                 
                 if (agenda.ticks && agenda.ticks[day]) {
                     btn.classList.add("completed");
-                    btn.innerHTML = `D${day} âœ“`;
+                    btn.innerHTML = `D${day} ✓`;
                 }
 
                 btn.addEventListener("click", () => {
@@ -4859,12 +4875,12 @@ Pergunta atual: "${query}"
                     agenda.ticks[day] = !agenda.ticks[day];
                     
                     // Salvar ticks
-                    localStorage.setItem("active_agenda_" + emailKey, JSON.stringify(agenda));
+                    SafeStorage.setItem("active_agenda_" + emailKey, JSON.stringify(agenda));
                     renderAgenda();
 
                     // Mostrar mensagem de incentivo
                     if (agenda.ticks[day]) {
-                        showToast(`Dia ${day} concluído com sucesso! Ã“timo trabalho!`);
+                        showToast(`Dia ${day} concluído com sucesso! Ótimo trabalho!`);
                         
                         // Se concluiu todos os 15 dias, parabenizar!
                         let allDone = true;
@@ -4875,7 +4891,7 @@ Pergunta atual: "${query}"
                             }
                         }
                         if (allDone) {
-                            showToast(" Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
+                            showToast("Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
                         }
                     }
                 });
@@ -4889,11 +4905,11 @@ Pergunta atual: "${query}"
 
     function checkDailyReminder() {
         if (!state.currentUser) return;
-        const enabled = localStorage.getItem("reminders_enabled") === "true";
+        const enabled = SafeStorage.getItem("reminders_enabled") === "true";
         if (!enabled) return;
 
         const emailKey = state.currentUser.email;
-        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
+        const agendaDataRaw = SafeStorage.getItem("active_agenda_" + emailKey);
         if (!agendaDataRaw) return;
 
         try {
@@ -4905,10 +4921,10 @@ Pergunta atual: "${query}"
             // Se o dia atual da prática ainda não foi marcado como completo
             if (!agenda.ticks || !agenda.ticks[currentDay]) {
                 // Verificar se já mostramos lembrete hoje para não fludar
-                const lastReminderStr = localStorage.getItem("last_reminder_date_" + emailKey);
+                const lastReminderStr = SafeStorage.getItem("last_reminder_date_" + emailKey);
                 const todayStr = new Date().toDateString();
                 if (lastReminderStr !== todayStr) {
-                    localStorage.setItem("last_reminder_date_" + emailKey, todayStr);
+                    SafeStorage.setItem("last_reminder_date_" + emailKey, todayStr);
                     
                     if ("Notification" in window && Notification.permission === "granted") {
                         new Notification("InnerMap: Exercício de Hoje", {
@@ -4916,7 +4932,7 @@ Pergunta atual: "${query}"
                             icon: "favicon.ico"
                         });
                     } else {
-                        showToast(` Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
+                        showToast(`Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
                     }
                 }
             }
@@ -4929,7 +4945,7 @@ Pergunta atual: "${query}"
     const btnToggleReminders = document.getElementById("btn-toggle-reminders");
     if (btnToggleReminders) {
         const updateRemindersBtnUI = () => {
-            const enabled = localStorage.getItem("reminders_enabled") === "true";
+            const enabled = SafeStorage.getItem("reminders_enabled") === "true";
             if (enabled) {
                 btnToggleReminders.className = "btn btn-outline active";
                 btnToggleReminders.innerHTML = `<span> Desativar Lembretes</span>`;
@@ -4944,12 +4960,12 @@ Pergunta atual: "${query}"
         };
 
         btnToggleReminders.addEventListener("click", async () => {
-            const enabled = localStorage.getItem("reminders_enabled") === "true";
+            const enabled = SafeStorage.getItem("reminders_enabled") === "true";
             if (!enabled) {
                 if ("Notification" in window) {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
-                        localStorage.setItem("reminders_enabled", "true");
+                        SafeStorage.setItem("reminders_enabled", "true");
                         showToast("Notificações ativadas com sucesso!");
                         new Notification("InnerMap", {
                             body: "Você receberá lembretes diários para realizar seus exercícios informacionais.",
@@ -4962,7 +4978,7 @@ Pergunta atual: "${query}"
                     showToast("Este navegador não suporta notificações de área de trabalho.");
                 }
             } else {
-                localStorage.setItem("reminders_enabled", "false");
+                SafeStorage.setItem("reminders_enabled", "false");
                 showToast("Lembretes diários desativados.");
             }
             updateRemindersBtnUI();

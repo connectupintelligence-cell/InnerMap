@@ -66,6 +66,7 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: -2;
+    pointer-events: none !important;
     overflow: hidden;
     background: radial-gradient(circle at 50% 30%, #0e1526 0%, var(--color-bg-dark) 100%);
 }
