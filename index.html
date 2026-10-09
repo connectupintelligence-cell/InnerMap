@@ -20,10 +20,9 @@
         // Função global de startCheckout com redirecionamento síncrono instantâneo
         window.startCheckout = function(plan) {
             console.log("window.startCheckout acionado diretamente para:", plan);
-            var cleanTag = "felipefavalli";
-            var amountStr = (plan === "yearly") ? "478.80" : "49.90";
+            var pathSuffix = (plan === "yearly") ? "47880" : "4990";
             try { localStorage.setItem("pending_payment_plan", plan); } catch(e){}
-            window.location.href = "https://pay.infinitepay.io/" + cleanTag + "?amount=" + amountStr;
+            window.location.href = "https://pay.infinitepay.io/felipefavalli/" + pathSuffix;
         };
         // Fallback global de exibição de telas para chamadas inline do HTML
         window.showScreen = function(screenId) {
@@ -1331,7 +1330,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=102"></script>
+    <script src="app.js?v=103"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
