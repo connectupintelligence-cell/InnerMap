@@ -1098,8 +1098,11 @@ class AppStateManager {
 // Instância Global do Estado da Aplicação
 var state = null;
 
-// Inicialização da UI e Event Listeners
-document.addEventListener("DOMContentLoaded", () => {
+// Inicialização da UI e Event Listeners com inicialização resiliente instantânea
+function initApp() {
+    if (window.appInitialized) return;
+    window.appInitialized = true;
+    console.log("Inicializando InnerMap App Engine...");
     state = window.state = new AppStateManager();
 
     // Carregar chave de API no startup para concordância funcionar em todos os fluxos
@@ -5095,7 +5098,16 @@ Pergunta atual: "${query}"
             if (modal) modal.style.display = "none";
         }
     });
-});
+}
+
+window.initApp = initApp;
+
+if (document.readyState === "complete" || document.readyState === "interactive") {
+    initApp();
+} else {
+    document.addEventListener("DOMContentLoaded", initApp);
+    window.addEventListener("load", initApp);
+}
 
 
 // ==========================================================================
