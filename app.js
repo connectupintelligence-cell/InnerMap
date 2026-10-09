@@ -1488,48 +1488,71 @@ function initApp() {
         counterNum.textContent = charCount > 0 ? `${wordLabel} (${charCount} caracteres)` : "0 palavras (0 caracteres)";
     }
 
+    window.selectObjectiveMode = function(mode) {
+        state.selectedMode = parseInt(mode || "1");
+        const objCards = document.querySelectorAll(".objective-card");
+        objCards.forEach(c => {
+            if (parseInt(c.dataset.mode) === state.selectedMode) {
+                c.classList.add("active");
+            } else {
+                c.classList.remove("active");
+            }
+        });
+
+        const step1Title = document.getElementById("step1-title");
+        const step1Desc = document.getElementById("step1-desc");
+        const inputAiRelato = document.getElementById("input-ai-relato");
+        const quickTopicsContainer = document.getElementById("quick-motivation-topics");
+
+        if (state.selectedMode === 1) {
+            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+            if (inputAiRelato) {
+                inputAiRelato.style.height = "140px";
+                inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
+            }
+            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
+            if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
+        } else if (state.selectedMode === 2) {
+            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+            if (inputAiRelato) {
+                inputAiRelato.style.height = "140px";
+                inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+            }
+            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
+            if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
+        } else if (state.selectedMode === 3) {
+            if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
+            if (inputAiRelato) {
+                inputAiRelato.style.height = "70px";
+                inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
+            }
+            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
+            if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
+        } else if (state.selectedMode === 4) {
+            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+            if (inputAiRelato) {
+                inputAiRelato.style.height = "140px";
+                inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
+            }
+            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
+            if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
+        }
+        updateRelatoCounter();
+    };
+
+    window.selectQuickTopic = function(element) {
+        if (!element) return;
+        const topicText = element.getAttribute("data-topic") || (element.textContent ? element.textContent.trim() : "");
+        const inputAiRelato = document.getElementById("input-ai-relato");
+        if (inputAiRelato) {
+            inputAiRelato.value = topicText;
+            updateRelatoCounter();
+        }
+    };
+
     objCards.forEach(card => {
         card.addEventListener("click", () => {
-            objCards.forEach(c => c.classList.remove("active"));
-            card.classList.add("active");
-            state.selectedMode = parseInt(card.dataset.mode || "1");
-
-            const quickTopicsContainer = document.getElementById("quick-motivation-topics");
-
-            if (state.selectedMode === 1) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
-                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
-            } else if (state.selectedMode === 2) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
-                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
-            } else if (state.selectedMode === 3) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "70px";
-                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
-                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
-            } else if (state.selectedMode === 4) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
-                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
-            }
-            updateRelatoCounter();
+            window.selectObjectiveMode(card.dataset.mode);
         });
     });
 
@@ -1837,8 +1860,8 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
     const btnAiConfirmWizard = document.getElementById("btn-ai-confirm-wizard");
     const btnAiConfirmGenerate = document.getElementById("btn-ai-confirm-generate");
 
-    if (btnRunAiAnalysis && inputAiRelato) {
-        btnRunAiAnalysis.addEventListener("click", async () => {
+    window.handleAiAnalysis = async function() {
+        if (!inputAiRelato) return;
             const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
             let apiKey = state.apiKey || SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
 
@@ -2105,7 +2128,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 if (aiSpinner) aiSpinner.style.display = "none";
                 btnRunAiAnalysis.innerHTML = "✨ Descobrir Minha Reorganização Informacional";
             }
-        });
+    };
+    if (btnRunAiAnalysis) {
+        btnRunAiAnalysis.addEventListener("click", window.handleAiAnalysis);
     }
 
     // Lógica dos botões da tela de exploração AI
@@ -2135,61 +2160,65 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         inputAprofundamento.addEventListener("input", updateContinueButtonText);
     }
 
+    window.handleAiSkip = function() {
+        triggerFinalGeneration();
+    };
     if (btnAiPular) {
-        btnAiPular.addEventListener("click", () => {
-            triggerFinalGeneration();
-        });
+        btnAiPular.addEventListener("click", window.handleAiSkip);
     }
 
-    if (btnAiContinuar) {
-        btnAiContinuar.addEventListener("click", async () => {
-            const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
+    window.handleAiContinuar = async function() {
+        const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
 
-            if (respostaExtra) {
-                // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
-                btnAiContinuar.disabled = true;
-                if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
-                const btnSpan = btnAiContinuar.querySelector("span:last-child");
-                if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
+        if (respostaExtra) {
+            // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
+            btnAiContinuar.disabled = true;
+            if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
+            const btnSpan = btnAiContinuar.querySelector("span:last-child");
+            if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
 
-                try {
-                    const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
+            try {
+                const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
 
-                    const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
+                const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
 
-                    let mergeResponse;
-                    if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
-                        const isSk = state.apiKey.startsWith("sk-");
-                        const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                        const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+                let mergeResponse;
+                if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
+                    const isSk = state.apiKey.startsWith("sk-");
+                    const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                    const model = isSk ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
 
-                        mergeResponse = await fetch(endpoint, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                            body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
-                        });
-                        if (mergeResponse.ok) {
-                            const mergeData = await mergeResponse.json();
-                            const merged = JSON.parse(mergeData.choices[0].message.content);
-                            if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
-                            if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
-                            if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
-                            if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
-                            state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
-                        }
+                    mergeResponse = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                        body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                    });
+                    if (mergeResponse.ok) {
+                        const mergeData = await mergeResponse.json();
+                        const merged = JSON.parse(mergeData.choices[0].message.content);
+                        if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
+                        if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
+                        if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
+                        if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
+                        state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
                     }
-                } catch(e) {
-                    console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
-                } finally {
-                    btnAiContinuar.disabled = false;
-                    if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
-                    updateContinueButtonText();
                 }
+            } catch(e) {
+                console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
+            } finally {
+                btnAiContinuar.disabled = false;
+                if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
+                updateContinueButtonText();
             }
+        }
 
-            // Prosseguir sempre para geração final (nunca travar!)
-            triggerFinalGeneration();
-        });
+        // Prosseguir sempre para geração final (nunca travar!)
+        triggerFinalGeneration();
+    };
+    window.handleAiContinue = window.handleAiContinuar;
+
+    if (btnAiContinuar) {
+        btnAiContinuar.addEventListener("click", window.handleAiContinue);
     }
 
     // Botão para extrair a resposta da pergunta de aprofundamento e adicionar aos fatos mapeados
@@ -2492,10 +2521,11 @@ Retorne JSON no formato exato:
     }
 
     // Tela 2 (Consciência Informacional) -> Tela 3: Ir para Ajustes Informacionais
-    btnToStep3.addEventListener("click", () => {
+    window.handleToStep3 = function() {
         showScreen("step3");
         startPracticeTimer();
-    });
+    };
+    if (btnToStep3) btnToStep3.addEventListener("click", window.handleToStep3);
 
     // Lógica do Timer de Prática (Tela 3)
     function startPracticeTimer() {
@@ -2523,10 +2553,11 @@ Retorne JSON no formato exato:
     }
 
     // Tela 3 (Ajustes Informacionais) -> Tela 4: Ir para Registro & Integração
-    btnToStep4.addEventListener("click", () => {
+    window.handleToStep4 = function() {
         if (state.timerInterval) clearInterval(state.timerInterval);
         showScreen("step4");
-    });
+    };
+    if (btnToStep4) btnToStep4.addEventListener("click", window.handleToStep4);
 
     // Seleção de sentimentos na Tela 4
     let selectedRating = "Mais leve"; // default
@@ -2546,7 +2577,7 @@ Retorne JSON no formato exato:
     });
 
     // Tela 4 -> Finalizar e Salvar
-    btnFinish.addEventListener("click", () => {
+    window.handleFinish = function() {
         let ratingValue = selectedRating;
         if (selectedRating === "Outro") {
             const customVal = inputRatingCustom ? inputRatingCustom.value.trim() : "";
@@ -2584,7 +2615,8 @@ Retorne JSON no formato exato:
         resetStep1Wizard();
         showScreen("step1");
         showToast("Processo salvo na sua biblioteca!");
-    });
+    };
+    if (btnFinish) btnFinish.addEventListener("click", window.handleFinish);
 
     // ==========================================================================
     // MÓDULO DE ÁUDIO (MEDIARECORDER + WHISPER AI + SÍNTESE DE VOZ)
