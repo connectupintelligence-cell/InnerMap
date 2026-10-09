@@ -1,12 +1,23 @@
-// Global Error Debugging Handler
+// Global Error Debugging Handler (non-blocking)
 window.onerror = function(message, source, lineno, colno, error) {
     const errorMsg = `Erro JavaScript: ${message}\nFonte: ${source}:${lineno}:${colno}`;
     console.error(errorMsg);
-    alert(errorMsg);
-    return false;
+    return true; // Prevents error banner / browser alert
 };
 
 window.appLoaded = true;
+
+// Helper global ultra-seguro para buscar ancestral mais próximo sem estourar TypeError em TextNode / SVG
+window.safeClosest = window.safeClosest || function(target, selector) {
+    if (!target) return null;
+    try {
+        var el = (target.nodeType === 3 || !target.closest) ? target.parentElement : target;
+        if (el && typeof el.closest === "function") {
+            return el.closest(selector);
+        }
+    } catch(err) {}
+    return null;
+};
 
 // Função global de logout 100% resiliente e infalível
 // Função global de logout 100% síncrona e instantânea (0ms)
@@ -2362,7 +2373,7 @@ Retorne JSON no formato exato:
                 if (outputCategory) outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
                 if (outputObjetivo) outputObjetivo.innerText = result.objetivo;
                 
-                const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
+                const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? safeClosest(outputEspecifico, ".hqi-item") : null);
                 if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
                     if (itemEspecifico) itemEspecifico.style.display = "none";
                 } else {
@@ -2386,7 +2397,7 @@ Retorne JSON no formato exato:
                     if (outputMgi) outputMgi.innerText = "";
                 }
 
-                const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
+                const itemMicroacao = outputMicroacao ? safeClosest(outputMicroacao, ".hqi-item") : null;
                 if (!result.microacao || result.microacao.trim() === "") {
                     if (itemMicroacao) itemMicroacao.style.display = "none";
                 } else {
@@ -2948,13 +2959,13 @@ Retorne JSON no formato exato:
 
     // Event Delegation no documento para capturar cliques nos botões de Microfone e TTS em qualquer lugar da página
     document.addEventListener("click", (e) => {
-        const selectPlanBtn = e.target ? e.target.closest(".btn-select-plan") : null;
+        const selectPlanBtn = safeClosest(e.target, ".btn-select-plan");
         if (selectPlanBtn) {
             const plan = selectPlanBtn.dataset.plan || "yearly";
             window.startCheckout(plan);
             return;
         }
-        const micBtn = e.target.closest(".btn-mic-input");
+        const micBtn = safeClosest(e.target, ".btn-mic-input");
         if (micBtn) {
             e.preventDefault();
             e.stopPropagation();
@@ -2963,7 +2974,7 @@ Retorne JSON no formato exato:
             return;
         }
 
-        const ttsBtn = e.target.closest(".btn-tts-speak");
+        const ttsBtn = safeClosest(e.target, ".btn-tts-speak");
         if (ttsBtn && ttsBtn.id !== "btn-tts-full-practice") {
             e.preventDefault();
             e.stopPropagation();
@@ -3379,20 +3390,7 @@ Retorne JSON no formato exato:
 
     // Event listener global delegado para garantir que o logout SEMPRE funcione instantaneamente em qualquer dispositivo ou botão
     document.addEventListener("click", (e) => {
-        const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
-        if (logoutTarget) {
-            window.handleAppLogout(e);
-        }
-    });
-
-    document.addEventListener("touchend", (e) => {
-        const selectPlanBtn = e.target ? e.target.closest(".btn-select-plan") : null;
-        if (selectPlanBtn) {
-            const plan = selectPlanBtn.dataset.plan || "yearly";
-            window.startCheckout(plan);
-            return;
-        }
-        const logoutTarget = e.target.closest("#btn-logout, .btn-logout, #mobile-btn-logout");
+        const logoutTarget = safeClosest(e.target, "#btn-logout, .btn-logout, #mobile-btn-logout");
         if (logoutTarget) {
             window.handleAppLogout(e);
         }
@@ -5045,13 +5043,13 @@ Pergunta atual: "${query}"
     // ==========================================================================
     document.addEventListener("click", (e) => {
         // Toggle de acordeão (FAQ)
-        const faqHeader = e.target.closest(".faq-header");
+        const faqHeader = safeClosest(e.target, ".faq-header");
         if (faqHeader) {
             e.preventDefault();
-            const faqItem = faqHeader.closest(".faq-item");
+            const faqItem = safeClosest(faqHeader, ".faq-item");
             if (faqItem) {
                 const isActive = faqItem.classList.contains("active");
-                const container = faqItem.closest(".faq-accordion");
+                const container = safeClosest(faqItem, ".faq-accordion");
                 if (container) {
                     container.querySelectorAll(".faq-item.active").forEach(item => {
                         if (item !== faqItem) item.classList.remove("active");
@@ -5063,7 +5061,7 @@ Pergunta atual: "${query}"
         }
 
         // Abrir modal de teoria técnica
-        const theoryBtn = e.target.closest(".btn-open-theory");
+        const theoryBtn = safeClosest(e.target, ".btn-open-theory");
         if (theoryBtn) {
             e.preventDefault();
             const modal = document.getElementById("theory-modal");
@@ -5072,7 +5070,7 @@ Pergunta atual: "${query}"
         }
 
         // Fechar modal de teoria técnica
-        if (e.target.id === "btn-close-theory" || e.target.id === "theory-modal") {
+        if (e.target && (e.target.id === "btn-close-theory" || e.target.id === "theory-modal")) {
             const modal = document.getElementById("theory-modal");
             if (modal) modal.style.display = "none";
         }

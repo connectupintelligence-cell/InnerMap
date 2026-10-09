@@ -6,6 +6,17 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
                 <script>
+        // Função utilitária 100% segura para capturar elementos pai sem estourar TypeError em TextNodes ou SVGs
+        window.safeClosest = function(target, selector) {
+            if (!target) return null;
+            try {
+                var el = (target.nodeType === 3 || !target.closest) ? target.parentElement : target;
+                if (el && typeof el.closest === "function") {
+                    return el.closest(selector);
+                }
+            } catch(err) {}
+            return null;
+        };
         // Função global de startCheckout com fallback instantâneo
         window.startCheckout = function(plan) {
             console.log("window.startCheckout chamado para:", plan);
@@ -1315,7 +1326,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=99"></script>
+    <script src="app.js?v=100"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
