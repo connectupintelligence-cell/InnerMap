@@ -3138,6 +3138,8 @@ Retorne JSON no formato exato:
         if (state.currentUser) {
             userNavContainer.style.display = "flex";
             if (mobileBtnLogout) mobileBtnLogout.style.display = "flex";
+            const mobileAccount = document.getElementById("mobile-nav-account");
+            if (mobileAccount) mobileAccount.style.display = "flex";
             if (btnLoginTrigger) btnLoginTrigger.style.display = "none";
             if (btnHeroLogin) btnHeroLogin.style.display = "none";
             document.body.classList.add("user-logged-in");
@@ -3198,6 +3200,8 @@ Retorne JSON no formato exato:
         } else {
             userNavContainer.style.display = "none";
             if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
+            const mobileAccount = document.getElementById("mobile-nav-account");
+            if (mobileAccount) mobileAccount.style.display = "none";
             if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
             if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
             document.body.classList.remove("user-logged-in");
@@ -5120,9 +5124,17 @@ Pergunta atual: "${query}"
 // ==========================================================================
 // DIREITOS DO TITULAR LGPD & GESTÃO DE DADOS
 // ==========================================================================
-window.openAccountModal = function() {
+window.openAccountModal = function(e) {
+    if (e) {
+        try { if (e.preventDefault) e.preventDefault(); } catch(err){}
+        try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
+    }
+    console.log("Abrindo modal Minha Conta...");
     const modal = document.getElementById("account-modal");
-    if (!modal) return;
+    if (!modal) {
+        console.warn("Elemento #account-modal não encontrado no DOM.");
+        return;
+    }
     const emailEl = document.getElementById("account-user-email");
     const planEl = document.getElementById("account-user-plan");
 
@@ -5132,13 +5144,13 @@ window.openAccountModal = function() {
             planEl.textContent = "Acesso Especial Terapeuta";
         } else if (state.subscription) {
             if (state.subscription.plan === "trial") {
-            planEl.innerHTML = 'Período de Teste (7 Dias) — <a href="#" onclick="document.getElementById(\'account-modal\').style.display=\'none\'; showScreen(\'paywall\'); return false;" style="color: #E8A855; font-weight: 700; text-decoration: underline;">Assinar Anual +15 Dias Bônus 🎁</a>';
-        } else if (state.subscription.plan === "yearly") {
-            const hasBonus = state.subscription.bonus_days ? ` (+ ${state.subscription.bonus_days}d bônus)` : '';
-            planEl.textContent = "Plano Anual Premium" + hasBonus;
-        } else {
-            planEl.textContent = "Plano Mensal Premium";
-        }
+                planEl.innerHTML = 'Período de Teste (7 Dias) — <a href="#" onclick="document.getElementById(\'account-modal\').style.display=\'none\'; showScreen(\'paywall\'); return false;" style="color: #E8A855; font-weight: 700; text-decoration: underline;">Assinar Anual +15 Dias Bônus 🎁</a>';
+            } else if (state.subscription.plan === "yearly") {
+                const hasBonus = state.subscription.bonus_days ? ` (+ ${state.subscription.bonus_days}d bônus)` : '';
+                planEl.textContent = "Plano Anual Premium" + hasBonus;
+            } else {
+                planEl.textContent = "Plano Mensal Premium";
+            }
         } else {
             planEl.textContent = "Sem plano ativo";
         }
