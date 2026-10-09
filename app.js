@@ -3470,8 +3470,11 @@ Retorne JSON no formato exato:
                     window.location.href = data.url;
                     return;
                 }
-            } catch (err) {
-                console.warn("Falha ao gerar link dinâmico da InfinitePay, tentando link estático ou simulação:", err);
+                        } catch (err) {
+                console.warn("API dinâmica da InfinitePay offline ou bloqueada por CORS, usando a página oficial de pagamento:", err);
+                const cleanTag = (INFINITEPAY_TAG || "felipefavalli").replace(/[\$\@]/g, "").trim();
+                window.location.href = `https://pay.infinitepay.io/${cleanTag}`;
+                return;
             } finally {
                 if (btn) {
                     btn.disabled = false;
