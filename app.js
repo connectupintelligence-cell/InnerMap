@@ -3016,6 +3016,7 @@ Retorne JSON no formato exato:
 
     // Helper: Mostrar tela específica com interceptações de autenticação e paywall
     function showScreen(screenId) {
+        window.showScreen = showScreen;
         VoiceManager.stopSpeaking();
         VoiceManager.stopSpeechRecognition();
 
