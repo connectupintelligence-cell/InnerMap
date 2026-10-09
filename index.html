@@ -37,6 +37,7 @@
                 targetScreen.classList.add("active");
                 targetScreen.style.display = "block";
             }
+        };
         // Fallback global de exibição do modal Minha Conta
         window.openAccountModal = function(e) {
             if (e) {
@@ -117,6 +118,62 @@
             var modal = document.getElementById("lgpd-privacy-modal");
             if (modal) modal.style.display = "flex";
         };
+
+        window.selectObjectiveMode = function(mode) {
+            if (window.state) window.state.selectedMode = mode;
+            var cards = document.querySelectorAll('.objective-card');
+            cards.forEach(function(c){ c.classList.remove('active'); });
+            var target = document.getElementById('obj-card-' + mode);
+            if (target) target.classList.add('active');
+            
+            var quickTopicsContainer = document.getElementById("quick-motivation-topics");
+            var inputAiRelato = document.getElementById("input-ai-relato");
+            var step1Title = document.getElementById("step1-title");
+            var step1Desc = document.getElementById("step1-desc");
+
+            if (mode === 1) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho...)";
+                }
+                if (step1Title) step1Title.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente';
+                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
+            } else if (mode === 2) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+                }
+                if (step1Title) step1Title.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças';
+                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
+            } else if (mode === 3) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "70px";
+                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
+                }
+                if (step1Title) step1Title.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana';
+                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
+            } else if (mode === 4) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente...";
+                }
+                if (step1Title) step1Title.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa';
+                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
+            }
+        };
+
+        window.selectQuickTopic = function(btn) {
+            if (!btn) return;
+            var chips = document.querySelectorAll('.quick-topic-chip');
+            chips.forEach(function(c){ c.classList.remove('selected'); });
+            btn.classList.add('selected');
+            var input = document.getElementById('input-ai-relato');
+            if (input) input.value = btn.getAttribute('data-value') || '';
+        };
         window.addEventListener('error', function(e) {
             var errDiv = document.getElementById('debug-error-console');
             if (!errDiv) {
@@ -153,7 +210,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=109">
+    <link rel="stylesheet" href="styles.css?v=110">
 </head>
 <body>
 
@@ -243,28 +300,28 @@
                                     O que você deseja trabalhar hoje?
                                 </label>
                                 <div class="objective-grid">
-                                    <div class="objective-card active" data-mode="1" id="obj-card-1">
+                                    <div class="objective-card active" data-mode="1" id="obj-card-1" onclick="window.selectObjectiveMode(1);">
                                         <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>
                                         <div class="objective-info">
                                             <strong>Desconforto Recente</strong>
                                             <small>Contar um fato ou conflito atual</small>
                                         </div>
                                     </div>
-                                    <div class="objective-card" data-mode="2" id="obj-card-2">
+                                    <div class="objective-card" data-mode="2" id="obj-card-2" onclick="window.selectObjectiveMode(2);">
                                         <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#E8A855" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
                                         <div class="objective-info">
                                             <strong>História / Passado</strong>
                                             <small>Memórias de infância ou antepassados</small>
                                         </div>
                                     </div>
-                                    <div class="objective-card" data-mode="3" id="obj-card-3">
+                                    <div class="objective-card" data-mode="3" id="obj-card-3" onclick="window.selectObjectiveMode(3);">
                                         <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#66FCF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
                                         <div class="objective-info">
                                             <strong>Motivação Rápida</strong>
                                             <small>Fortalecimento e foco para o dia/semana</small>
                                         </div>
                                     </div>
-                                    <div class="objective-card" data-mode="4" id="obj-card-4">
+                                    <div class="objective-card" data-mode="4" id="obj-card-4" onclick="window.selectObjectiveMode(4);">
                                         <span class="objective-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#B19CD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></span>
                                         <div class="objective-info">
                                             <strong>Reorganização Profunda</strong>
@@ -289,12 +346,12 @@
                                     Sugestões de Temas Prontos (Clique para escolher):
                                 </p>
                                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                    <button type="button" class="quick-topic-chip" data-value="Prosperidade financeira e fartura">Prosperidade Financeira</button>
-                                    <button type="button" class="quick-topic-chip" data-value="Saúde, vitalidade e regeneração física">Saúde & Vitalidade</button>
-                                    <button type="button" class="quick-topic-chip" data-value="Foco, clareza e produtividade no trabalho">Foco no Trabalho</button>
-                                    <button type="button" class="quick-topic-chip" data-value="Autoconfiança, coragem e determinação">Autoconfiança & Coragem</button>
-                                    <button type="button" class="quick-topic-chip" data-value="Serenidade, paz interna e equilíbrio emocional">Serenidade & Paz Interna</button>
-                                    <button type="button" class="quick-topic-chip" data-value="Harmonia, diálogo e leveza nos relacionamentos">Harmonia nos Relacionamentos</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Prosperidade financeira e fartura">Prosperidade Financeira</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Saúde, vitalidade e regeneração física">Saúde & Vitalidade</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Foco, clareza e produtividade no trabalho">Foco no Trabalho</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Autoconfiança, coragem e determinação">Autoconfiança & Coragem</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Serenidade, paz interna e equilíbrio emocional">Serenidade & Paz Interna</button>
+                                    <button type="button" class="quick-topic-chip" onclick="window.selectQuickTopic(this);" data-value="Harmonia, diálogo e leveza nos relacionamentos">Harmonia nos Relacionamentos</button>
                                 </div>
                             </div>
 
@@ -308,7 +365,7 @@
                                 <span id="char-counter-number" style="font-weight: 600; color: #fca5a5;">0 / 100</span>
                             </div>
                             
-                            <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem; margin-top: 1.25rem;">
+                            <button type="button" id="btn-run-ai-analysis" class="btn btn-primary btn-block" onclick="if(window.handleAiAnalysis) window.handleAiAnalysis();" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 50px; font-size: 1rem; margin-top: 1.25rem;">
                                 <span class="spinner" id="ai-spinner" style="display: none; width: 18px; height: 18px; border: 3px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 5px;"></span>
                                  Descobrir Minha Reorganização Informacional
                             </button>
@@ -380,11 +437,11 @@
 
                             <!-- Botões de ação -->
                             <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap;">
-                                <button type="button" id="btn-ai-continuar" class="btn btn-primary" style="flex: 1; height: 46px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                                <button type="button" id="btn-ai-continuar" class="btn btn-primary" onclick="if(window.handleAiContinue) window.handleAiContinue();" style="flex: 1; height: 46px; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
                                     <span class="spinner" id="ai-explore-spinner" style="display: none; width: 16px; height: 16px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 4px;"></span>
                                     <span>Continuar com mais detalhes →</span>
                                 </button>
-                                <button type="button" id="btn-ai-pular" class="btn btn-secondary" style="height: 46px; font-size: 0.9rem; border-color: rgba(255,255,255,0.15);">Pular e gerar agora</button>
+                                <button type="button" id="btn-ai-pular" class="btn btn-secondary" onclick="if(window.handleAiSkip) window.handleAiSkip();" style="height: 46px; font-size: 0.9rem; border-color: rgba(255,255,255,0.15);">Pular e gerar agora</button>
                             </div>
                         </div>
                     </div>
@@ -1330,7 +1387,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=109"></script>
+    <script src="app.js?v=110"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
