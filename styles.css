@@ -2419,6 +2419,23 @@ body.mode-therapist .main-content {
     gap: 1rem;
 }
 
+.faq-header span:first-child {
+    flex: 1 1 auto;
+    text-align: left;
+}
+
+.faq-icon {
+    flex-shrink: 0;
+}
+
+/* Remover marcadores nativos do details/summary que quebram o flexbox */
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
 .faq-header:hover {
     color: var(--color-primary);
 }
