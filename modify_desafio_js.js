@@ -120,7 +120,7 @@ const logicHTML = `
 `;
 
 if (!appJs.includes('function renderChallengeTimeline')) {
-    const attachPoint = 'window.openAccountModal = function() {';
+    const attachPoint = 'window.openAccountModal = function(e) {';
     appJs = appJs.replace(attachPoint, logicHTML + '\n    ' + attachPoint);
     
     // Add loadChallengeVideos to init flow
