@@ -1322,7 +1322,17 @@ function initApp() {
         });
     }
 
-    if (navTherapist) {
+    
+            const btnAdminDesafio = document.getElementById("btn-admin-desafio");
+            if (btnAdminDesafio) {
+                if (state.currentUser && state.currentUser.role === "therapist") {
+                    btnAdminDesafio.style.display = "inline-block";
+                } else {
+                    btnAdminDesafio.style.display = "none";
+                }
+            }
+
+            if (navTherapist) {
         navTherapist.addEventListener("click", (e) => {
             e.preventDefault();
             if (!state.currentUser || state.currentUser.role !== "therapist") {
