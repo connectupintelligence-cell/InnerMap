@@ -1239,11 +1239,11 @@ function initApp() {
     const navTutorial = document.getElementById("nav-tutorial");
     const mobileNavTutorial = document.getElementById("mobile-nav-tutorial");
 
-    if (navDesafio) navDesafio.addEventListener("click", (e) => { e.preventDefault(); showScreen("desafio"); updateActiveNav("nav-desafio", "mobile-nav-desafio"); });
-    if (mobileNavDesafio) mobileNavDesafio.addEventListener("click", (e) => { e.preventDefault(); showScreen("desafio"); updateActiveNav("nav-desafio", "mobile-nav-desafio"); });
+    if (navDesafio) navDesafio.addEventListener("click", (e) => { e.preventDefault(); switchTab(navDesafio, sectionApp); showScreen("desafio"); });
+    if (mobileNavDesafio) mobileNavDesafio.addEventListener("click", (e) => { e.preventDefault(); switchTab(mobileNavDesafio, sectionApp); showScreen("desafio"); });
     
-    if (navTutorial) navTutorial.addEventListener("click", (e) => { e.preventDefault(); showScreen("tutorial"); updateActiveNav("nav-tutorial", "mobile-nav-tutorial"); });
-    if (mobileNavTutorial) mobileNavTutorial.addEventListener("click", (e) => { e.preventDefault(); showScreen("tutorial"); updateActiveNav("nav-tutorial", "mobile-nav-tutorial"); });
+    if (navTutorial) navTutorial.addEventListener("click", (e) => { e.preventDefault(); switchTab(navTutorial, sectionApp); showScreen("tutorial"); });
+    if (mobileNavTutorial) mobileNavTutorial.addEventListener("click", (e) => { e.preventDefault(); switchTab(mobileNavTutorial, sectionApp); showScreen("tutorial"); });
 
     const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
@@ -1270,8 +1270,8 @@ function initApp() {
         const mLib = document.getElementById("mobile-nav-lib");
         const mTherapist = document.getElementById("mobile-nav-therapist");
 
-        [navApp, navAgenda, navLib, navNav, navTherapist, mApp, mAgenda, mLib, mTherapist].forEach(el => el && el.classList.remove("active"));
-        [sectionApp, sectionAgenda, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
+        [navApp, navAgenda, navDesafio, navTutorial, navNav, navTherapist, mApp, mAgenda, mobileNavDesafio, mobileNavTutorial, mTherapist].forEach(el => el && el.classList.remove("active"));
+        [sectionApp, sectionAgenda, sectionRag].forEach(el => el && (el.style.display = "none"));
         
         if (activeNav) {
             activeNav.classList.add("active");
