@@ -612,32 +612,26 @@ class ReorganizationEngine {
         let mdi = "";
         if (isHereditary) {
             mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            // Removed
-            // Removed
-            // Removed
-        } else {
-            // "manter apenas os comandos que não precisam do TEMA"
-            // Se é fato específico, o bloco de reinterpretação não usa MDI focado em tema.
-            mdi = "";
-        }
-        // Dummy logic to remove the rest of the old MDI string so it doesn't duplicate
-        let _mdiOldIgnored = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, crença sobre ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-        mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
+            mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+            mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+            mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+            mdi += `Espírito, crença sobre ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+            mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
-        // MDI Condicional extra lines
-        if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
-            addedMdiBehaviors.forEach(item => {
-                if (item.behavior) {
-                    mdi += `\nEspírito, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
-                    if (item.sentiment) {
-                        mdi += `\nEspírito, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
+            // MDI Condicional extra lines
+            if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
+                addedMdiBehaviors.forEach(item => {
+                    if (item.behavior) {
+                        mdi += `\nEspírito, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
+                        if (item.sentiment) {
+                            mdi += `\nEspírito, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            // "A parte do mental que está associada ao tema, pode tirar neste desconforto recente."
+            mdi = "";
         }
 
         let finalEspecifica = "";
@@ -2622,6 +2616,7 @@ Retorne JSON no formato exato:
                 }
                 
                 showScreen("step3");
+                if (typeof startPracticeTimer === "function") startPracticeTimer();
             } catch (err) {
                 console.error("Erro na geração final:", err);
                 showToast("Erro ao gerar reorganização: " + err.message);
@@ -2670,6 +2665,7 @@ Retorne JSON no formato exato:
     // Tela 2 (Consciência Informacional) -> Tela 3: Ir para Ajustes Informacionais
     window.handleToStep3 = function() {
         showScreen("step3");
+                if (typeof startPracticeTimer === "function") startPracticeTimer();
         startPracticeTimer();
     };
     if (btnToStep3) btnToStep3.addEventListener("click", window.handleToStep3);
