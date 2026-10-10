@@ -3217,7 +3217,7 @@ Retorne JSON no formato exato:
                 } else if (state.subscription) {
                     if (state.subscription.plan === "trial") {
                         // Calcular dias restantes
-                        const activationDate = new Date(state.subscription.date);
+                        const activationDate = parseBrDate(state.subscription.date);
                         const currentDate = new Date();
                         let diffTime = currentDate - activationDate;
                         if (isNaN(diffTime)) {
@@ -4024,6 +4024,15 @@ Pergunta atual: "${query}"
         }, 3000);
     }
 
+    // Converte "dd/mm/aaaa" (toLocaleDateString pt-BR) corretamente; new Date() leria como mm/dd
+    function parseBrDate(raw) {
+        const str = String(raw || "");
+        const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+        const d = new Date(str);
+        return isNaN(d) ? new Date() : d;
+    }
+
     // Verificar o status e a data de validade da assinatura de teste (trial de 7 dias)
     function checkSubscriptionStatus() {
         // Se o usuário for um terapeuta/admin, desativa o limite e o aviso de 7 dias de teste
@@ -4032,18 +4041,18 @@ Pergunta atual: "${query}"
         }
 
         if (state.subscription && state.subscription.plan === "trial") {
-            const activationDate = new Date(state.subscription.date);
             const currentDate = new Date();
-            
-            let diffTime = currentDate - activationDate;
-            if (isNaN(diffTime)) {
-                // Tenta tratar formato local dd/mm/aaaa se houver no histórico antigo
-                const parts = state.subscription.date.split('/');
-                if (parts.length === 3) {
-                    const parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                    diffTime = currentDate - parsedDate;
-                }
+            const rawDate = String(state.subscription.date || "");
+            let activationDate;
+            const br = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (br) {
+                // Formato brasileiro dd/mm/aaaa (new Date() interpretaria como mm/dd)
+                activationDate = new Date(+br[3], +br[2] - 1, +br[1]);
+            } else {
+                activationDate = new Date(rawDate);
             }
+            let diffTime = currentDate - activationDate;
+            if (isNaN(diffTime)) diffTime = 0;
             
             const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             const daysRemaining = 7 - daysElapsed;
@@ -4097,11 +4106,11 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("step1");
+                showScreen("auth");
             }
         }).catch(err => {
             console.error("Erro ao obter sessão inicial:", err);
-            showScreen("step1");
+            showScreen("auth");
         });
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
@@ -4126,23 +4135,26 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("step1");
+                showScreen("auth");
             }
         });
     } else {
         // Fallback local se Supabase não configurado
         updateUserUI();
         if (checkSubscriptionStatus()) {
-            showScreen("step1");
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else {
+                showScreen("step1");
+            }
         }
     }
 
-    // Segurança: se após 3s nenhuma tela estiver visível, força step1
+    // Segurança: se após 3s nenhuma tela estiver visível, força auth
     setTimeout(() => {
         const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
         if (!anyActive) {
-            console.warn("Nenhuma tela ativa detectada após 3s — exibindo step1");
-            showScreen("step1");
+            showScreen(state.currentUser ? "step1" : "auth");
         }
     }, 3000);
 
@@ -4323,7 +4335,7 @@ Pergunta atual: "${query}"
             let activeTrials = 0;
             clientSubs.forEach(s => {
                 if (s.plan === "trial" && s.active) {
-                    const activationDate = new Date(s.date);
+                    const activationDate = parseBrDate(s.date);
                     const currentDate = new Date();
                     let diffTime = currentDate - activationDate;
                     if (isNaN(diffTime)) {
@@ -4380,7 +4392,7 @@ Pergunta atual: "${query}"
             if (sub && sub.active) {
                 dateHTML = sub.date;
                 if (sub.plan === "trial") {
-                    const activationDate = new Date(sub.date);
+                    const activationDate = parseBrDate(sub.date);
                     const currentDate = new Date();
                     let diffTime = currentDate - activationDate;
                     if (isNaN(diffTime)) {

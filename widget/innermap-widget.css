@@ -30,6 +30,33 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  /* O contêiner NÃO captura toques — só o botão e a caixa aberta */
+  pointer-events: none;
+}
+
+.innermap-widget-wrapper .innermap-widget-trigger {
+  pointer-events: auto;
+}
+
+.innermap-widget-wrapper .innermap-widget-box:not(.open) {
+  visibility: hidden;
+  pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+  .innermap-widget-wrapper {
+    bottom: 84px; /* acima da barra de navegação inferior (70px) */
+    right: 14px;
+  }
+  .innermap-widget-wrapper .innermap-widget-trigger {
+    width: 52px;
+    height: 52px;
+  }
+  .innermap-widget-wrapper .innermap-widget-box {
+    width: calc(100vw - 28px);
+    height: calc(100vh - 180px);
+    max-height: calc(100vh - 180px);
+  }
 }
 
 .innermap-widget-trigger {
