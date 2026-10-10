@@ -2497,14 +2497,13 @@ body.mode-therapist .main-content {
 }
 
 /* Mobile Touch & Click Optimizations across all interactive controls */
-button, .btn, .objective-card, .quick-topic-chip, .sentiment-tag, .mobile-nav-item, .auth-tab-link, .category-pill, .btn-select-plan, .choice-btn {
+button, .btn, .objective-card, .quick-topic-chip, .sentiment-tag, .mobile-nav-item, .auth-tab-link, .category-pill, .btn-select-plan, .choice-btn, .rating-option, .hqi-card, .fact-chip, .sentiment-chip, .btn-primary, .btn-outline, .btn-secondary, a, input[type="submit"], input[type="button"] {
     touch-action: manipulation !important;
     cursor: pointer !important;
-    user-select: none !important;
     -webkit-tap-highlight-color: transparent !important;
 }
 
-.objective-card:active, .quick-topic-chip:active, .btn:active, .btn-primary:active, .btn-secondary:active, .btn-select-plan:active {
+.objective-card:active, .quick-topic-chip:active, .btn:active, .btn-primary:active, .btn-secondary:active, .btn-select-plan:active, .rating-option:active {
     transform: scale(0.98) !important;
     opacity: 0.9 !important;
 }

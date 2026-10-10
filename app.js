@@ -3140,6 +3140,14 @@ Retorne JSON no formato exato:
         Object.keys(screens).forEach(key => {
             if (screens[key]) {
                 screens[key].classList.remove("active");
+                screens[key].style.display = "none";
+            }
+        });
+
+        document.querySelectorAll(".app-screen").forEach(s => {
+            if (s.id !== "screen-" + screenId) {
+                s.classList.remove("active");
+                s.style.display = "none";
             }
         });
         
@@ -3148,8 +3156,10 @@ Retorne JSON no formato exato:
             state.subscription = { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
         }
 
-        if (screens[screenId]) {
-            screens[screenId].classList.add("active");
+        const targetScreen = screens[screenId] || document.getElementById("screen-" + screenId);
+        if (targetScreen) {
+            targetScreen.classList.add("active");
+            targetScreen.style.display = "block";
             if (screenId.startsWith("step")) {
                 state.currentStep = parseInt(screenId.replace("step", ""));
             } else {
@@ -4087,11 +4097,11 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("auth");
+                showScreen("step1");
             }
         }).catch(err => {
             console.error("Erro ao obter sessão inicial:", err);
-            showScreen("auth");
+            showScreen("step1");
         });
 
         // 2. Ouvir mudanças futuras de autenticação (como login, logout, OAuth)
@@ -4116,29 +4126,23 @@ Pergunta atual: "${query}"
                 updateUserUI();
                 renderLibrary();
                 renderStats();
-                showScreen("auth");
+                showScreen("step1");
             }
         });
     } else {
         // Fallback local se Supabase não configurado
         updateUserUI();
         if (checkSubscriptionStatus()) {
-            if (!state.currentUser) {
-                showScreen("auth");
-            } else if (!state.subscription && state.currentUser.role !== "therapist") {
-                showScreen("paywall");
-            } else {
-                showScreen("step1");
-            }
+            showScreen("step1");
         }
     }
 
-    // Segurança: se após 3s nenhuma tela estiver visível, força auth
+    // Segurança: se após 3s nenhuma tela estiver visível, força step1
     setTimeout(() => {
         const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
         if (!anyActive) {
-            console.warn("Nenhuma tela ativa detectada após 3s — forçando tela auth");
-            showScreen("auth");
+            console.warn("Nenhuma tela ativa detectada após 3s — exibindo step1");
+            showScreen("step1");
         }
     }, 3000);
 
