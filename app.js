@@ -609,7 +609,19 @@ class ReorganizationEngine {
         const artigo = isMasc ? "o" : "a";
         const prepArtigo = isMasc ? "ao" : "à";
 
-        let mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        let mdi = "";
+        if (isHereditary) {
+            mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+            // Removed
+            // Removed
+            // Removed
+        } else {
+            // "manter apenas os comandos que não precisam do TEMA"
+            // Se é fato específico, o bloco de reinterpretação não usa MDI focado em tema.
+            mdi = "";
+        }
+        // Dummy logic to remove the rest of the old MDI string so it doesn't duplicate
+        let _mdiOldIgnored = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
         mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
@@ -963,7 +975,7 @@ class ReorganizationEngine {
             declaracao: finalDeclaracao,
             fortalecimento: mriText,
             pergunta: `O que o registro de "${cleanConcept.toLowerCase()}" está protegendo ou sinalizando na sua experiência atual?`,
-            microacao: "Escrever o fato em um papel, mentalizar as frases de liberação (MSI/MFI), e depois rasgá-lo, focando na reinterpretação sugerida (MRI).",
+            microacao: "Identifique uma atitude prática que contrarie a sua reação automática ao evento. Hoje, escolha responder de forma intencional e pacífica a qualquer gatilho semelhante, mantendo o estado de presença e ancorando sua nova consciência informacional.",
             originalPhrase: phrase
         };
     }
@@ -3881,6 +3893,49 @@ Retorne JSON no formato exato:
             }
             grouped[item.category].push(item);
         });
+
+
+    // DELEGAÇÃO DE EVENTOS PARA BOTÃO DE EXCLUIR NO PROGRESSO
+    const libraryContainer = document.getElementById("library-container");
+    if (libraryContainer && !libraryContainer.dataset.deleteBound) {
+        libraryContainer.dataset.deleteBound = "true";
+        libraryContainer.addEventListener("click", async (e) => {
+            const btnDelete = e.target.closest('.btn-delete-progresso');
+            if (btnDelete) {
+                e.stopPropagation();
+                const itemDate = btnDelete.dataset.date;
+                const itemPhrase = btnDelete.dataset.phrase;
+                
+                if (confirm("Tem certeza que deseja excluir esta reorganização (\" " + itemPhrase + " \") do seu progresso?")) {
+                    // Remover do state.history
+                    const index = state.history.findIndex(i => i.date === itemDate && fixMojibake(i.phrase) === itemPhrase);
+                    if (index !== -1) {
+                        const removedItem = state.history.splice(index, 1)[0];
+                        state.saveHistory(state.history); // Assuming saveHistory exists, or we just save to SafeStorage/Supabase
+                        
+                        // Atualizar Supabase se logado
+                        if (state.currentUser && window.supabaseClient) {
+                            try {
+                                if (removedItem.id) {
+                                    await window.supabaseClient.from("user_practices").delete().eq("id", removedItem.id);
+                                } else {
+                                    // Se não tem ID, tentar deletar baseado na data
+                                    await window.supabaseClient.from("user_practices").delete().eq("user_id", state.currentUser.id).eq("created_at", removedItem.date);
+                                }
+                            } catch (err) {
+                                console.warn("Erro ao deletar do supabase", err);
+                            }
+                        }
+                        
+                        // Atualizar a interface do Meu Progresso
+                        if (typeof window.renderLibrary === "function") window.renderLibrary();
+                        if (typeof window.renderStats === "function") window.renderStats();
+                        showToast("Reorganização excluída do seu progresso.");
+                    }
+                }
+            }
+        });
+    }
 
         for (const cat in grouped) {
             const catEmoji = grouped[cat][0].categoryEmoji;
