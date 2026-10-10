@@ -1748,7 +1748,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
 
                 const isSk = state.apiKey.startsWith("sk-");
                 const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                const model = isSk ? "gpt-4o-mini" : "llama-3.1-70b-versatile";
+                const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                 const res = await fetch(endpoint, {
                     method: "POST",
@@ -2161,7 +2161,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                             "Authorization": `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            model: "llama-3.1-70b-versatile",
+                            model: "llama3-70b-8192",
                             response_format: { type: "json_object" },
                             messages: [{ role: "user", content: prompt }]
                         })
@@ -2332,7 +2332,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
                     const isSk = state.apiKey.startsWith("sk-");
                     const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                    const model = isSk ? "gpt-4o-mini" : "llama-3.1-70b-versatile";
+                    const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                     mergeResponse = await fetch(endpoint, {
                         method: "POST",
@@ -2404,7 +2404,7 @@ Retorne JSON no formato exato:
 
                     const isSk = state.apiKey.startsWith("sk-");
                     const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                    const model = isSk ? "gpt-4o-mini" : "llama-3.1-70b-versatile";
+                    const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                     const res = await fetch(endpoint, {
                         method: "POST",
@@ -2489,7 +2489,7 @@ Retorne JSON no formato exato:
             if (state.apiKey.startsWith("sk-") || state.apiKey.startsWith("gsk_")) {
                 const isSk = state.apiKey.startsWith("sk-");
                 const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                const model = isSk ? "gpt-4o-mini" : "llama-3.1-70b-versatile";
+                const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                 response = await fetch(endpoint, {
                     method: "POST",
