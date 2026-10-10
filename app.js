@@ -820,6 +820,11 @@ class ReorganizationEngine {
         let es = "direcionar minha atenção para novas possibilidades, soluções e expansão";
         let al = "construo minha realidade com presença, consistência e equilíbrio";
 
+        if (clean === "este desconforto recente" || clean === "este padrão") {
+            es = "soltar a carga emocional deste evento e focar no meu avanço prático";
+            al = "me sinto livre, consciente e no controle das minhas escolhas diárias";
+        }
+
         if (clean.includes("escassez") || clean.includes("dinheiro") || clean.includes("financeiro") || clean.includes("dívida") || clean.includes("pobre")) {
             es = "direcionar minha atenção para a abundância, prosperidade e fluxo constante de recursos";
             al = "construo riqueza, fartura e segurança financeira com ações consistentes e sabedoria";
@@ -2236,7 +2241,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             } catch (err) {
                 console.warn("API de IA indisponível, utilizando motor local de Inteligência Informacional InnerMap:", err);
                 state.relatoOriginal = relato;
-                state.tempTheme = ReorganizationEngine.extractTheme ? ReorganizationEngine.extractTheme(relato) : "Autoconhecimento";
+                state.tempTheme = state.selectedMode === 1 ? "este desconforto recente" : "este padrão";
                 state.addedFacts = [{ phrase: relato, sentiments: ["tristeza", "insegurança"] }];
                 state.addedMdiBehaviors = [];
                 state.hasMdiCondicional = false;
