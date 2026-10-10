@@ -1267,7 +1267,6 @@ function initApp() {
         // Mobile bottom nav references
         const mApp = document.getElementById("mobile-nav-app");
         const mAgenda = document.getElementById("mobile-nav-agenda");
-        const mLib = document.getElementById("mobile-nav-lib");
         const mTherapist = document.getElementById("mobile-nav-therapist");
 
         [navApp, navAgenda, navDesafio, navTutorial, navNav, navTherapist, mApp, mAgenda, mobileNavDesafio, mobileNavTutorial, mTherapist].forEach(el => el && el.classList.remove("active"));
@@ -1280,9 +1279,11 @@ function initApp() {
             
             if (activeNav === navAgenda && mAgenda) mAgenda.classList.add("active");
             if (activeNav === mAgenda && navAgenda) navAgenda.classList.add("active");
+            if (activeNav === navDesafio && mobileNavDesafio) mobileNavDesafio.classList.add("active");
+            if (activeNav === mobileNavDesafio && navDesafio) navDesafio.classList.add("active");
+            if (activeNav === navTutorial && mobileNavTutorial) mobileNavTutorial.classList.add("active");
+            if (activeNav === mobileNavTutorial && navTutorial) navTutorial.classList.add("active");
             
-            if (activeNav === navLib && mLib) mLib.classList.add("active");
-            if (activeNav === mLib && navLib) navLib.classList.add("active");
             
             if (activeNav === navTherapist && mTherapist) mTherapist.classList.add("active");
             if (activeNav === mTherapist && navTherapist) navTherapist.classList.add("active");
@@ -1357,7 +1358,6 @@ function initApp() {
     // Event Listeners para a Barra de Navegação Mobile
     const mApp = document.getElementById("mobile-nav-app");
     const mAgenda = document.getElementById("mobile-nav-agenda");
-    const mLib = document.getElementById("mobile-nav-lib");
     const mTherapist = document.getElementById("mobile-nav-therapist");
 
     if (mApp) {
