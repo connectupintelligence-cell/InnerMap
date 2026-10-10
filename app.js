@@ -70,7 +70,154 @@ window.handleAppLogout = function(e) {
  * Core Logic, State Management & Supabase Backend Integration
  */
 
-// ==========================================================================
+
+    // ==========================================================================
+    // TUTORIAL (PASSOS)
+    // ==========================================================================
+    let tutorialVideos = [];
+    
+    function renderTutorialTimeline(videos) {
+        const container = document.getElementById("tutorial-timeline");
+        if (!container) return;
+        
+        let html = "";
+        const stepsTitles = ["Passo 1", "Passo 2", "Passo 3", "Passo 4", "Passo 5", "Passo 6", "Passo 7"];
+        
+        for (let i = 0; i < 7; i++) {
+            const videoUrl = videos[i] || "";
+            let embedUrl = getEmbedUrl(videoUrl);
+            let isDirectVideo = false;
+            
+            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm") || videoUrl.includes("firebasestorage")) {
+                embedUrl = videoUrl;
+                isDirectVideo = true;
+            }
+            
+            let videoHTML = `<div class="timeline-empty">Vídeo em breve...</div>`;
+            if (embedUrl) {
+                if (isDirectVideo) {
+                    videoHTML = `<div class="timeline-video-wrapper"><video src="${embedUrl}" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
+                } else {
+                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
+                }
+            }
+            
+            html += `
+                <div class="timeline-step">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">
+                            <span class="day-badge">${stepsTitles[i]}</span>
+                        </div>
+                        ${videoHTML}
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    async function loadTutorialVideos() {
+        try {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient
+                .from("system_config")
+                .select("value")
+                .eq("key", "tutorial_videos")
+                .single();
+                
+            if (data && data.value) {
+                tutorialVideos = JSON.parse(data.value);
+            }
+            renderTutorialTimeline(tutorialVideos);
+        } catch (err) {
+            console.error("Erro ao carregar tutorial:", err);
+            renderTutorialTimeline([]);
+        }
+    }
+
+    window.openTutorialConfigModal = function() {
+        const modal = document.getElementById("tutorial-config-modal");
+        if (!modal) return;
+        
+        for (let i = 0; i < 7; i++) {
+            const input = document.getElementById(`tutorial-vid-${i+1}`);
+            if (input) input.value = tutorialVideos[i] || "";
+        }
+        
+        modal.style.display = "flex";
+    };
+
+    window.saveTutorialConfig = async function() {
+        const btn = document.getElementById("btn-save-tutorial");
+        if (btn) btn.innerHTML = "Salvando...";
+        
+        let newVideos = [];
+        for (let i = 0; i < 7; i++) {
+            const input = document.getElementById(`tutorial-vid-${i+1}`);
+            newVideos.push(input ? input.value.trim() : "");
+        }
+        
+        try {
+            const { error } = await supabaseClient
+                .from("system_config")
+                .upsert({
+                    key: "tutorial_videos",
+                    value: JSON.stringify(newVideos)
+                }, { onConflict: "key" });
+                
+            if (error) throw error;
+            
+            tutorialVideos = newVideos;
+            renderTutorialTimeline(tutorialVideos);
+            showToast("Passos do Tutorial salvos com sucesso!");
+            document.getElementById("tutorial-config-modal").style.display = "none";
+        } catch (err) {
+            console.error("Erro ao salvar tutorial:", err);
+            showToast("Erro ao salvar: Verifique suas permissões.");
+        } finally {
+            if (btn) btn.innerHTML = "Salvar Tutorial";
+        }
+    };
+
+    window.uploadTutorialVideo = async function(fileInput, stepIndex) {
+        const file = fileInput.files[0];
+        if (!file) return;
+        
+        if (!supabaseClient) {
+            showToast("Supabase não configurado.");
+            return;
+        }
+        
+        const inputField = document.getElementById(`tutorial-vid-${stepIndex}`);
+        if (inputField) inputField.value = "Fazendo upload... aguarde (não feche)";
+        
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `tutorial_passo_${stepIndex}_${Date.now()}.${fileExt}`;
+            
+            // USING THE SAME BUCKET 'desafio_videos' SO THEY DON'T NEED TO CREATE ANOTHER ONE!
+            const { data, error } = await supabaseClient.storage
+                .from('desafio_videos')
+                .upload(fileName, file, { upsert: true });
+                
+            if (error) throw error;
+            
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('desafio_videos')
+                .getPublicUrl(fileName);
+                
+            if (inputField) inputField.value = publicUrlData.publicUrl;
+            showToast(`Vídeo do Passo ${stepIndex} carregado com sucesso!`);
+        } catch (err) {
+            console.error("Erro no upload do tutorial:", err);
+            if (inputField) inputField.value = "";
+            alert("ERRO: " + err.message);
+        }
+    };
+
+    // ==========================================================================
 // CONFIGURAÇÃO DO SUPABASE (BANCO DE DADOS & AUTH REMOTO)
 // ==========================================================================
 // Insira as chaves do seu projeto do Supabase aqui para ativar o login real com Google
@@ -1329,6 +1476,16 @@ function initApp() {
                     btnAdminDesafio.style.display = "inline-block";
                 } else {
                     btnAdminDesafio.style.display = "none";
+                }
+            }
+
+            
+            const btnAdminTutorial = document.getElementById("btn-admin-tutorial");
+            if (btnAdminTutorial) {
+                if (state.currentUser && state.currentUser.role === "therapist") {
+                    btnAdminTutorial.style.display = "inline-block";
+                } else {
+                    btnAdminTutorial.style.display = "none";
                 }
             }
 
@@ -5132,6 +5289,7 @@ Pergunta atual: "${query}"
 }
 
     loadChallengeVideos();
+    loadTutorialVideos();
 
 window.initApp = initApp;
 
