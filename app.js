@@ -1030,15 +1030,29 @@ class AppStateManager {
     }
 
     async addReorganization(phrase, result, rating) {
+        if (!result) {
+            result = {
+                category: "Autoconhecimento",
+                categoryEmoji: "🧠 Autoconhecimento",
+                title: phrase || "Reorganização Informacional",
+                ajuste: (typeof state !== 'undefined' && state.customLlmAjuste) || "Ajuste de percepção informacional.",
+                movimento: (typeof state !== 'undefined' && state.customLlmMovimento) || "Movimento consciente.",
+                objetivo: phrase || "Harmonia e clareza.",
+                declaracaoEspecifica: (typeof state !== 'undefined' && state.customLlmDeclaracaoFortalecimento) || "",
+                declaracaoNaoEspecifica: "",
+                microacao: (typeof state !== 'undefined' && state.customLlmMicroaction) || "Prática diária."
+            };
+        }
+
         const entry = {
             id: Date.now().toString(),
             date: new Date().toLocaleDateString('pt-BR'),
             phrase: phrase,
-            category: result.category,
-            categoryEmoji: result.categoryEmoji,
-            title: result.title,
-            rating: rating,
-            embedding: result.embedding || generateMockEmbedding(phrase),
+            category: result.category || "Autoconhecimento",
+            categoryEmoji: result.categoryEmoji || "🧠 Autoconhecimento",
+            title: result.title || phrase || "Reorganização Informacional",
+            rating: rating || "Mais leve",
+            embedding: result.embedding || generateMockEmbedding(phrase || ""),
             data: result
         };
         this.history.unshift(entry);
@@ -3979,7 +3993,10 @@ Pergunta atual: "${query}"
     // Toast Notification System
     function showToast(message) {
         let toast = document.querySelector(".toast-message");
-        if (toast) toast.remove();
+        if (toast) {
+            if (typeof toast.remove === "function") toast.remove();
+            else if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }
 
         toast = document.createElement("div");
         toast.className = "toast-message";
@@ -3990,7 +4007,10 @@ Pergunta atual: "${query}"
         
         setTimeout(() => {
             toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 300);
+            setTimeout(() => {
+                if (typeof toast.remove === "function") toast.remove();
+                else if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
         }, 3000);
     }
 
