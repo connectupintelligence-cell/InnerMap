@@ -1,261 +1,19 @@
-// Global Error Debugging Handler (non-blocking)
+// Global Error Debugging Handler
 window.onerror = function(message, source, lineno, colno, error) {
     const errorMsg = `Erro JavaScript: ${message}\nFonte: ${source}:${lineno}:${colno}`;
     console.error(errorMsg);
-    return true; // Prevents error banner / browser alert
+    alert(errorMsg);
+    return false;
 };
 
 window.appLoaded = true;
-
-// Helper ultra-seguro para localStorage e sessionStorage em qualquer modo (incluindo Anônimo / Privado no iOS/Android)
-window.SafeStorage = {
-    getItem: function(key) {
-        try { return localStorage.getItem(key); } catch(e) { return null; }
-    },
-    setItem: function(key, val) {
-        try { localStorage.setItem(key, val); } catch(e) {}
-    },
-    removeItem: function(key) {
-        try { localStorage.removeItem(key); } catch(e) {}
-    },
-    clear: function() {
-        try { localStorage.clear(); } catch(e) {}
-    }
-};
-
-// Helper global ultra-seguro para buscar ancestral mais próximo sem estourar TypeError em TextNode / SVG
-window.safeClosest = window.safeClosest || function(target, selector) {
-    if (!target) return null;
-    try {
-        var el = (target.nodeType === 3 || !target.closest) ? target.parentElement : target;
-        if (el && typeof el.closest === "function") {
-            return el.closest(selector);
-        }
-    } catch(err) {}
-    return null;
-};
-
-// Função global de logout 100% resiliente e infalível
-// Função global de logout 100% síncrona e instantânea (0ms)
-window.handleAppLogout = function(e) {
-    if (e) {
-        try { if (e.preventDefault) e.preventDefault(); } catch(err){}
-        try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
-    }
-    console.log("Executando logout instantâneo (app.js)...");
-
-    try {
-        var client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
-        if (client && client.auth) {
-            client.auth.signOut().catch(function(){});
-        }
-    } catch(err) {}
-
-    try { localStorage.clear(); } catch(err){}
-    try { sessionStorage.clear(); } catch(err){}
-
-    if (window.state) {
-        window.state.currentUser = null;
-        window.state.subscription = null;
-        window.state.history = [];
-        window.state.currentStep = 0;
-    }
-
-    window.location.replace(window.location.origin + window.location.pathname);
-    return false;
-};
 
 /**
  * InnerMap - Motor de Reorganização Informacional
  * Core Logic, State Management & Supabase Backend Integration
  */
 
-
-    // ==========================================================================
-    // TUTORIAL (PASSOS)
-    // ==========================================================================
-    // Dois tutoriais independentes: APP (chave antiga, preserva vídeos já salvos) e MÉTODO
-    const TUTORIAL_KEYS = { app: "tutorial_videos", metodo: "tutorial_videos_metodo" };
-    const TUTORIAL_LABELS = {
-        app: { title: "Tutorial do App", subtitle: "Aprenda a usar cada funcionalidade passo a passo." },
-        metodo: { title: "Tutorial do Método", subtitle: "Entenda o Método InnerMap passo a passo." }
-    };
-    let tutorialData = { app: [], metodo: [] };
-    let currentTutorialTab = "app";
-    let tutorialVideos = tutorialData.app;
-
-    window.switchTutorialTab = function(tab) {
-        if (!TUTORIAL_KEYS[tab]) return;
-        currentTutorialTab = tab;
-        tutorialVideos = tutorialData[tab] || [];
-        document.querySelectorAll(".tutorial-tab-btn").forEach(btn => {
-            btn.classList.toggle("active", btn.dataset.tab === tab);
-        });
-        const titleEl = document.getElementById("tutorial-title");
-        const subEl = document.getElementById("tutorial-subtitle");
-        if (titleEl) titleEl.textContent = TUTORIAL_LABELS[tab].title;
-        if (subEl) subEl.textContent = TUTORIAL_LABELS[tab].subtitle;
-        renderTutorialTimeline(tutorialVideos);
-    };
-    
-    function renderTutorialTimeline(videos) {
-        const container = document.getElementById("tutorial-timeline");
-        if (!container) return;
-        videos = videos || [];
-        
-        let html = "";
-        const stepsTitles = ["Passo 1", "Passo 2", "Passo 3", "Passo 4", "Passo 5", "Passo 6", "Passo 7"];
-        
-        for (let i = 0; i < 7; i++) {
-            const videoUrl = videos[i] || "";
-            let embedUrl = getEmbedUrl(videoUrl);
-            let isDirectVideo = false;
-            
-            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm") || videoUrl.includes("firebasestorage")) {
-                embedUrl = videoUrl;
-                isDirectVideo = true;
-            }
-            
-            let videoHTML = `<div class="timeline-empty">Vídeo em breve...</div>`;
-            if (embedUrl) {
-                if (isDirectVideo) {
-                    videoHTML = `<div class="timeline-video-wrapper"><video src="${embedUrl}" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
-                } else {
-                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
-                }
-            }
-            
-            html += `
-                <div class="timeline-step">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-title">
-                            <span class="day-badge">${stepsTitles[i]}</span>
-                        </div>
-                        ${videoHTML}
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html;
-    }
-
-    async function loadTutorialVideos() {
-        try {
-            if (!supabaseClient) { renderTutorialTimeline(tutorialVideos); return; }
-            const { data, error } = await supabaseClient
-                .from("system_config")
-                .select("key, value")
-                .in("key", [TUTORIAL_KEYS.app, TUTORIAL_KEYS.metodo]);
-                
-            if (data && Array.isArray(data)) {
-                data.forEach(row => {
-                    try {
-                        const parsed = JSON.parse(row.value);
-                        if (row.key === TUTORIAL_KEYS.app) tutorialData.app = parsed;
-                        if (row.key === TUTORIAL_KEYS.metodo) tutorialData.metodo = parsed;
-                    } catch (e) {}
-                });
-            }
-            tutorialVideos = tutorialData[currentTutorialTab] || [];
-            renderTutorialTimeline(tutorialVideos);
-        } catch (err) {
-            console.error("Erro ao carregar tutorial:", err);
-            renderTutorialTimeline([]);
-        }
-    }
-
-    window.openTutorialConfigModal = function() {
-        const modal = document.getElementById("tutorial-config-modal");
-        if (!modal) return;
-        
-        const tabName = currentTutorialTab === "metodo" ? "MÉTODO" : "APP";
-        const titleEl = document.getElementById("tutorial-config-title");
-        const subEl = document.getElementById("tutorial-config-subtitle");
-        if (titleEl) titleEl.textContent = `Configurar Tutorial — ${tabName}`;
-        if (subEl) subEl.textContent = `Cole os links (YouTube) ou faça upload para os 7 passos do tutorial ${tabName}.`;
-        
-        const videos = tutorialData[currentTutorialTab] || [];
-        for (let i = 0; i < 7; i++) {
-            const input = document.getElementById(`tutorial-vid-${i+1}`);
-            if (input) input.value = videos[i] || "";
-        }
-        
-        modal.style.display = "flex";
-    };
-
-    window.saveTutorialConfig = async function() {
-        const btn = document.getElementById("btn-save-tutorial");
-        if (btn) btn.innerHTML = "Salvando...";
-        const tab = currentTutorialTab;
-        
-        let newVideos = [];
-        for (let i = 0; i < 7; i++) {
-            const input = document.getElementById(`tutorial-vid-${i+1}`);
-            newVideos.push(input ? input.value.trim() : "");
-        }
-        
-        try {
-            const { error } = await supabaseClient
-                .from("system_config")
-                .upsert({
-                    key: TUTORIAL_KEYS[tab],
-                    value: JSON.stringify(newVideos)
-                }, { onConflict: "key" });
-                
-            if (error) throw error;
-            
-            tutorialData[tab] = newVideos;
-            tutorialVideos = newVideos;
-            renderTutorialTimeline(tutorialVideos);
-            showToast(`Tutorial ${tab === "metodo" ? "do Método" : "do App"} salvo com sucesso!`);
-            document.getElementById("tutorial-config-modal").style.display = "none";
-        } catch (err) {
-            console.error("Erro ao salvar tutorial:", err);
-            showToast("Erro ao salvar: Verifique suas permissões.");
-        } finally {
-            if (btn) btn.innerHTML = "Salvar Tutorial";
-        }
-    };
-
-    window.uploadTutorialVideo = async function(fileInput, stepIndex) {
-        const file = fileInput.files[0];
-        if (!file) return;
-        
-        if (!supabaseClient) {
-            showToast("Supabase não configurado.");
-            return;
-        }
-        
-        const inputField = document.getElementById(`tutorial-vid-${stepIndex}`);
-        if (inputField) inputField.value = "Fazendo upload... aguarde (não feche)";
-        
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `tutorial_${currentTutorialTab}_passo_${stepIndex}_${Date.now()}.${fileExt}`;
-            
-            // USING THE SAME BUCKET 'desafio_videos' SO THEY DON'T NEED TO CREATE ANOTHER ONE!
-            const { data, error } = await supabaseClient.storage
-                .from('desafio_videos')
-                .upload(fileName, file, { upsert: true });
-                
-            if (error) throw error;
-            
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('desafio_videos')
-                .getPublicUrl(fileName);
-                
-            if (inputField) inputField.value = publicUrlData.publicUrl;
-            showToast(`Vídeo do Passo ${stepIndex} carregado com sucesso!`);
-        } catch (err) {
-            console.error("Erro no upload do tutorial:", err);
-            if (inputField) inputField.value = "";
-            alert("ERRO: " + err.message);
-        }
-    };
-
-    // ==========================================================================
+// ==========================================================================
 // CONFIGURAÇÃO DO SUPABASE (BANCO DE DADOS & AUTH REMOTO)
 // ==========================================================================
 // Insira as chaves do seu projeto do Supabase aqui para ativar o login real com Google
@@ -278,16 +36,16 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
 // ==========================================================================
 // Insira sua InfiniteTag (sem o @) para gerar cobranças dinâmicas via API.
 // Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
-const INFINITEPAY_TAG = "felipefavalli";
-const INFINITEPAY_LINK_MONTHLY = "https://pay.infinitepay.io/felipefavalli/89,90";
-const INFINITEPAY_LINK_YEARLY = "https://invoice.infinitepay.io/plans/felipefavalli/EIr41GTCsc";
+const INFINITEPAY_TAG = "connectup"; // Ex: "wavequantum"
+const INFINITEPAY_LINK_MONTHLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-GaCy6VClhl-49,90"; // Opcional: Link estático mensal (R$ 49,90)
+const INFINITEPAY_LINK_YEARLY = "https://link.infinitepay.io/connectup/VC1DLUMtSQ-n9UsJS7UiU-478,80"; // Opcional: Link estático anual (R$ 478,80)
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
     "medo_crescer": {
         keywords: ["crescer", "sucesso", "expandir", "escala", "tamanho", "responsabilidade", "liderança", "crescimento"],
         category: "Trabalho",
-        categoryEmoji: " Trabalho",
+        categoryEmoji: "💼 Trabalho",
         title: "Medo de Crescer",
         ajuste: "Você pode estar associando crescimento a sobrecarga de responsabilidade, perda de liberdade ou solidão.",
         movimento: "Desenvolver uma expansão sustentável, delegando com confiança e acolhendo novas oportunidades.",
@@ -300,7 +58,7 @@ const INFORMATIONAL_DATABASE = {
     "culpa_descansar": {
         keywords: ["descansar", "pausa", "parar", "lazer", "tempo livre", "ócio", "dormir", "férias", "descanso"],
         category: "Prosperidade",
-        categoryEmoji: " Prosperidade",
+        categoryEmoji: "💰 Prosperidade",
         title: "Culpa por Descansar",
         ajuste: "A percepção de que seu valor pessoal depende exclusivamente do seu nível de produtividade diária.",
         movimento: "Reconhecer que a pausa é essencial para a criatividade e a sustentabilidade de suas realizações.",
@@ -313,7 +71,7 @@ const INFORMATIONAL_DATABASE = {
     "dificuldade_vender": {
         keywords: ["vender", "vendas", "cobrar", "preço", "dinheiro", "cliente", "oferta", "negociar", "pedir valor"],
         category: "Trabalho",
-        categoryEmoji: " Trabalho",
+        categoryEmoji: "💼 Trabalho",
         title: "Dificuldade de Vender ou Cobrar",
         ajuste: "A associação da venda e da cobrança a importunar os outros, medo da rejeição ou sensação sutil de não merecimento.",
         movimento: "Enxergar a venda como uma troca justa de valor, onde você apoia genuinamente a resolução de uma necessidade real.",
@@ -326,7 +84,7 @@ const INFORMATIONAL_DATABASE = {
     "medo_negocios": {
         keywords: ["medo nos negócios", "errar", "falhar", "quebrar", "falência", "empreender", "risco", "perder dinheiro", "decisão"],
         category: "Coragem",
-        categoryEmoji: " Coragem",
+        categoryEmoji: "🦁 Coragem",
         title: "Medo de Errar ou Falhar nos Negócios",
         ajuste: "O receio do fracasso ou da perda de controle organizando suas decisões sob um viés de paralisação e autoproteção.",
         movimento: "Compreender cada resultado como um feedback de aprendizado, fortalecendo sua capacidade de resposta e adaptação.",
@@ -339,7 +97,7 @@ const INFORMATIONAL_DATABASE = {
     "carencia_emocional": {
         keywords: ["carência", "abandono", "rejeição", "solteiro", "solidão", "ciúmes", "dependência", "relacionamento", "amor", "parceiro", "carência emocional"],
         category: "Relacionamentos",
-        categoryEmoji: "️ Relacionamentos",
+        categoryEmoji: "❤️ Relacionamentos",
         title: "Carência e Dependência Emocional",
         ajuste: "A busca externa pela validação, segurança e afeto que você sente faltar em sua própria organização interna.",
         movimento: "Fortalecer seu autocuidado e acolhimento interno, construindo sua própria base de segurança afetiva.",
@@ -352,7 +110,7 @@ const INFORMATIONAL_DATABASE = {
     "medo_julgamento": {
         keywords: ["julgamento", "crítica", "opinião", "exposição", "falar em público", "vergonha", "timidez", "esconder", "aparência"],
         category: "Autoestima",
-        categoryEmoji: " Autoestima",
+        categoryEmoji: "✨ Autoestima",
         title: "Medo do Julgamento e da Crítica",
         ajuste: "A necessidade de aprovação externa atuando como um filtro limitador da sua expressão e do seu potencial autêntico.",
         movimento: "Acolher sua verdade interna e compreender que a percepção do outro reflete a realidade dele, não o seu valor real.",
@@ -365,7 +123,7 @@ const INFORMATIONAL_DATABASE = {
     "sobrecarga_cansaco": {
         keywords: ["cansaço", "cansado", "esgotado", "sobrecarga", "estresse", "ansiedade", "energia", "vitalidade", "corpo", "limite"],
         category: "Saúde emocional",
-        categoryEmoji: " Saúde emocional",
+        categoryEmoji: "🌿 Saúde emocional",
         title: "Sobrecarga e Falta de Energia",
         ajuste: "Assumir responsabilidades e demandas que não são suas como uma forma inconsciente de buscar utilidade ou aceitação.",
         movimento: "Estabelecer limites claros e saudáveis, preservando seu estado interno e sua energia para o que é essencial.",
@@ -473,10 +231,10 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
     if (isHereditary) {
         const type = hereditaryType || "comportamento";
         if (type === "sentimento" || type === "comportamento") {
-            msi += `Alma, "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabou!\n`;
+            msi += `Alma, "${cleanConcept.toLowerCase()}" (que recebi ou recebido) do primeiro dia de minha existência até a primeira infância, acabou!\n`;
         }
         if (type === "pensamento" || type === "comportamento") {
-            msi += `Espírito, "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabou!`;
+            msi += `Espírito, "${cleanConcept.toLowerCase()}" (que recebi ou recebido) do primeiro dia de minha existência até a primeira infância, acabou!`;
         }
         msi = msi.trim();
     }
@@ -623,7 +381,7 @@ class ReorganizationEngine {
 
         // MRI - Movimento de Reinterpretação
         let cleanMRI = "";
-        if (customFort) {
+        if (isMode3 && customFort) {
             cleanMRI = customFort;
         } else if (matchedKey && maxMatches > 0) {
             cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
@@ -647,29 +405,23 @@ class ReorganizationEngine {
         const artigo = isMasc ? "o" : "a";
         const prepArtigo = isMasc ? "ao" : "à";
 
-        let mdi = "";
-        if (isHereditary) {
-            mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            mdi += `Espírito, crença sobre ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
-            mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
+        let mdi = `Espírito, pensamento que gerou ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de manifestar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de observar ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, condicionamento de dar utilidade ${prepArtigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, crença sobre ${artigo} "${cleanConcept.toLowerCase()}" acabou!\n`;
+        mdi += `Espírito, hereditariedade recebida de "${cleanConcept.toLowerCase()}" acabou!`;
 
-            // MDI Condicional extra lines
-            if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
-                addedMdiBehaviors.forEach(item => {
-                    if (item.behavior) {
-                        mdi += `\nEspírito, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
-                        if (item.sentiment) {
-                            mdi += `\nEspírito, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
-                        }
+        // MDI Condicional extra lines
+        if (hasMdiCondicional && addedMdiBehaviors && addedMdiBehaviors.length > 0) {
+            addedMdiBehaviors.forEach(item => {
+                if (item.behavior) {
+                    mdi += `\nEspírito, condicionamento de ${item.behavior.toLowerCase()} acabou!`;
+                    if (item.sentiment) {
+                        mdi += `\nEspírito, condicionamento de me sentir ${item.sentiment.toLowerCase()} ${connector} ${cleanConcept.toLowerCase()} acabou!`;
                     }
-                });
-            }
-        } else {
-            // "A parte do mental que está associada ao tema, pode tirar neste desconforto recente."
-            mdi = "";
+                }
+            });
         }
 
         let finalEspecifica = "";
@@ -858,11 +610,6 @@ class ReorganizationEngine {
         let es = "direcionar minha atenção para novas possibilidades, soluções e expansão";
         let al = "construo minha realidade com presença, consistência e equilíbrio";
 
-        if (clean === "este desconforto recente" || clean === "este padrão") {
-            es = "soltar a carga emocional deste evento e focar no meu avanço prático";
-            al = "me sinto livre, consciente e no controle das minhas escolhas diárias";
-        }
-
         if (clean.includes("escassez") || clean.includes("dinheiro") || clean.includes("financeiro") || clean.includes("dívida") || clean.includes("pobre")) {
             es = "direcionar minha atenção para a abundância, prosperidade e fluxo constante de recursos";
             al = "construo riqueza, fartura e segurança financeira com ações consistentes e sabedoria";
@@ -886,28 +633,28 @@ class ReorganizationEngine {
     static generateDynamicFallback(phrase) {
         const text = phrase.toLowerCase().trim();
         let category = "Autoconhecimento";
-        let categoryEmoji = " Autoconhecimento";
+        let categoryEmoji = "🧘 Autoconhecimento";
         let title = "Processo de Reorganização";
         
         if (text.includes("dinheiro") || text.includes("escassez") || text.includes("financeiro") || text.includes("rico") || text.includes("pobre") || text.includes("prosperar") || text.includes("economia")) {
             category = "Prosperidade";
-            categoryEmoji = " Prosperidade";
+            categoryEmoji = "💰 Prosperidade";
             title = "Ajuste de Prosperidade";
         } else if (text.includes("trabalho") || text.includes("empresa") || text.includes("negócio") || text.includes("carreira") || text.includes("vender") || text.includes("chefe") || text.includes("emprego")) {
             category = "Trabalho";
-            categoryEmoji = " Trabalho";
+            categoryEmoji = "💼 Trabalho";
             title = "Ajuste de Trabalho";
         } else if (text.includes("relacionamento") || text.includes("namorado") || text.includes("amor") || text.includes("casamento") || text.includes("traição") || text.includes("solidão") || text.includes("abandono") || text.includes("ciúme") || text.includes("marido") || text.includes("esposa")) {
             category = "Relacionamentos";
-            categoryEmoji = "️ Relacionamentos";
+            categoryEmoji = "❤️ Relacionamentos";
             title = "Ajuste de Relacionamento";
         } else if (text.includes("saúde") || text.includes("dor") || text.includes("doente") || text.includes("corpo") || text.includes("sono") || text.includes("cansado") || text.includes("energia") || text.includes("doença")) {
             category = "Saúde emocional";
-            categoryEmoji = " Saúde emocional";
+            categoryEmoji = "🌿 Saúde emocional";
             title = "Ajuste de Saúde Emocional";
         } else if (text.includes("medo") || text.includes("receio") || text.includes("pavor")) {
             category = "Coragem";
-            categoryEmoji = " Coragem";
+            categoryEmoji = "🦁 Coragem";
             title = "Ajuste de Coragem";
         }
 
@@ -1012,7 +759,7 @@ class ReorganizationEngine {
             declaracao: finalDeclaracao,
             fortalecimento: mriText,
             pergunta: `O que o registro de "${cleanConcept.toLowerCase()}" está protegendo ou sinalizando na sua experiência atual?`,
-            microacao: "Identifique uma atitude prática que contrarie a sua reação automática ao evento. Hoje, escolha responder de forma intencional e pacífica a qualquer gatilho semelhante, mantendo o estado de presença e ancorando sua nova consciência informacional.",
+            microacao: "Escrever o fato em um papel, mentalizar as frases de liberação (MSI/MFI), e depois rasgá-lo, focando na reinterpretação sugerida (MRI).",
             originalPhrase: phrase
         };
     }
@@ -1043,7 +790,7 @@ class AppStateManager {
 
     loadHistory() {
         try {
-            const stored = SafeStorage.getItem("innermap_history");
+            const stored = localStorage.getItem("innermap_history");
             return stored ? JSON.parse(stored) : [];
         } catch (e) {
             console.warn("Erro ao ler historico no localStorage:", e);
@@ -1053,7 +800,7 @@ class AppStateManager {
 
     saveHistory() {
         try {
-            SafeStorage.setItem("innermap_history", JSON.stringify(this.history));
+            localStorage.setItem("innermap_history", JSON.stringify(this.history));
         } catch (e) {
             console.warn("Erro ao salvar historico no localStorage:", e);
         }
@@ -1061,16 +808,8 @@ class AppStateManager {
 
     loadUser() {
         try {
-            const stored = SafeStorage.getItem("innermap_user");
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (parsed && parsed.email === "visitante@innermap.app") {
-                    SafeStorage.removeItem("innermap_user");
-                    return null;
-                }
-                return parsed;
-            }
-            return null;
+            const stored = localStorage.getItem("innermap_user");
+            return stored ? JSON.parse(stored) : null;
         } catch (e) {
             console.warn("Erro ao ler usuario no localStorage:", e);
             return null;
@@ -1081,9 +820,9 @@ class AppStateManager {
         this.currentUser = user;
         try {
             if (user) {
-                SafeStorage.setItem("innermap_user", JSON.stringify(user));
+                localStorage.setItem("innermap_user", JSON.stringify(user));
             } else {
-                SafeStorage.removeItem("innermap_user");
+                localStorage.removeItem("innermap_user");
             }
         } catch (e) {
             console.warn("Erro ao salvar usuario no localStorage:", e);
@@ -1092,18 +831,11 @@ class AppStateManager {
 
     loadSubscription() {
         try {
-            const stored = SafeStorage.getItem("innermap_subscription");
-            if (stored) return JSON.parse(stored);
-            
-            const trial = {
-                plan: "trial",
-                active: true,
-                date: new Date().toLocaleDateString('pt-BR')
-            };
-            SafeStorage.setItem("innermap_subscription", JSON.stringify(trial));
-            return trial;
+            const stored = localStorage.getItem("innermap_subscription");
+            return stored ? JSON.parse(stored) : null;
         } catch (e) {
-            return { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
+            console.warn("Erro ao ler assinatura no localStorage:", e);
+            return null;
         }
     }
 
@@ -1111,9 +843,9 @@ class AppStateManager {
         this.subscription = sub;
         try {
             if (sub) {
-                SafeStorage.setItem("innermap_subscription", JSON.stringify(sub));
+                localStorage.setItem("innermap_subscription", JSON.stringify(sub));
             } else {
-                SafeStorage.removeItem("innermap_subscription");
+                localStorage.removeItem("innermap_subscription");
             }
         } catch (e) {
             console.warn("Erro ao salvar assinatura no localStorage:", e);
@@ -1137,88 +869,83 @@ class AppStateManager {
     async loadDataFromSupabase() {
         if (!supabaseClient || !this.currentUser) return;
         
-        // Timeout de segurança para nunca travar a tela de login
-        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve("timeout"), 3500));
-        
         try {
-            const loadLogic = (async () => {
-                // 0. Buscar perfil (role) no Supabase
-                let { data: profData, error: profErr } = await supabaseClient
+            // 0. Buscar perfil (role) no Supabase
+            let { data: profData, error: profErr } = await supabaseClient
+                .from("profiles")
+                .select("role")
+                .eq("id", this.currentUser.id)
+                .maybeSingle();
+
+            // Se o perfil não existir (usuário antigo criado antes do trigger), cria-o agora!
+            if (!profErr && !profData) {
+                console.log("Perfil não encontrado. Criando perfil padrão...");
+                const { data: newProfile, error: insertErr } = await supabaseClient
                     .from("profiles")
+                    .insert({
+                        id: this.currentUser.id,
+                        email: this.currentUser.email,
+                        role: "client"
+                    })
                     .select("role")
-                    .eq("id", this.currentUser.id)
                     .maybeSingle();
-
-                if (!profErr && !profData) {
-                    console.log("Perfil não encontrado. Criando perfil padrão...");
-                    const { data: newProfile, error: insertErr } = await supabaseClient
-                        .from("profiles")
-                        .insert({
-                            id: this.currentUser.id,
-                            email: this.currentUser.email,
-                            role: "client"
-                        })
-                        .select("role")
-                        .maybeSingle();
-                    
-                    if (!insertErr && newProfile) profData = newProfile;
+                
+                if (!insertErr && newProfile) {
+                    profData = newProfile;
                 }
+            }
 
-                if (!profErr && profData) {
-                    this.currentUser.role = profData.role;
-                } else {
-                    this.currentUser.role = "client";
-                }
-                this.saveUser(this.currentUser);
+            if (!profErr && profData) {
+                this.currentUser.role = profData.role;
+            } else {
+                this.currentUser.role = "client";
+            }
+            this.saveUser(this.currentUser);
 
-                // 1. Buscar Assinatura Remota
-                const { data: subData, error: subErr } = await supabaseClient
-                    .from("subscriptions")
-                    .select("*")
-                    .eq("user_id", this.currentUser.id || this.currentUser.email)
-                    .maybeSingle();
+            if (profErr) {
+                console.error("Erro ao carregar perfil do Supabase:", profErr);
+            }
 
-                if (subData) {
-                    this.subscription = {
-                        plan: subData.plan,
-                        active: subData.active,
-                        date: subData.date
-                    };
-                } else {
-                    // Se o usuário não possui assinatura cadastrada no banco, concede 7 dias de teste automático
-                    this.subscription = {
-                        plan: "trial",
-                        active: true,
-                        date: new Date().toLocaleDateString('pt-BR')
-                    };
-                }
-                SafeStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+            // 1. Buscar Assinatura Remota
+            const { data: subData, error: subErr } = await supabaseClient
+                .from("subscriptions")
+                .select("*")
+                .eq("user_id", this.currentUser.id || this.currentUser.email)
+                .maybeSingle();
 
-                // 2. Buscar Histórico de Reorganizações Remoto
-                const { data: histData, error: histErr } = await supabaseClient
-                    .from("reorganizations")
-                    .select("*")
-                    .eq("user_id", this.currentUser.id || this.currentUser.email)
-                    .order("id", { ascending: false });
+            if (subErr) {
+                console.error("Erro ao carregar assinatura do Supabase:", subErr);
+            } else if (subData) {
+                this.subscription = {
+                    plan: subData.plan,
+                    active: subData.active,
+                    date: subData.date
+                };
+                localStorage.setItem("innermap_subscription", JSON.stringify(this.subscription));
+            }
 
-                if (histData) {
-                    this.history = histData.map(d => ({
-                        id: d.id,
-                        date: d.date,
-                        phrase: d.phrase,
-                        category: d.category,
-                        categoryEmoji: d.categoryEmoji,
-                        title: d.title,
-                        rating: d.rating,
-                        data: d.data
-                    }));
-                    this.saveHistory();
-                }
-            })();
+            // 2. Buscar Histórico de Reorganizações Remoto
+            const { data: histData, error: histErr } = await supabaseClient
+                .from("reorganizations")
+                .select("*")
+                .eq("user_id", this.currentUser.id || this.currentUser.email)
+                .order("id", { ascending: false });
 
-            const result = await Promise.race([loadLogic, timeoutPromise]);
-            if (result === "timeout") {
-                console.warn("Carga do Supabase ultrapassou o limite de tempo (3.5s). Continuando de forma assíncrona...");
+            if (histErr) {
+                console.error("Erro ao buscar histórico de reorganizações no Supabase:", histErr);
+                showToast("Erro ao sincronizar histórico: " + histErr.message);
+            } else if (histData) {
+                this.history = histData.map(d => ({
+                    id: d.id,
+                    date: d.date,
+                    phrase: d.phrase,
+                    category: d.category,
+                    categoryEmoji: d.categoryEmoji,
+                    title: d.title,
+                    rating: d.rating,
+                    data: d.data
+                }));
+                this.saveHistory();
             }
         } catch (err) {
             console.error("Erro crítico na carga do Supabase:", err);
@@ -1226,29 +953,15 @@ class AppStateManager {
     }
 
     async addReorganization(phrase, result, rating) {
-        if (!result) {
-            result = {
-                category: "Autoconhecimento",
-                categoryEmoji: "🧠 Autoconhecimento",
-                title: phrase || "Reorganização Informacional",
-                ajuste: (typeof state !== 'undefined' && state.customLlmAjuste) || "Ajuste de percepção informacional.",
-                movimento: (typeof state !== 'undefined' && state.customLlmMovimento) || "Movimento consciente.",
-                objetivo: phrase || "Harmonia e clareza.",
-                declaracaoEspecifica: (typeof state !== 'undefined' && state.customLlmDeclaracaoFortalecimento) || "",
-                declaracaoNaoEspecifica: "",
-                microacao: (typeof state !== 'undefined' && state.customLlmMicroaction) || "Prática diária."
-            };
-        }
-
         const entry = {
             id: Date.now().toString(),
             date: new Date().toLocaleDateString('pt-BR'),
             phrase: phrase,
-            category: result.category || "Autoconhecimento",
-            categoryEmoji: result.categoryEmoji || "🧠 Autoconhecimento",
-            title: result.title || phrase || "Reorganização Informacional",
-            rating: rating || "Mais leve",
-            embedding: result.embedding || generateMockEmbedding(phrase || ""),
+            category: result.category,
+            categoryEmoji: result.categoryEmoji,
+            title: result.title,
+            rating: rating,
+            embedding: result.embedding || generateMockEmbedding(phrase),
             data: result
         };
         this.history.unshift(entry);
@@ -1308,22 +1021,18 @@ class AppStateManager {
 // Instância Global do Estado da Aplicação
 var state = null;
 
-// Inicialização da UI e Event Listeners com inicialização resiliente instantânea
-function initApp() {
-    if (window.appInitialized) return;
-    window.appInitialized = true;
-    console.log("Inicializando InnerMap App Engine...");
+// Inicialização da UI e Event Listeners
+document.addEventListener("DOMContentLoaded", () => {
     state = window.state = new AppStateManager();
 
     // Carregar chave de API no startup para concordância funcionar em todos os fluxos
     if (supabaseClient) {
         // Carregar chave de API em background (não-bloqueante) para concordância funcionar em todos os fluxos
         supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single()
-            .then(({ data }) => { if (data && data.value) { state.dbApiKey = data.value; if (!SafeStorage.getItem("innermap_gemini_key")) state.apiKey = data.value; } })
+            .then(({ data }) => { if (data && data.value) state.apiKey = data.value; })
             .catch(e => console.warn("Chave de API não carregada no startup:", e));
     }
-    const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-    state.apiKey = DEFAULT_OPENAI_KEY;
+    if (!state.apiKey) state.apiKey = localStorage.getItem("innermap_openai_key") || localStorage.getItem("innermap_gemini_key") || null;
     
     
     const screens = {
@@ -1333,8 +1042,6 @@ function initApp() {
         step4: document.getElementById("screen-step4"),
         auth: document.getElementById("screen-auth"),
         paywall: document.getElementById("screen-paywall"),
-        desafio: document.getElementById("screen-desafio"),
-        tutorial: document.getElementById("screen-tutorial"),
         therapist: document.getElementById("screen-therapist")
     };
     
@@ -1427,24 +1134,12 @@ function initApp() {
     // Abas e Workspaces
     const navApp = document.getElementById("nav-app");
     const navAgenda = document.getElementById("nav-agenda");
-    
+    const navLib = document.getElementById("nav-lib");
     const navNav = document.getElementById("nav-rag"); // matches nav-rag
-    
-    const navDesafio = document.getElementById("nav-desafio");
-    const mobileNavDesafio = document.getElementById("mobile-nav-desafio");
-    const navTutorial = document.getElementById("nav-tutorial");
-    const mobileNavTutorial = document.getElementById("mobile-nav-tutorial");
-
-    if (navDesafio) navDesafio.addEventListener("click", (e) => { e.preventDefault(); switchTab(navDesafio, sectionApp); showScreen("desafio"); });
-    if (mobileNavDesafio) mobileNavDesafio.addEventListener("click", (e) => { e.preventDefault(); switchTab(mobileNavDesafio, sectionApp); showScreen("desafio"); });
-    
-    if (navTutorial) navTutorial.addEventListener("click", (e) => { e.preventDefault(); switchTab(navTutorial, sectionApp); showScreen("tutorial"); });
-    if (mobileNavTutorial) mobileNavTutorial.addEventListener("click", (e) => { e.preventDefault(); switchTab(mobileNavTutorial, sectionApp); showScreen("tutorial"); });
-
     const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
     const sectionAgenda = document.getElementById("agenda-workspace");
-    
+    const sectionLib = document.getElementById("library-workspace");
     const sectionRag = document.getElementById("rag-workspace");
     
     // Elementos do Simulador RAG
@@ -1463,10 +1158,11 @@ function initApp() {
         // Mobile bottom nav references
         const mApp = document.getElementById("mobile-nav-app");
         const mAgenda = document.getElementById("mobile-nav-agenda");
+        const mLib = document.getElementById("mobile-nav-lib");
         const mTherapist = document.getElementById("mobile-nav-therapist");
 
-        [navApp, navAgenda, navDesafio, navTutorial, navNav, navTherapist, mApp, mAgenda, mobileNavDesafio, mobileNavTutorial, mTherapist].forEach(el => el && el.classList.remove("active"));
-        [sectionApp, sectionAgenda, sectionRag].forEach(el => el && (el.style.display = "none"));
+        [navApp, navAgenda, navLib, navNav, navTherapist, mApp, mAgenda, mLib, mTherapist].forEach(el => el && el.classList.remove("active"));
+        [sectionApp, sectionAgenda, sectionLib, sectionRag].forEach(el => el && (el.style.display = "none"));
         
         if (activeNav) {
             activeNav.classList.add("active");
@@ -1475,11 +1171,9 @@ function initApp() {
             
             if (activeNav === navAgenda && mAgenda) mAgenda.classList.add("active");
             if (activeNav === mAgenda && navAgenda) navAgenda.classList.add("active");
-            if (activeNav === navDesafio && mobileNavDesafio) mobileNavDesafio.classList.add("active");
-            if (activeNav === mobileNavDesafio && navDesafio) navDesafio.classList.add("active");
-            if (activeNav === navTutorial && mobileNavTutorial) mobileNavTutorial.classList.add("active");
-            if (activeNav === mobileNavTutorial && navTutorial) navTutorial.classList.add("active");
             
+            if (activeNav === navLib && mLib) mLib.classList.add("active");
+            if (activeNav === mLib && navLib) navLib.classList.add("active");
             
             if (activeNav === navTherapist && mTherapist) mTherapist.classList.add("active");
             if (activeNav === mTherapist && navTherapist) navTherapist.classList.add("active");
@@ -1492,7 +1186,13 @@ function initApp() {
         navApp.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(navApp, sectionApp);
-            showScreen(state.currentStep > 0 ? ("step" + state.currentStep) : "step1");
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else if (state.currentStep === 0) {
+                showScreen("step1");
+            }
         });
     }
 
@@ -1511,34 +1211,24 @@ function initApp() {
     if (navAgenda) {
         navAgenda.addEventListener("click", (e) => {
             e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver sua agenda.");
+                switchTab(navApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription && state.currentUser.role !== "therapist") {
+                showToast("Assine um plano para ver sua agenda.");
+                switchTab(navApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
             switchTab(navAgenda, sectionAgenda);
-            renderLibrary();
-            renderStats();
             if (window.renderAgenda) window.renderAgenda();
         });
     }
 
-    
-            const btnAdminDesafio = document.getElementById("btn-admin-desafio");
-            if (btnAdminDesafio) {
-                if (state.currentUser && state.currentUser.role === "therapist") {
-                    btnAdminDesafio.style.display = "inline-block";
-                } else {
-                    btnAdminDesafio.style.display = "none";
-                }
-            }
-
-            
-            const btnAdminTutorial = document.getElementById("btn-admin-tutorial");
-            if (btnAdminTutorial) {
-                if (state.currentUser && state.currentUser.role === "therapist") {
-                    btnAdminTutorial.style.display = "inline-block";
-                } else {
-                    btnAdminTutorial.style.display = "none";
-                }
-            }
-
-            if (navTherapist) {
+    if (navTherapist) {
         navTherapist.addEventListener("click", (e) => {
             e.preventDefault();
             if (!state.currentUser || state.currentUser.role !== "therapist") {
@@ -1548,6 +1238,27 @@ function initApp() {
             switchTab(navTherapist, sectionApp);
             showScreen("therapist");
             loadTherapistDashboardData();
+        });
+    }
+
+    if (navLib) {
+        navLib.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver suas Reorganizações.");
+                switchTab(navApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription) {
+                showToast("Assine um plano para ver suas Reorganizações.");
+                switchTab(navApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(navLib, sectionLib);
+            renderLibrary();
+            renderStats();
         });
     }
 
@@ -1574,26 +1285,63 @@ function initApp() {
     // Event Listeners para a Barra de Navegação Mobile
     const mApp = document.getElementById("mobile-nav-app");
     const mAgenda = document.getElementById("mobile-nav-agenda");
+    const mLib = document.getElementById("mobile-nav-lib");
     const mTherapist = document.getElementById("mobile-nav-therapist");
 
     if (mApp) {
         mApp.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(mApp, sectionApp);
-            showScreen(state.currentStep > 0 ? ("step" + state.currentStep) : "step1");
+            if (!state.currentUser) {
+                showScreen("auth");
+            } else if (!state.subscription) {
+                showScreen("paywall");
+            } else if (state.currentStep === 0) {
+                showScreen("step1");
+            }
         });
     }
 
     if (mAgenda) {
         mAgenda.addEventListener("click", (e) => {
             e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver sua agenda.");
+                switchTab(mApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription && state.currentUser.role !== "therapist") {
+                showToast("Assine um plano para ver sua agenda.");
+                switchTab(mApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
             switchTab(mAgenda, sectionAgenda);
-            renderLibrary();
-            renderStats();
             if (window.renderAgenda) window.renderAgenda();
         });
     }
 
+    if (mLib) {
+        mLib.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (!state.currentUser) {
+                showToast("Acesse sua conta para ver suas Reorganizações.");
+                switchTab(mApp, sectionApp);
+                showScreen("auth");
+                return;
+            }
+            if (!state.subscription) {
+                showToast("Assine um plano para ver suas Reorganizações.");
+                switchTab(mApp, sectionApp);
+                showScreen("paywall");
+                return;
+            }
+            switchTab(mLib, sectionLib);
+            renderLibrary();
+            renderStats();
+        });
+    }
 
     if (mTherapist) {
         mTherapist.addEventListener("click", (e) => {
@@ -1671,71 +1419,48 @@ function initApp() {
         counterNum.textContent = charCount > 0 ? `${wordLabel} (${charCount} caracteres)` : "0 palavras (0 caracteres)";
     }
 
-    window.selectObjectiveMode = function(mode) {
-        state.selectedMode = parseInt(mode || "1");
-        const objCards = document.querySelectorAll(".objective-card");
-        objCards.forEach(c => {
-            if (parseInt(c.dataset.mode) === state.selectedMode) {
-                c.classList.add("active");
-            } else {
-                c.classList.remove("active");
-            }
-        });
-
-        const step1Title = document.getElementById("step1-title");
-        const step1Desc = document.getElementById("step1-desc");
-        const inputAiRelato = document.getElementById("input-ai-relato");
-        const quickTopicsContainer = document.getElementById("quick-motivation-topics");
-
-        if (state.selectedMode === 1) {
-            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-            if (inputAiRelato) {
-                inputAiRelato.style.height = "140px";
-                inputAiRelato.placeholder = "Exemplo: Fato: bati o carro ontem / briguei com meu marido hoje / fui demitido do meu trabalho semana passada.";;
-            }
-            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
-            if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
-        } else if (state.selectedMode === 2) {
-            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-            if (inputAiRelato) {
-                inputAiRelato.style.height = "140px";
-                inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
-            }
-            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
-            if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
-        } else if (state.selectedMode === 3) {
-            if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
-            if (inputAiRelato) {
-                inputAiRelato.style.height = "70px";
-                inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
-            }
-            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
-            if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
-        } else if (state.selectedMode === 4) {
-            if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-            if (inputAiRelato) {
-                inputAiRelato.style.height = "140px";
-                inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
-            }
-            if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
-            if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
-        }
-        updateRelatoCounter();
-    };
-
-    window.selectQuickTopic = function(element) {
-        if (!element) return;
-        const topicText = element.getAttribute("data-topic") || (element.textContent ? element.textContent.trim() : "");
-        const inputAiRelato = document.getElementById("input-ai-relato");
-        if (inputAiRelato) {
-            inputAiRelato.value = topicText;
-            updateRelatoCounter();
-        }
-    };
-
     objCards.forEach(card => {
         card.addEventListener("click", () => {
-            window.selectObjectiveMode(card.dataset.mode);
+            objCards.forEach(c => c.classList.remove("active"));
+            card.classList.add("active");
+            state.selectedMode = parseInt(card.dataset.mode || "1");
+
+            const quickTopicsContainer = document.getElementById("quick-motivation-topics");
+
+            if (state.selectedMode === 1) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
+                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
+            } else if (state.selectedMode === 2) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
+                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
+            } else if (state.selectedMode === 3) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "70px";
+                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
+                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
+            } else if (state.selectedMode === 4) {
+                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
+                if (inputAiRelato) {
+                    inputAiRelato.style.height = "140px";
+                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente (Ex: Sinto muita pressão e ansiedade no trabalho e nos meus relacionamentos desde que mudei de cargo. Tenho medo constante de falhar e me sinto sozinho para resolver as coisas...)";
+                }
+                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
+                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
+            }
+            updateRelatoCounter();
         });
     });
 
@@ -1762,13 +1487,16 @@ function initApp() {
         updateAprofundamentoCounter();
     }
 
-    //  Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
+    // ✨ Gera os 12 comandos generativos do MGI (Movimento Generativo Informacional)
     async function generateMgiCommands(tema) {
         if (!tema || !tema.trim()) tema = "esta queixa";
 
-        // Tentar contextualização gramatical via IA (Groq/OpenAI/Gemini)
+        // Tentar contextualização gramatical via IA (OpenAI/Groq/Gemini)
         if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
             try {
+                const isOAI = state.apiKey.startsWith("sk-");
+                const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                const model = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
                 const promptMgi = `Você é um psicoterapeuta especialista no Método InnerMap.
 O cliente forneceu o tema central: "${tema}".
 
@@ -1783,10 +1511,6 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
   "geradas_pela_pelo": "pela/pelo tema (ex: pelos desequilíbrios nos relacionamentos, pela escassez financeira)",
   "vivenciei": "o/a tema (ex: desequilíbrios nos relacionamentos, a escassez)"
 }`;
-
-                const isSk = state.apiKey.startsWith("sk-");
-                const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                 const res = await fetch(endpoint, {
                     method: "POST",
@@ -1919,7 +1643,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 const isSelected = currentSentiments.includes(sentiment.toLowerCase());
                 const tag = document.createElement("span");
                 tag.className = `sentiment-tag-toggle ${isSelected ? "active" : ""}`;
-                tag.innerHTML = `${isSelected ? " " : "+ "}${sentiment}`;
+                tag.innerHTML = `${isSelected ? "✓ " : "+ "}${sentiment}`;
 
                 tag.addEventListener("click", () => {
                     const idx = state.addedFacts[factIndex].sentiments.findIndex(s => s.toLowerCase() === sentiment.toLowerCase());
@@ -1930,7 +1654,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                     } else {
                         state.addedFacts[factIndex].sentiments.push(sentiment);
                         tag.classList.add("active");
-                        tag.innerHTML = ` ${sentiment}`;
+                        tag.innerHTML = `✓ ${sentiment}`;
                     }
                 });
 
@@ -1943,7 +1667,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
 
             const customInput = document.createElement("input");
             customInput.type = "text";
-            customInput.placeholder = " Digite outro sentimento (ex: vergonha, desespero)...";
+            customInput.placeholder = "➕ Digite outro sentimento (ex: vergonha, desespero)...";
             customInput.style.cssText = "flex: 1; font-size: 0.78rem; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--color-border); background: rgba(255,255,255,0.06); color: var(--color-text); outline: none;";
 
             const btnAddCustom = document.createElement("button");
@@ -1961,7 +1685,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 if (!state.addedFacts[factIndex].sentiments.map(s => s.toLowerCase()).includes(val)) {
                     state.addedFacts[factIndex].sentiments.push(val);
                 }
-                showToast(` Sentimento "${val}" adicionado à sua lista!`);
+                showToast(`✨ Sentimento "${val}" adicionado à sua lista!`);
                 renderFactsEditor();
             };
 
@@ -2043,10 +1767,9 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
     const btnAiConfirmWizard = document.getElementById("btn-ai-confirm-wizard");
     const btnAiConfirmGenerate = document.getElementById("btn-ai-confirm-generate");
 
-    window.handleAiAnalysis = async function() {
-        if (!inputAiRelato) return;
-            const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = DEFAULT_OPENAI_KEY;
+    if (btnRunAiAnalysis && inputAiRelato) {
+        btnRunAiAnalysis.addEventListener("click", async () => {
+            let apiKey = state.apiKey || "";
 
             if (!apiKey) {
                 try {
@@ -2061,7 +1784,11 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
                 apiKey = prompt("Por favor, insira sua chave de API OpenAI (sk-...), Groq (gsk_...) ou Gemini:");
                 if (!apiKey) return;
                 state.apiKey = apiKey;
-                SafeStorage.setItem("innermap_gemini_key", apiKey);
+                if (apiKey.startsWith("sk-")) {
+                    localStorage.setItem("innermap_openai_key", apiKey);
+                } else {
+                    localStorage.setItem("innermap_gemini_key", apiKey);
+                }
             }
 
             const relato = inputAiRelato.value.trim();
@@ -2080,14 +1807,14 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
             btnRunAiAnalysis.innerHTML = '<span class="spinner" style="display: inline-block;"></span> Processando com IA...';
 
             try {
-                const isOpenAi = apiKey.startsWith("sk-");
+                const isOpenAI = apiKey.startsWith("sk-");
                 const isGroq = apiKey.startsWith("gsk_");
                 const isLegacyGemini = apiKey.startsWith("AIza");
 
                 let prompt = "";
                 if (state.selectedMode === 3) {
                     const seed = Math.floor(Math.random() * 10000);
-                    prompt = `Você é um assistente de prática guiada especialista no Método InnerMap.
+                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 O cliente solicita MOTIVAÇÃO, FOCO e FORTALECIMENTO DIRETO para o objetivo informado: "${relato}".
 
 REGRAS RÍGIDAS E OBRIGATÓRIAS DO MÉTODO PARA O CAMPO "declaracao_fortalecimento":
@@ -2120,7 +1847,7 @@ Retorne um objeto JSON válido no formato exato:
   "declaracao_fortalecimento": "Espírito, eu escolho...\\nEspírito, eu escolho...\\nEspírito, eu escolho...\\nAlma, eu já me sinto...\\nAlma, eu já vivencio...\\nAlma, eu já sinto...\\nAlma, eu já habito..."
 }`;
                 } else {
-                    prompt = `Você é um assistente de prática guiada especialista no Método InnerMap.
+                    prompt = `Você é um psicoterapeuta sênior e especialista no Método Informacional (InnerMap).
 Sua tarefa é analisar o relato bruto de um cliente e extrair os elementos estruturados do método, com sensibilidade e profundidade.
 
 Definições de conceitos do método:
@@ -2167,18 +1894,17 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     }
   ],
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
-  "microacao": "Ação diária prática focada em superar concretamente o problema relatado no mundo real (ex: conversar e impor um limite, planejar meta financeira). Foco no avanço e enfrentamento. NÃO instrua a fazer os exercícios do app.",
-  "declaracao_fortalecimento": "Bloco criativo e profundo de fortalecimento (MRI) baseado no fato, para mudar o padrão. REGRAS OBRIGATÓRIAS: 2 frases com prefixo 'Espírito, eu escolho...' e 2 frases com prefixo 'Alma, eu já...'. Ex: 'Espírito, eu escolho agir com presença e sabedoria.\nAlma, eu já me sinto capacitado e seguro.'",
+  "microacao": "orientação comportamental prática baseada no relato",
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
   "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)",
   "leitura_ajuste": "diagnóstico informacional profundo (2-3 linhas) revelando a causa raiz e por que este padrão se formou como defesa inconsciente no relato do cliente",
-  "movimento_sugerido": "orientação de conscientização (2-3 linhas) explicando como atualizar a percepção e trazer clareza"
+  "movimento_sugerido": "orientação de conscientização (2-3 linhas) explicando como desativar o automatismo e ressignificar a percepção com clareza"
 }`;
                 }
 
                 let response;
 
-                if (isOpenAi) {
+                if (isOpenAI) {
                     response = await fetch("https://api.openai.com/v1/chat/completions", {
                         method: "POST",
                         headers: {
@@ -2199,7 +1925,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                             "Authorization": `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            model: "llama3-70b-8192",
+                            model: "llama-3.3-70b-versatile",
                             response_format: { type: "json_object" },
                             messages: [{ role: "user", content: prompt }]
                         })
@@ -2228,9 +1954,9 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
 
                 const responseData = await response.json();
 
-                // Extrai o texto da resposta (formato diferente entre OpenAI/Groq e Gemini)
+                // Extrai o texto da resposta (formato idêntico entre OpenAI e Groq)
                 let textResponse;
-                if (isOpenAi || isGroq) {
+                if (isOpenAI || isGroq) {
                     textResponse = responseData.choices[0].message.content;
                 } else {
                     textResponse = responseData.candidates[0].content.parts[0].text;
@@ -2251,7 +1977,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.customLlmAjuste = aiData.leitura_ajuste || aiData.reflexao;
                 state.customLlmMovimento = aiData.movimento_sugerido || "Conecte-se com sua intenção consciente e direcione sua atenção para o objetivo desejado com presença e serenidade.";
                 state.customLlmDeclaracaoFortalecimento = aiData.declaracao_fortalecimento || null;
-                state.isHereditary = (state.selectedMode === 2);
+                state.isHereditary = state.selectedMode === 3 ? false : true;
                 state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
 
                 // Se for Modo 3 (Motivação Rápida), vai direto para os ajustes sem parar na pergunta!
@@ -2277,44 +2003,14 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 updateFaqVisibility();
 
             } catch (err) {
-                console.warn("API de IA indisponível, utilizando motor local de Inteligência Informacional InnerMap:", err);
-                state.relatoOriginal = relato;
-                state.tempTheme = state.selectedMode === 1 ? "este desconforto recente" : "este padrão";
-                state.addedFacts = [{ phrase: relato, sentiments: ["tristeza", "insegurança"] }];
-                state.addedMdiBehaviors = [];
-                state.hasMdiCondicional = false;
-                state.addedPositivosAtrapalham = [];
-                state.customLlmMicroaction = null;
-                state.customLlmAjuste = null;
-                state.customLlmMovimento = null;
-                state.isHereditary = (state.selectedMode === 2);
-                state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
-
-                if (state.selectedMode === 3) {
-                    triggerFinalGeneration();
-                    return;
-                }
-
-                renderFactsEditor();
-                const subExplore = document.getElementById("sub-step-ai-explore");
-                const subStep1a = document.getElementById("sub-step-1a");
-                const elReflexao = document.getElementById("ai-reflexao");
-                const elPergunta = document.getElementById("ai-pergunta");
-
-                if (elReflexao) elReflexao.textContent = "Compreendemos o seu momento. Vamos apoiar a reorganização desse padrão com clareza e presença.";
-                if (elPergunta) elPergunta.textContent = "Em qual momento ou área da sua vida esse desconforto é sentido de forma mais intensa?";
-
-                if (subStep1a) { subStep1a.style.display = "none"; subStep1a.classList.remove("active"); }
-                if (subExplore) { subExplore.style.display = "block"; setTimeout(() => subExplore.classList.add("active"), 50); }
-                updateFaqVisibility();
+                console.error("Erro na triagem por IA:", err);
+                alert("Não foi possível realizar a triagem automática. Detalhe do erro: " + err.message);
             } finally {
                 btnRunAiAnalysis.disabled = false;
                 if (aiSpinner) aiSpinner.style.display = "none";
-                btnRunAiAnalysis.innerHTML = "✨ Descobrir Minha Reorganização Informacional";
+                btnRunAiAnalysis.innerHTML = "🪄 Descobrir Minha Reorganização Informacional";
             }
-    };
-    if (btnRunAiAnalysis) {
-        btnRunAiAnalysis.addEventListener("click", window.handleAiAnalysis);
+        });
     }
 
     // Lógica dos botões da tela de exploração AI
@@ -2330,13 +2026,13 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         const hasFacts = state.addedFacts && state.addedFacts.length > 0;
 
         if (state.selectedMode === 3) {
-            btnSpan.textContent = " Ver Meus Ajustes de Motivação →";
+            btnSpan.textContent = "🚀 Ver Meus Ajustes de Motivação →";
         } else if (hasText) {
             btnSpan.textContent = "Analisar resposta e gerar reorganização →";
         } else if (hasFacts) {
             btnSpan.textContent = "Gerar Reorganização com Fatos Mapeados →";
         } else {
-            btnSpan.textContent = " Gerar Meus Ajustes Informacionais →";
+            btnSpan.textContent = "✨ Gerar Meus Ajustes Informacionais →";
         }
     }
 
@@ -2344,65 +2040,60 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
         inputAprofundamento.addEventListener("input", updateContinueButtonText);
     }
 
-    window.handleAiSkip = function() {
-        triggerFinalGeneration();
-    };
     if (btnAiPular) {
-        btnAiPular.addEventListener("click", window.handleAiSkip);
+        btnAiPular.addEventListener("click", () => {
+            triggerFinalGeneration();
+        });
     }
 
-    window.handleAiContinuar = async function() {
-        const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
-
-        if (respostaExtra) {
-            // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
-            btnAiContinuar.disabled = true;
-            if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
-            const btnSpan = btnAiContinuar.querySelector("span:last-child");
-            if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
-
-            try {
-                const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
-
-                const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
-
-                let mergeResponse;
-                if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
-                    const isSk = state.apiKey.startsWith("sk-");
-                    const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                    const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
-
-                    mergeResponse = await fetch(endpoint, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                        body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
-                    });
-                    if (mergeResponse.ok) {
-                        const mergeData = await mergeResponse.json();
-                        const merged = JSON.parse(mergeData.choices[0].message.content);
-                        if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
-                        if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
-                        if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
-                        if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
-                        state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
-                    }
-                }
-            } catch(e) {
-                console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
-            } finally {
-                btnAiContinuar.disabled = false;
-                if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
-                updateContinueButtonText();
-            }
-        }
-
-        // Prosseguir sempre para geração final (nunca travar!)
-        triggerFinalGeneration();
-    };
-    window.handleAiContinue = window.handleAiContinuar;
-
     if (btnAiContinuar) {
-        btnAiContinuar.addEventListener("click", window.handleAiContinue);
+        btnAiContinuar.addEventListener("click", async () => {
+            const respostaExtra = inputAprofundamento ? inputAprofundamento.value.trim() : "";
+
+            if (respostaExtra) {
+                // Segunda análise IA para mesclar fatos/sentimentos adicionais da resposta
+                btnAiContinuar.disabled = true;
+                if (aiExploreSpinner) aiExploreSpinner.style.display = "inline-block";
+                const btnSpan = btnAiContinuar.querySelector("span:last-child");
+                if (btnSpan) btnSpan.textContent = " Analisando resposta com IA...";
+
+                try {
+                    const contextoMerge = `O cliente já havia relatado: "${state.relatoOriginal || ""}"\n\nEle/ela também acrescentou em resposta a uma pergunta de aprofundamento: "${respostaExtra}"\n\nAdicione ao contexto anterior quaisquer novos fatos, sentimentos ou comportamentos que apareçam nesta resposta adicional.`;
+
+                    const promptMerge = `Você é um psicoterapeuta sênior especialista no Método InnerMap. Com base no contexto abaixo, extraia APENAS os elementos NOVOS que não estavam no relato inicial.\n\n${contextoMerge}\n\nRetorne um objeto JSON com:\n{\n  "fatos_extras": [{"phrase": "...", "sentiments": ["..."]}],\n  "comportamentos_extras": [{"behavior": "...", "sentiment": "..."}],\n  "ganhos_aparentes_extras": ["..."],\n  "microacao_atualizada": "microação atualizada considerando ambos os relatos (ou null se não houver mudança)"\n}`;
+
+                    let mergeResponse;
+                    if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
+                        const isOAI = state.apiKey.startsWith("sk-");
+                        const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                        const model = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
+                        mergeResponse = await fetch(endpoint, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                            body: JSON.stringify({ model: model, response_format: { type: "json_object" }, messages: [{ role: "user", content: promptMerge }] })
+                        });
+                        if (mergeResponse.ok) {
+                            const mergeData = await mergeResponse.json();
+                            const merged = JSON.parse(mergeData.choices[0].message.content);
+                            if (merged.fatos_extras) state.addedFacts = [...state.addedFacts, ...merged.fatos_extras];
+                            if (merged.comportamentos_extras) { state.addedMdiBehaviors = [...state.addedMdiBehaviors, ...merged.comportamentos_extras]; state.hasMdiCondicional = state.addedMdiBehaviors.length > 0; }
+                            if (merged.ganhos_aparentes_extras) state.addedPositivosAtrapalham = [...state.addedPositivosAtrapalham, ...merged.ganhos_aparentes_extras];
+                            if (merged.microacao_atualizada) state.customLlmMicroaction = merged.microacao_atualizada;
+                            state.relatoOriginal = (state.relatoOriginal || "") + " " + respostaExtra;
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Merge de aprofundamento falhou, gerando com dados originais:", e);
+                } finally {
+                    btnAiContinuar.disabled = false;
+                    if (aiExploreSpinner) aiExploreSpinner.style.display = "none";
+                    updateContinueButtonText();
+                }
+            }
+
+            // Prosseguir sempre para geração final (nunca travar!)
+            triggerFinalGeneration();
+        });
     }
 
     // Botão para extrair a resposta da pergunta de aprofundamento e adicionar aos fatos mapeados
@@ -2423,8 +2114,11 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
             try {
                 let newFact = null;
 
-                // Tentar extração via IA (Groq/OpenAI/Gemini)
+                // Tentar extração via IA (OpenAI/Groq/Gemini)
                 if (state.apiKey && (state.apiKey.startsWith("gsk_") || state.apiKey.startsWith("sk-"))) {
+                    const isOAI = state.apiKey.startsWith("sk-");
+                    const endpoint = isOAI ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
+                    const model = isOAI ? "gpt-4o-mini" : "llama-3.3-70b-versatile";
                     const promptExtract = `Você é um psicoterapeuta sênior do Método InnerMap.
 O cliente respondeu à pergunta de aprofundamento com: "${resposta}"
 Relato anterior: "${state.relatoOriginal || ""}"
@@ -2439,10 +2133,6 @@ Retorne JSON no formato exato:
   "phrase": "descrição concisa do fato",
   "sentiments": ["culpa", "dor", "tristeza", "raiva", "medo", "insegurança"]
 }`;
-
-                    const isSk = state.apiKey.startsWith("sk-");
-                    const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                    const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
 
                     const res = await fetch(endpoint, {
                         method: "POST",
@@ -2486,7 +2176,7 @@ Retorne JSON no formato exato:
                 // Limpar textarea, atualizar botão de continuar e notificar usuário
                 inputAprofundamento.value = "";
                 updateContinueButtonText();
-                showToast(" Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
+                showToast("✨ Novo fato adicionado aos Fatos e Sentimentos Mapeados!");
 
                 // Rolar suavemente até o editor de fatos
                 if (mfiSection) {
@@ -2513,7 +2203,7 @@ Retorne JSON no formato exato:
     // ==========================================================================
 
 
-    //  Corrige concordância gramatical das frases usando a IA (Groq/Gemini)
+    // ✨ Corrige concordância gramatical das frases usando a IA (Groq/Gemini)
     async function correctConcordance(rawText) {
         if (!state.apiKey || !rawText || !rawText.trim()) return rawText;
         try {
@@ -2524,15 +2214,20 @@ Retorne JSON no formato exato:
             const prompt = `Você é um especialista em língua portuguesa. Corrija apenas a concordância gramatical e as preposições do texto abaixo. Regras:\n1. NÃO altere palavras, não parafraseie, não adicione nem remova frases.\n2. Ajuste concordância gramatical (gênero, número, preposições como "ao/à", "pelo/pela").\n3. Resolva palavras entre parênteses como "pleno(a)", "seguro(a)", "criticado(a)" escolhendo a forma correta de acordo com o gênero inferido do contexto.\n4. Retorne apenas o texto corrigido, sem explicações nem formatação extra.${contextoGenero}\n\nTexto a corrigir:\n${rawText}`;
 
             let response;
-            if (state.apiKey.startsWith("sk-") || state.apiKey.startsWith("gsk_")) {
-                const isSk = state.apiKey.startsWith("sk-");
-                const endpoint = isSk ? "https://api.openai.com/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions";
-                const model = isSk ? "gpt-4o-mini" : "llama3-70b-8192";
-
-                response = await fetch(endpoint, {
+            if (state.apiKey.startsWith("sk-")) {
+                response = await fetch("https://api.openai.com/v1/chat/completions", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
-                    body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }] })
+                    body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }] })
+                });
+                if (!response.ok) return rawText;
+                const data = await response.json();
+                return data.choices[0].message.content.trim();
+            } else if (state.apiKey.startsWith("gsk_")) {
+                response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${state.apiKey}` },
+                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: [{ role: "user", content: prompt }] })
                 });
                 if (!response.ok) return rawText;
                 const data = await response.json();
@@ -2626,7 +2321,7 @@ Retorne JSON no formato exato:
                 if (outputCategory) outputCategory.innerHTML = `<span class="category-pill">${result.categoryEmoji}</span>`;
                 if (outputObjetivo) outputObjetivo.innerText = result.objetivo;
                 
-                const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? safeClosest(outputEspecifico, ".hqi-item") : null);
+                const itemEspecifico = document.getElementById("item-especifico") || (outputEspecifico ? outputEspecifico.closest(".hqi-item") : null);
                 if (!result.declaracaoEspecifica || result.declaracaoEspecifica.trim() === "") {
                     if (itemEspecifico) itemEspecifico.style.display = "none";
                 } else {
@@ -2650,7 +2345,7 @@ Retorne JSON no formato exato:
                     if (outputMgi) outputMgi.innerText = "";
                 }
 
-                const itemMicroacao = outputMicroacao ? safeClosest(outputMicroacao, ".hqi-item") : null;
+                const itemMicroacao = outputMicroacao ? outputMicroacao.closest(".hqi-item") : null;
                 if (!result.microacao || result.microacao.trim() === "") {
                     if (itemMicroacao) itemMicroacao.style.display = "none";
                 } else {
@@ -2658,8 +2353,7 @@ Retorne JSON no formato exato:
                     if (outputMicroacao) outputMicroacao.innerText = result.microacao;
                 }
                 
-                showScreen("step3");
-                if (typeof startPracticeTimer === "function") startPracticeTimer();
+                showScreen("step2");
             } catch (err) {
                 console.error("Erro na geração final:", err);
                 showToast("Erro ao gerar reorganização: " + err.message);
@@ -2674,7 +2368,7 @@ Retorne JSON no formato exato:
     }
 
     function resetStep1Wizard() {
-        state.isHereditary = (state.selectedMode === 2);
+        state.isHereditary = true;
         state.hereditaryType = null;
         state.addedFacts = [];
         state.factDetail = "";
@@ -2706,12 +2400,10 @@ Retorne JSON no formato exato:
     }
 
     // Tela 2 (Consciência Informacional) -> Tela 3: Ir para Ajustes Informacionais
-    window.handleToStep3 = function() {
+    btnToStep3.addEventListener("click", () => {
         showScreen("step3");
-                if (typeof startPracticeTimer === "function") startPracticeTimer();
         startPracticeTimer();
-    };
-    if (btnToStep3) btnToStep3.addEventListener("click", window.handleToStep3);
+    });
 
     // Lógica do Timer de Prática (Tela 3)
     function startPracticeTimer() {
@@ -2739,11 +2431,10 @@ Retorne JSON no formato exato:
     }
 
     // Tela 3 (Ajustes Informacionais) -> Tela 4: Ir para Registro & Integração
-    window.handleToStep4 = function() {
+    btnToStep4.addEventListener("click", () => {
         if (state.timerInterval) clearInterval(state.timerInterval);
         showScreen("step4");
-    };
-    if (btnToStep4) btnToStep4.addEventListener("click", window.handleToStep4);
+    });
 
     // Seleção de sentimentos na Tela 4
     let selectedRating = "Mais leve"; // default
@@ -2763,7 +2454,7 @@ Retorne JSON no formato exato:
     });
 
     // Tela 4 -> Finalizar e Salvar
-    window.handleFinish = function() {
+    btnFinish.addEventListener("click", () => {
         let ratingValue = selectedRating;
         if (selectedRating === "Outro") {
             const customVal = inputRatingCustom ? inputRatingCustom.value.trim() : "";
@@ -2785,7 +2476,7 @@ Retorne JSON no formato exato:
                 startDate: new Date().toISOString(),
                 ticks: {}
             };
-            SafeStorage.setItem("active_agenda_" + state.currentUser.email, JSON.stringify(agenda));
+            localStorage.setItem("active_agenda_" + state.currentUser.email, JSON.stringify(agenda));
             if (window.renderAgenda) window.renderAgenda();
         }
 
@@ -2801,8 +2492,7 @@ Retorne JSON no formato exato:
         resetStep1Wizard();
         showScreen("step1");
         showToast("Processo salvo na sua biblioteca!");
-    };
-    if (btnFinish) btnFinish.addEventListener("click", window.handleFinish);
+    });
 
     // ==========================================================================
     // MÓDULO DE ÁUDIO (MEDIARECORDER + WHISPER AI + SÍNTESE DE VOZ)
@@ -2835,7 +2525,7 @@ Retorne JSON no formato exato:
             await this.stopSpeechRecognition();
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showToast("️ Gravador de áudio não suportado neste navegador.");
+                showToast("⚠️ Gravador de áudio não suportado neste navegador.");
                 return;
             }
 
@@ -2849,9 +2539,9 @@ Retorne JSON no formato exato:
                 this.audioChunks = [];
 
                 buttonEl.classList.add("listening");
-                buttonEl.innerHTML = "";
+                buttonEl.innerHTML = "🔴";
                 buttonEl.title = "Ouvindo... Clique para encerrar e converter em texto";
-                showToast(" Gravando áudio! Fale normalmente. Clique em  quando terminar.");
+                showToast("🎤 Gravando áudio! Fale normalmente. Clique em 🔴 quando terminar.");
 
                 // 1. Iniciar MediaRecorder para gravação nativa do áudio sem interrupções
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 
@@ -2902,7 +2592,7 @@ Retorne JSON no formato exato:
 
             } catch (micErr) {
                 console.warn("Permissão de microfone negada ou erro ao iniciar:", micErr);
-                showToast("️ Permissão de microfone negada. Permita o microfone nas configurações do seu navegador.");
+                showToast("⚠️ Permissão de microfone negada. Permita o microfone nas configurações do seu navegador.");
                 this.stopSpeechRecognition();
             }
         },
@@ -2945,9 +2635,7 @@ Retorne JSON no formato exato:
             this.mediaRecorder = null;
             this.audioChunks = [];
 
-            // Transcrever áudio via Whisper API (OpenAI/Groq) se houver chave configurada
-            const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = DEFAULT_OPENAI_KEY;
+            let apiKey = state.apiKey || localStorage.getItem("innermap_openai_key") || localStorage.getItem("innermap_gemini_key") || "";
             if (!apiKey && supabaseClient) {
                 try {
                     const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
@@ -2958,14 +2646,17 @@ Retorne JSON no formato exato:
             if (audioBlob && audioBlob.size > 1000 && apiKey && (apiKey.startsWith("gsk_") || apiKey.startsWith("sk-"))) {
                 showToast("⏳ Transcrevendo áudio com IA Whisper...");
                 try {
-                    const isSk = apiKey.startsWith("sk-");
+                    const isOAI = apiKey.startsWith("sk-");
+                    const whisperEndpoint = isOAI
+                        ? "https://api.openai.com/v1/audio/transcriptions"
+                        : "https://api.groq.com/openai/v1/audio/transcriptions";
+                    const whisperModel = isOAI ? "whisper-1" : "whisper-large-v3-turbo";
+
                     const formData = new FormData();
                     formData.append("file", audioBlob, "speech.webm");
-                    formData.append("model", isSk ? "whisper-1" : "whisper-large-v3-turbo");
+                    formData.append("model", whisperModel);
                     formData.append("language", "pt");
                     formData.append("response_format", "json");
-
-                    const whisperEndpoint = isSk ? "https://api.openai.com/v1/audio/transcriptions" : "https://api.groq.com/openai/v1/audio/transcriptions";
 
                     const whisperRes = await fetch(whisperEndpoint, {
                         method: "POST",
@@ -2985,18 +2676,18 @@ Retorne JSON no formato exato:
                                 }
                                 targetInput.dispatchEvent(new Event("input", { bubbles: true }));
                             }
-                            showToast(" Áudio transcrito com sucesso!");
+                            showToast("✨ Áudio transcrito com sucesso!");
                         }
                     }
                 } catch (wErr) {
                     console.warn("Erro ao transcrever com Groq Whisper:", wErr);
                 }
             } else if (audioBlob && audioBlob.size > 1000) {
-                showToast(" Ditado concluído!");
+                showToast("✅ Ditado concluído!");
             }
 
             if (buttonEl) {
-                buttonEl.innerHTML = "";
+                buttonEl.innerHTML = "🎤";
                 buttonEl.title = "Ditado por voz";
             }
 
@@ -3028,7 +2719,7 @@ Retorne JSON no formato exato:
 
             let cleanText = text.replace(/<[^>]*>/g, '').trim();
 
-            //  Prepend "Repita comigo por gentileza!" APENAS para práticas de Ajustes Informacionais (Tela 3)
+            // ✨ Prepend "Repita comigo por gentileza!" APENAS para práticas de Ajustes Informacionais (Tela 3)
             const shouldPrependRepeat = isRepeatPractice || (buttonEl && (buttonEl.id === "btn-tts-full-practice" || buttonEl.dataset.repeat === "true"));
             
             if (shouldPrependRepeat && !cleanText.toLowerCase().startsWith("repita comigo")) {
@@ -3186,7 +2877,7 @@ Retorne JSON no formato exato:
             document.querySelectorAll(".btn-tts-speak.speaking").forEach(btn => {
                 btn.classList.remove("speaking");
                 if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
-                else btn.innerHTML = " Ouvir";
+                else btn.innerHTML = "🔊 Ouvir";
             });
             this.currentUtterance = null;
             this.currentRawText = "";
@@ -3217,13 +2908,7 @@ Retorne JSON no formato exato:
 
     // Event Delegation no documento para capturar cliques nos botões de Microfone e TTS em qualquer lugar da página
     document.addEventListener("click", (e) => {
-        const selectPlanBtn = safeClosest(e.target, ".btn-select-plan");
-        if (selectPlanBtn) {
-            const plan = selectPlanBtn.dataset.plan || "yearly";
-            window.startCheckout(plan);
-            return;
-        }
-        const micBtn = safeClosest(e.target, ".btn-mic-input");
+        const micBtn = e.target.closest(".btn-mic-input");
         if (micBtn) {
             e.preventDefault();
             e.stopPropagation();
@@ -3232,7 +2917,7 @@ Retorne JSON no formato exato:
             return;
         }
 
-        const ttsBtn = safeClosest(e.target, ".btn-tts-speak");
+        const ttsBtn = e.target.closest(".btn-tts-speak");
         if (ttsBtn && ttsBtn.id !== "btn-tts-full-practice") {
             e.preventDefault();
             e.stopPropagation();
@@ -3242,68 +2927,6 @@ Retorne JSON no formato exato:
                 if (targetEl) {
                     VoiceManager.speakText(targetEl.innerText || targetEl.value, ttsBtn);
                 }
-            }
-            return;
-        }
-
-        const objCard = safeClosest(e.target, ".objective-card");
-        if (objCard) {
-            const objCards = document.querySelectorAll(".objective-card");
-            objCards.forEach(c => c.classList.remove("active"));
-            objCard.classList.add("active");
-            state.selectedMode = parseInt(objCard.dataset.mode || "1");
-
-            const quickTopicsContainer = document.getElementById("quick-motivation-topics");
-            const inputAiRelato = document.getElementById("input-ai-relato");
-            const step1Title = document.getElementById("step1-title");
-            const step1Desc = document.getElementById("step1-desc");
-
-            if (state.selectedMode === 1) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Exemplo: Fato: bati o carro ontem / briguei com meu marido hoje / fui demitido do meu trabalho semana passada.";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
-                if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
-            } else if (state.selectedMode === 2) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva aqui sua história (Ex: Quando criança, meus pais me cobravam muito pelas notas. Aprendi que precisava ser perfeita para ser amada...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Compartilhe sua História / Lembranças`;
-                if (step1Desc) step1Desc.textContent = "Conte lembranças da infância, padrões familiares ou fatos do passado que você deseja ressignificar.";
-            } else if (state.selectedMode === 3) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "block";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "70px";
-                    inputAiRelato.placeholder = "Selecione um tema acima ou digite seu foco positivo (Ex: Prosperidade financeira, saúde e vitalidade...)";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Motivação e Foco para o Dia / Semana`;
-                if (step1Desc) step1Desc.textContent = "Qual é o tema ou objetivo em que você quer ter clareza, força e motivação hoje?";
-            } else if (state.selectedMode === 4) {
-                if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
-                if (inputAiRelato) {
-                    inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva ou fale detalhadamente tudo o que está acontecendo e como você se sente...";
-                }
-                if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Reorganização Profunda & Completa`;
-                if (step1Desc) step1Desc.textContent = "Descreva com detalhes o panorama do seu momento atual para uma transformação completa. Escreva pelo menos 100 caracteres.";
-            }
-            if (typeof updateRelatoCounter === "function") updateRelatoCounter();
-            return;
-        }
-
-        const quickChip = safeClosest(e.target, ".quick-topic-chip");
-        if (quickChip) {
-            const chips = document.querySelectorAll(".quick-topic-chip");
-            chips.forEach(c => c.classList.remove("selected"));
-            quickChip.classList.add("selected");
-            const inputAiRelato = document.getElementById("input-ai-relato");
-            if (inputAiRelato) {
-                inputAiRelato.value = quickChip.dataset.value || "";
-                if (typeof updateRelatoCounter === "function") updateRelatoCounter();
             }
             return;
         }
@@ -3353,33 +2976,38 @@ Retorne JSON no formato exato:
 
     // Helper: Mostrar tela específica com interceptações de autenticação e paywall
     function showScreen(screenId) {
-        window.showScreen = showScreen;
         VoiceManager.stopSpeaking();
         VoiceManager.stopSpeechRecognition();
 
         Object.keys(screens).forEach(key => {
             if (screens[key]) {
                 screens[key].classList.remove("active");
-                screens[key].style.display = "none";
-            }
-        });
-
-        document.querySelectorAll(".app-screen").forEach(s => {
-            if (s.id !== "screen-" + screenId) {
-                s.classList.remove("active");
-                s.style.display = "none";
             }
         });
         
-        // Garantir que a sessão de degustação/trial local esteja sempre ativa para navegação livre
-        if (!state.subscription) {
-            state.subscription = { plan: "trial", active: true, date: new Date().toLocaleDateString('pt-BR') };
+        // Interceptação de segurança e faturamento
+        if (!state.currentUser) {
+            if (screens["auth"]) screens["auth"].classList.add("active");
+            state.currentStep = 0;
+            updateUserUI();
+            updateFaqVisibility("auth");
+            return;
+        }
+        
+        if (!state.subscription && screenId !== "auth" && screenId !== "paywall") {
+            if (state.currentUser && state.currentUser.role === "therapist") {
+                // Acesso liberado
+            } else {
+                if (screens["paywall"]) screens["paywall"].classList.add("active");
+                state.currentStep = 0;
+                updateUserUI();
+                updateFaqVisibility("paywall");
+                return;
+            }
         }
 
-        const targetScreen = screens[screenId] || document.getElementById("screen-" + screenId);
-        if (targetScreen) {
-            targetScreen.classList.add("active");
-            targetScreen.style.display = "block";
+        if (screens[screenId]) {
+            screens[screenId].classList.add("active");
             if (screenId.startsWith("step")) {
                 state.currentStep = parseInt(screenId.replace("step", ""));
             } else {
@@ -3406,12 +3034,8 @@ Retorne JSON no formato exato:
 
     function updateUserUI() {
         if (!userNavContainer) return;
-        const mobileBtnLogout = document.getElementById("mobile-btn-logout");
         if (state.currentUser) {
             userNavContainer.style.display = "flex";
-            if (mobileBtnLogout) mobileBtnLogout.style.display = "flex";
-            const mobileAccount = document.getElementById("mobile-nav-account");
-            if (mobileAccount) mobileAccount.style.display = "flex";
             if (btnLoginTrigger) btnLoginTrigger.style.display = "none";
             if (btnHeroLogin) btnHeroLogin.style.display = "none";
             document.body.classList.add("user-logged-in");
@@ -3430,14 +3054,14 @@ Retorne JSON no formato exato:
 
             if (userStatusDisplay) {
                 if (state.currentUser.role === "therapist") {
-                    userStatusDisplay.innerText = "Terapeuta ";
+                    userStatusDisplay.innerText = "Terapeuta 🔑";
                     userStatusDisplay.style.background = "rgba(102, 252, 241, 0.15)";
                     userStatusDisplay.style.color = "var(--color-primary)";
                     userStatusDisplay.style.borderColor = "var(--color-primary)";
                 } else if (state.subscription) {
                     if (state.subscription.plan === "trial") {
                         // Calcular dias restantes
-                        const activationDate = parseBrDate(state.subscription.date);
+                        const activationDate = new Date(state.subscription.date);
                         const currentDate = new Date();
                         let diffTime = currentDate - activationDate;
                         if (isNaN(diffTime)) {
@@ -3471,9 +3095,6 @@ Retorne JSON no formato exato:
             if (window.checkDailyReminder) window.checkDailyReminder();
         } else {
             userNavContainer.style.display = "none";
-            if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
-            const mobileAccount = document.getElementById("mobile-nav-account");
-            if (mobileAccount) mobileAccount.style.display = "flex"; // MANTER MINHA CONTA VISIVEL ANTES DO LOGIN
             if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
             if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
             document.body.classList.remove("user-logged-in");
@@ -3513,25 +3134,6 @@ Retorne JSON no formato exato:
         });
     }
 
-    const authErrorBox = document.getElementById("auth-error-box");
-
-    function showAuthError(msg) {
-        if (authErrorBox) {
-            let friendlyMsg = msg;
-            if (msg.includes("Invalid login credentials")) {
-                friendlyMsg = "E-mail ou senha incorretos. Verifique seus dados e tente novamente.";
-            } else if (msg.includes("Email not confirmed")) {
-                friendlyMsg = "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada.";
-            } else if (msg.includes("User already registered")) {
-                friendlyMsg = "Este e-mail já possui uma conta. Alterne para a aba 'Entrar' e faça login com sua senha.";
-            }
-            authErrorBox.textContent = friendlyMsg;
-            authErrorBox.style.display = "block";
-        } else {
-            showToast("Erro na autenticação: " + msg);
-        }
-    }
-
     if (authForm) {
         authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -3539,7 +3141,6 @@ Retorne JSON no formato exato:
             const pwd = authPasswordInput.value.trim();
             
             if (!email || !pwd) return;
-            if (authErrorBox) authErrorBox.style.display = "none";
             
             if (btnAuthSubmit) {
                 btnAuthSubmit.disabled = true;
@@ -3560,7 +3161,7 @@ Retorne JSON no formato exato:
                         state.saveUser({
                             email: email,
                             provider: "email",
-                            id: data.user ? data.user.id : null
+                            id: data.user.id
                         });
                         
                         showToast("Cadastro realizado com sucesso! Verifique seu e-mail.");
@@ -3582,16 +3183,17 @@ Retorne JSON no formato exato:
                         await state.loadDataFromSupabase();
                         
                         showToast("Logado com sucesso!");
-                        showScreen((state.subscription || (state.currentUser && state.currentUser.role === "therapist")) ? "step1" : "paywall");
+                        showScreen(state.subscription ? "step1" : "paywall");
                     }
                 } catch (err) {
-                    console.error("Erro no login/cadastro:", err);
-                    showAuthError(err.message || "Falha na conexão.");
+                    alert("Erro na autenticação: " + err.message);
                 } finally {
                     if (btnAuthSubmit) {
                         btnAuthSubmit.disabled = false;
                         btnAuthSubmit.innerText = authMode === 'login' ? 'Acessar Conta' : 'Criar Conta';
                     }
+                    authEmailInput.value = "";
+                    authPasswordInput.value = "";
                     updateUserUI();
                 }
             } else {
@@ -3622,43 +3224,32 @@ Retorne JSON no formato exato:
                     
                     if (state.subscription) {
                         showScreen("step1");
-                        showToast("Logado com sucesso!");
+                        showToast("Logado com sucesso! (Simulador)");
                     } else {
                         showScreen("paywall");
-                        showToast("Conta criada! Selecione o seu plano de acesso.");
+                        showToast("Conta criada! Selecione o seu plano de acesso. (Simulador)");
                     }
-                }, 800);
+                }, 1200);
             }
         });
     }
 
     if (btnAuthGoogle) {
         btnAuthGoogle.addEventListener("click", async () => {
-            if (authErrorBox) authErrorBox.style.display = "none";
             btnAuthGoogle.disabled = true;
             btnAuthGoogle.innerHTML = '<span class="spinner"></span> Conectando com o Google...';
 
-            try {
-                localStorage.removeItem("innermap_logged_out");
-            } catch (e) {}
-
             if (supabaseClient) {
                 try {
-                    const cleanRedirectUrl = window.location.href.split('#')[0].split('?')[0];
-                    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    const { error } = await supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: cleanRedirectUrl
+                            redirectTo: window.location.origin + window.location.pathname
                         }
                     });
                     if (error) throw error;
-
-                    if (data && data.url) {
-                        window.location.href = data.url;
-                    }
                 } catch (err) {
-                    console.error("Erro ao conectar com o Google:", err);
-                    showAuthError("Erro ao conectar com o Google: " + (err.message || err));
+                    alert("Erro ao conectar com o Google: " + err.message);
                     btnAuthGoogle.disabled = false;
                     btnAuthGoogle.innerHTML = `
                         <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
@@ -3676,11 +3267,6 @@ Retorne JSON no formato exato:
                         email: "visitante.google@gmail.com",
                         provider: "google"
                     });
-                    state.saveSubscription({
-                        plan: "yearly",
-                        active: true,
-                        date: new Date().toLocaleDateString('pt-BR')
-                    });
                     
                     btnAuthGoogle.disabled = false;
                     btnAuthGoogle.innerHTML = `
@@ -3693,22 +3279,37 @@ Retorne JSON no formato exato:
                     `;
 
                     updateUserUI();
-                    showScreen("step1");
-                    showToast("Conectado com o Google!");
-                }, 800);
+                    
+                    if (state.subscription) {
+                        showScreen("step1");
+                        showToast("Conectado com o Google! (Simulador)");
+                    } else {
+                        showScreen("paywall");
+                        showToast("Google conectado! Selecione o seu plano de acesso. (Simulador)");
+                    }
+                }, 1200);
             }
         });
     }
 
-
-
-    // Event listener global delegado para garantir que o logout SEMPRE funcione instantaneamente em qualquer dispositivo ou botão
-    document.addEventListener("click", (e) => {
-        const logoutTarget = safeClosest(e.target, "#btn-logout, .btn-logout, #mobile-btn-logout");
-        if (logoutTarget) {
-            window.handleAppLogout(e);
-        }
-    });
+    if (btnLogout) {
+        btnLogout.addEventListener("click", async (e) => {
+            e.preventDefault();
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (err) {
+                    console.error("Erro ao sair do Supabase:", err);
+                }
+            }
+            state.saveUser(null);
+            state.saveSubscription(null);
+            
+            updateUserUI();
+            showScreen("auth");
+            showToast("Você saiu da sua conta.");
+        });
+    }
 
     // Elementos do Checkout
     const checkoutModal = document.getElementById("checkout-modal");
@@ -3724,20 +3325,77 @@ Retorne JSON no formato exato:
     let activeSelectedPlan = "yearly";
 
     async function startCheckout(plan) {
-        window.execStartCheckout = startCheckout;
-        window.startCheckout = startCheckout;
         activeSelectedPlan = plan;
         
-        console.log("Iniciando checkout instantâneo para plano:", plan);
-        const targetUrl = plan === "yearly" ? 
-            (INFINITEPAY_LINK_YEARLY || "https://invoice.infinitepay.io/plans/felipefavalli/EIr41GTCsc") : 
-            (INFINITEPAY_LINK_MONTHLY || "https://pay.infinitepay.io/felipefavalli/89,90");
-            
-        try {
-            localStorage.setItem("pending_payment_plan", plan);
-        } catch(e) {}
+        // Prioridade máxima: se links estáticos estão configurados, redirecionar na hora (evita CORS e delay)
+        const staticLink = plan === "yearly" ? INFINITEPAY_LINK_YEARLY : INFINITEPAY_LINK_MONTHLY;
+        if (staticLink) {
+            window.location.href = staticLink;
+            return;
+        }
+
+        const price = plan === "yearly" ? 47880 : 4990;
+        const description = plan === "yearly" ? "InnerMap - Plano Anual" : "InnerMap - Plano Mensal";
         
-        window.location.href = targetUrl;
+        if (INFINITEPAY_TAG) {
+            const btn = document.querySelector(`.btn-select-plan[data-plan="${plan}"]`);
+            const originalText = btn ? btn.innerText : "";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span> Redirecionando...`;
+            }
+            
+            try {
+                const response = await fetch("https://api.checkout.infinitepay.io/links", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        handle: INFINITEPAY_TAG,
+                        redirect_url: `${window.location.origin}${window.location.pathname}?payment=success&plan=${plan}`,
+                        items: [
+                            {
+                                description: description,
+                                price: price,
+                                quantity: 1
+                            }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Erro na API da InfinitePay");
+                
+                const data = await response.json();
+                if (data.url) {
+                    try {
+                        localStorage.setItem("pending_payment_plan", plan);
+                        if (data.slug) {
+                            localStorage.setItem("pending_payment_slug", data.slug);
+                        } else if (data.id) {
+                            localStorage.setItem("pending_payment_slug", data.id);
+                        }
+                    } catch (e) {
+                        console.warn("Erro ao salvar dados de pagamento pendente:", e);
+                    }
+                    window.location.href = data.url;
+                    return;
+                }
+            } catch (err) {
+                console.warn("Falha ao gerar link dinâmico da InfinitePay, tentando link estático ou simulação:", err);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+        }
+        
+        // Se nenhuma configuração da InfinitePay estiver ativa, usa a simulação local anterior
+        if (checkoutPlanName) {
+            checkoutPlanName.innerText = plan === "yearly" ? "Anual (R$ 39,90/mês)" : "Mensal (R$ 49,90/mês)";
+        }
+        if (checkoutModal) checkoutModal.style.display = "flex";
     }
 
     document.querySelectorAll(".btn-select-plan").forEach(btn => {
@@ -3746,70 +3404,40 @@ Retorne JSON no formato exato:
         });
     });
 
+    // Código de convite / Reivindicar Assinatura Gratuita
     const btnClaimInvite = document.getElementById("btn-claim-invite");
     const inputInviteCode = document.getElementById("input-invite-code");
-    const btnAuthClaimInvite = document.getElementById("btn-auth-claim-invite");
-    const inputAuthInviteCode = document.getElementById("input-auth-invite-code");
-
-    function processInviteClaim(inputEl, btnEl) {
-        if (!inputEl) return;
-        const rawCode = inputEl.value.trim();
-        if (!rawCode) {
-            showToast("Digite o código de convite.");
-            return;
-        }
-        const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const validCodes = [
-            "euescolhoasminhasrealidades",
-            "innermap7",
-            "7dias",
-            "vip7",
-            "felipe7"
-        ];
-
-        if (validCodes.includes(codeNormalized)) {
-            if (btnEl) {
-                btnEl.disabled = true;
-                btnEl.innerHTML = `<span class="spinner"></span> Validando...`;
-            }
-
-            // Se o usuário ainda não tiver conta, salvar um perfil local de convidado
-            if (!state.currentUser) {
-                state.saveUser({
-                    email: "convidado@innermap.com.br",
-                    provider: "invite"
-                });
-            }
-
-            state.saveSubscription({
-                plan: "trial",
-                active: true,
-                date: new Date().toISOString()
-            }).then(() => {
-                inputEl.value = "";
-                updateUserUI();
-                showToast("Código ativado! Seus 7 dias de teste começaram agora. ");
-                showScreen("step1");
-            }).catch(err => {
-                console.error(err);
-                showToast("Erro ao processar ativação do convite.");
-            }).finally(() => {
-                if (btnEl) {
-                    btnEl.disabled = false;
-                    btnEl.innerText = "Ativar 7 Dias";
-                }
-            });
-        } else {
-            showToast("Código de convite inválido ou expirado.");
-        }
-    }
 
     if (btnClaimInvite && inputInviteCode) {
-        btnClaimInvite.addEventListener("click", () => processInviteClaim(inputInviteCode, btnClaimInvite));
-    }
-
-    if (btnAuthClaimInvite && inputAuthInviteCode) {
-        btnAuthClaimInvite.addEventListener("click", () => processInviteClaim(inputAuthInviteCode, btnAuthClaimInvite));
+        btnClaimInvite.addEventListener("click", () => {
+            const rawCode = inputInviteCode.value.trim();
+            // Remover acentos e comparar de forma insensível a maiúsculas/minúsculas e sem hashtag
+            const codeNormalized = rawCode.toLowerCase().replace(/#/g, "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            if (codeNormalized === "euescolhoasminhasrealidades") {
+                btnClaimInvite.disabled = true;
+                btnClaimInvite.innerHTML = `<span class="spinner"></span> Validando...`;
+                
+                state.saveSubscription({
+                    plan: "trial",
+                    active: true,
+                    date: new Date().toISOString()
+                }).then(() => {
+                    inputInviteCode.value = "";
+                    updateUserUI();
+                    showToast("Código de convite ativado! Seus 7 dias de teste começaram agora. 🎉");
+                    showScreen("step1");
+                }).catch(err => {
+                    console.error(err);
+                    showToast("Erro ao processar ativação do convite.");
+                }).finally(() => {
+                    btnClaimInvite.disabled = false;
+                    btnClaimInvite.innerText = "Reivindicar";
+                });
+            } else {
+                showToast("Código de convite inválido ou expirado.");
+            }
+        });
     }
 
     if (btnCloseCheckout) {
@@ -3905,8 +3533,8 @@ Retorne JSON no formato exato:
             .replace(/Ã\u0083/g, "Ã")
             .replace(/Ã\u0095/g, "Õ")
             .replace(/Ã\u0087/g, "Ç")
-            .replace(/âš ï¸ /g, "️")
-            .replace(/âœ“/g, "")
+            .replace(/âš ï¸ /g, "⚠️")
+            .replace(/âœ“/g, "✓")
             .replace(/Ã“/g, "Ó")
             .replace(/estÃ¡/g, "está")
             .replace(/padrÃ£o/g, "padrão")
@@ -3933,49 +3561,6 @@ Retorne JSON no formato exato:
             }
             grouped[item.category].push(item);
         });
-
-
-    // DELEGAÇÃO DE EVENTOS PARA BOTÃO DE EXCLUIR NO PROGRESSO
-    const libContEl = document.getElementById("library-container");
-    if (libContEl && !libContEl.dataset.deleteBound) {
-        libContEl.dataset.deleteBound = "true";
-        libContEl.addEventListener("click", async (e) => {
-            const btnDelete = e.target.closest('.btn-delete-progresso');
-            if (btnDelete) {
-                e.stopPropagation();
-                const itemDate = btnDelete.dataset.date;
-                const itemPhrase = btnDelete.dataset.phrase;
-                
-                if (confirm("Tem certeza que deseja excluir esta reorganização (\" " + itemPhrase + " \") do seu progresso?")) {
-                    // Remover do state.history
-                    const index = state.history.findIndex(i => i.date === itemDate && fixMojibake(i.phrase) === itemPhrase);
-                    if (index !== -1) {
-                        const removedItem = state.history.splice(index, 1)[0];
-                        state.saveHistory(state.history); // Assuming saveHistory exists, or we just save to SafeStorage/Supabase
-                        
-                        // Atualizar Supabase se logado
-                        if (state.currentUser && window.supabaseClient) {
-                            try {
-                                if (removedItem.id) {
-                                    await window.supabaseClient.from("user_practices").delete().eq("id", removedItem.id);
-                                } else {
-                                    // Se não tem ID, tentar deletar baseado na data
-                                    await window.supabaseClient.from("user_practices").delete().eq("user_id", state.currentUser.id).eq("created_at", removedItem.date);
-                                }
-                            } catch (err) {
-                                console.warn("Erro ao deletar do supabase", err);
-                            }
-                        }
-                        
-                        // Atualizar a interface do Meu Progresso
-                        if (typeof window.renderLibrary === "function") window.renderLibrary();
-                        if (typeof window.renderStats === "function") window.renderStats();
-                        showToast("Reorganização excluída do seu progresso.");
-                    }
-                }
-            }
-        });
-    }
 
         for (const cat in grouped) {
             const catEmoji = grouped[cat][0].categoryEmoji;
@@ -4028,7 +3613,7 @@ Retorne JSON no formato exato:
                         ` : ''}
                         <div class="detail-section">
                             <strong>Ação de Integração:</strong>
-                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;"> ${cleanMicroacao}</p>
+                            <p class="action-box" style="background: rgba(255, 255, 255, 0.02); padding: 0.5rem; border-radius: 6px; font-size: 0.85rem;">🎯 ${cleanMicroacao}</p>
                         </div>
                     </div>
                     <button class="btn-toggle-details">Ver detalhes ↓</button>
@@ -4266,10 +3851,7 @@ Pergunta atual: "${query}"
     // Toast Notification System
     function showToast(message) {
         let toast = document.querySelector(".toast-message");
-        if (toast) {
-            if (typeof toast.remove === "function") toast.remove();
-            else if (toast.parentNode) toast.parentNode.removeChild(toast);
-        }
+        if (toast) toast.remove();
 
         toast = document.createElement("div");
         toast.className = "toast-message";
@@ -4280,20 +3862,8 @@ Pergunta atual: "${query}"
         
         setTimeout(() => {
             toast.classList.remove("show");
-            setTimeout(() => {
-                if (typeof toast.remove === "function") toast.remove();
-                else if (toast.parentNode) toast.parentNode.removeChild(toast);
-            }, 300);
+            setTimeout(() => toast.remove(), 300);
         }, 3000);
-    }
-
-    // Converte "dd/mm/aaaa" (toLocaleDateString pt-BR) corretamente; new Date() leria como mm/dd
-    function parseBrDate(raw) {
-        const str = String(raw || "");
-        const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-        if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
-        const d = new Date(str);
-        return isNaN(d) ? new Date() : d;
     }
 
     // Verificar o status e a data de validade da assinatura de teste (trial de 7 dias)
@@ -4304,18 +3874,18 @@ Pergunta atual: "${query}"
         }
 
         if (state.subscription && state.subscription.plan === "trial") {
+            const activationDate = new Date(state.subscription.date);
             const currentDate = new Date();
-            const rawDate = String(state.subscription.date || "");
-            let activationDate;
-            const br = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-            if (br) {
-                // Formato brasileiro dd/mm/aaaa (new Date() interpretaria como mm/dd)
-                activationDate = new Date(+br[3], +br[2] - 1, +br[1]);
-            } else {
-                activationDate = new Date(rawDate);
-            }
+            
             let diffTime = currentDate - activationDate;
-            if (isNaN(diffTime)) diffTime = 0;
+            if (isNaN(diffTime)) {
+                // Tenta tratar formato local dd/mm/aaaa se houver no histórico antigo
+                const parts = state.subscription.date.split('/');
+                if (parts.length === 3) {
+                    const parsedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    diffTime = currentDate - parsedDate;
+                }
+            }
             
             const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             const daysRemaining = 7 - daysElapsed;
@@ -4407,29 +3977,25 @@ Pergunta atual: "${query}"
         if (checkSubscriptionStatus()) {
             if (!state.currentUser) {
                 showScreen("auth");
+            } else if (!state.subscription && state.currentUser.role !== "therapist") {
+                showScreen("paywall");
             } else {
                 showScreen("step1");
             }
         }
     }
 
-    // Segurança: se após 3s nenhuma tela estiver visível, força auth
+    // 🔐 Segurança: se após 3s nenhuma tela estiver visível, força auth
     setTimeout(() => {
         const anyActive = Object.values(screens).some(s => s && s.classList.contains("active"));
         if (!anyActive) {
-            showScreen(state.currentUser ? "step1" : "auth");
+            console.warn("Nenhuma tela ativa detectada após 3s — forçando tela de autenticação");
+            if (screens["auth"]) screens["auth"].classList.add("active");
         }
     }, 3000);
 
-    // Verificar parâmetro de logout na URL
+    // Verificar retorno de pagamento da InfinitePay na URL
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("logout")) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        if (typeof showToast === "function") {
-            try { showToast("Você saiu da sua conta com sucesso."); } catch(e){}
-        }
-    }
-
     if (urlParams.get("payment") === "success") {
         const plan = urlParams.get("plan");
         // Limpar parâmetros da URL para evitar recargas ativando repetidamente
@@ -4440,8 +4006,8 @@ Pergunta atual: "${query}"
             active: true,
             date: new Date().toLocaleDateString('pt-BR')
         }).then(() => {
-            SafeStorage.removeItem("pending_payment_plan");
-            SafeStorage.removeItem("pending_payment_slug");
+            localStorage.removeItem("pending_payment_plan");
+            localStorage.removeItem("pending_payment_slug");
             updateUserUI();
             showToast(`Assinatura do Plano ${plan === "yearly" ? "Anual" : "Mensal"} ativada com sucesso! Obrigado!`);
             showScreen("step1");
@@ -4449,8 +4015,8 @@ Pergunta atual: "${query}"
     }
 
     // Verificar se há algum pagamento pendente no localStorage e consultar na API da InfinitePay
-    const pendingPlan = SafeStorage.getItem("pending_payment_plan");
-    const pendingSlug = SafeStorage.getItem("pending_payment_slug");
+    const pendingPlan = localStorage.getItem("pending_payment_plan");
+    const pendingSlug = localStorage.getItem("pending_payment_slug");
     if (pendingPlan && pendingSlug && INFINITEPAY_TAG) {
         fetch("https://api.checkout.infinitepay.io/payment_check", {
             method: "POST",
@@ -4468,8 +4034,8 @@ Pergunta atual: "${query}"
         })
         .then(data => {
             if (data && (data.status === "paid" || data.status === "approved" || data.status === "completed" || data.paid === true)) {
-                SafeStorage.removeItem("pending_payment_plan");
-                SafeStorage.removeItem("pending_payment_slug");
+                localStorage.removeItem("pending_payment_plan");
+                localStorage.removeItem("pending_payment_slug");
                 state.saveSubscription({
                     plan: pendingPlan,
                     active: true,
@@ -4598,7 +4164,7 @@ Pergunta atual: "${query}"
             let activeTrials = 0;
             clientSubs.forEach(s => {
                 if (s.plan === "trial" && s.active) {
-                    const activationDate = parseBrDate(s.date);
+                    const activationDate = new Date(s.date);
                     const currentDate = new Date();
                     let diffTime = currentDate - activationDate;
                     if (isNaN(diffTime)) {
@@ -4655,7 +4221,7 @@ Pergunta atual: "${query}"
             if (sub && sub.active) {
                 dateHTML = sub.date;
                 if (sub.plan === "trial") {
-                    const activationDate = parseBrDate(sub.date);
+                    const activationDate = new Date(sub.date);
                     const currentDate = new Date();
                     let diffTime = currentDate - activationDate;
                     if (isNaN(diffTime)) {
@@ -4722,7 +4288,7 @@ Pergunta atual: "${query}"
                 card.className = "practice-item-card";
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted);">
-                        <span> ${r.date}</span>
+                        <span>📅 ${r.date}</span>
                         <span style="font-weight: 600; color: var(--color-primary-glow);">${r.categoryEmoji}</span>
                     </div>
                     <div style="font-weight: 500; font-size: 1rem; margin-bottom: 0.75rem; color: var(--color-text-main);">"${r.phrase}"</div>
@@ -4743,14 +4309,14 @@ Pergunta atual: "${query}"
 
                         ${r.data && r.data.declaracaoNaoEspecifica ? `
                         <div>
-                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;"> Liberação Não Específica (1x por dia / 15 dias)</strong>
+                            <strong style="color: var(--color-primary); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">🔄 Liberação Não Específica (1x por dia / 15 dias)</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(102, 252, 241, 0.03); border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.8rem; color: var(--color-text-main);">${r.data.declaracaoNaoEspecifica}</p>
                         </div>
                         ` : ''}
 
                         ${r.data && r.data.microacao ? `
                         <div>
-                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;"> Microação & Sugestão de Melhoria</strong>
+                            <strong style="color: var(--color-primary-glow); font-size: 0.8rem; display: block; margin-bottom: 0.25rem;">💡 Microação & Sugestão de Melhoria</strong>
                             <p style="margin: 0; padding: 0.5rem; background: rgba(255, 255, 255, 0.02); border-radius: 4px; font-size: 0.8rem; color: var(--color-text-muted); white-space: pre-wrap;">${r.data.microacao}</p>
                         </div>
                         ` : ''}
@@ -5178,7 +4744,7 @@ Pergunta atual: "${query}"
         }
 
         const emailKey = state.currentUser.email;
-        const agendaDataRaw = SafeStorage.getItem("active_agenda_" + emailKey);
+        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
         if (!agendaDataRaw) {
             agendaContainer.style.display = "none";
             if (emptyPlaceholder) emptyPlaceholder.style.display = "block";
@@ -5220,7 +4786,7 @@ Pergunta atual: "${query}"
                 
                 if (agenda.ticks && agenda.ticks[day]) {
                     btn.classList.add("completed");
-                    btn.innerHTML = `D${day} ✓`;
+                    btn.innerHTML = `D${day} âœ“`;
                 }
 
                 btn.addEventListener("click", () => {
@@ -5228,12 +4794,12 @@ Pergunta atual: "${query}"
                     agenda.ticks[day] = !agenda.ticks[day];
                     
                     // Salvar ticks
-                    SafeStorage.setItem("active_agenda_" + emailKey, JSON.stringify(agenda));
+                    localStorage.setItem("active_agenda_" + emailKey, JSON.stringify(agenda));
                     renderAgenda();
 
                     // Mostrar mensagem de incentivo
                     if (agenda.ticks[day]) {
-                        showToast(`Dia ${day} concluído com sucesso! Ótimo trabalho!`);
+                        showToast(`Dia ${day} concluído com sucesso! Ã“timo trabalho!`);
                         
                         // Se concluiu todos os 15 dias, parabenizar!
                         let allDone = true;
@@ -5244,7 +4810,7 @@ Pergunta atual: "${query}"
                             }
                         }
                         if (allDone) {
-                            showToast("Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
+                            showToast("🎉 Parabéns! Você completou o ciclo de 15 dias de reprogramação!");
                         }
                     }
                 });
@@ -5258,11 +4824,11 @@ Pergunta atual: "${query}"
 
     function checkDailyReminder() {
         if (!state.currentUser) return;
-        const enabled = SafeStorage.getItem("reminders_enabled") === "true";
+        const enabled = localStorage.getItem("reminders_enabled") === "true";
         if (!enabled) return;
 
         const emailKey = state.currentUser.email;
-        const agendaDataRaw = SafeStorage.getItem("active_agenda_" + emailKey);
+        const agendaDataRaw = localStorage.getItem("active_agenda_" + emailKey);
         if (!agendaDataRaw) return;
 
         try {
@@ -5274,10 +4840,10 @@ Pergunta atual: "${query}"
             // Se o dia atual da prática ainda não foi marcado como completo
             if (!agenda.ticks || !agenda.ticks[currentDay]) {
                 // Verificar se já mostramos lembrete hoje para não fludar
-                const lastReminderStr = SafeStorage.getItem("last_reminder_date_" + emailKey);
+                const lastReminderStr = localStorage.getItem("last_reminder_date_" + emailKey);
                 const todayStr = new Date().toDateString();
                 if (lastReminderStr !== todayStr) {
-                    SafeStorage.setItem("last_reminder_date_" + emailKey, todayStr);
+                    localStorage.setItem("last_reminder_date_" + emailKey, todayStr);
                     
                     if ("Notification" in window && Notification.permission === "granted") {
                         new Notification("InnerMap: Exercício de Hoje", {
@@ -5285,7 +4851,7 @@ Pergunta atual: "${query}"
                             icon: "favicon.ico"
                         });
                     } else {
-                        showToast(`Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
+                        showToast(`📌 Lembrete: Dia ${currentDay} da sua reprogramação está pendente. Pratique hoje!`);
                     }
                 }
             }
@@ -5298,27 +4864,27 @@ Pergunta atual: "${query}"
     const btnToggleReminders = document.getElementById("btn-toggle-reminders");
     if (btnToggleReminders) {
         const updateRemindersBtnUI = () => {
-            const enabled = SafeStorage.getItem("reminders_enabled") === "true";
+            const enabled = localStorage.getItem("reminders_enabled") === "true";
             if (enabled) {
                 btnToggleReminders.className = "btn btn-outline active";
-                btnToggleReminders.innerHTML = `<span> Desativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span>🔕 Desativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-primary)";
                 btnToggleReminders.style.color = "var(--color-primary)";
             } else {
                 btnToggleReminders.className = "btn btn-outline";
-                btnToggleReminders.innerHTML = `<span> Ativar Lembretes</span>`;
+                btnToggleReminders.innerHTML = `<span>🔔 Ativar Lembretes</span>`;
                 btnToggleReminders.style.borderColor = "var(--color-border)";
                 btnToggleReminders.style.color = "var(--color-text-muted)";
             }
         };
 
         btnToggleReminders.addEventListener("click", async () => {
-            const enabled = SafeStorage.getItem("reminders_enabled") === "true";
+            const enabled = localStorage.getItem("reminders_enabled") === "true";
             if (!enabled) {
                 if ("Notification" in window) {
                     const permission = await Notification.requestPermission();
                     if (permission === "granted") {
-                        SafeStorage.setItem("reminders_enabled", "true");
+                        localStorage.setItem("reminders_enabled", "true");
                         showToast("Notificações ativadas com sucesso!");
                         new Notification("InnerMap", {
                             body: "Você receberá lembretes diários para realizar seus exercícios informacionais.",
@@ -5331,7 +4897,7 @@ Pergunta atual: "${query}"
                     showToast("Este navegador não suporta notificações de área de trabalho.");
                 }
             } else {
-                SafeStorage.setItem("reminders_enabled", "false");
+                localStorage.setItem("reminders_enabled", "false");
                 showToast("Lembretes diários desativados.");
             }
             updateRemindersBtnUI();
@@ -5349,13 +4915,13 @@ Pergunta atual: "${query}"
     // ==========================================================================
     document.addEventListener("click", (e) => {
         // Toggle de acordeão (FAQ)
-        const faqHeader = safeClosest(e.target, ".faq-header");
+        const faqHeader = e.target.closest(".faq-header");
         if (faqHeader) {
             e.preventDefault();
-            const faqItem = safeClosest(faqHeader, ".faq-item");
+            const faqItem = faqHeader.closest(".faq-item");
             if (faqItem) {
                 const isActive = faqItem.classList.contains("active");
-                const container = safeClosest(faqItem, ".faq-accordion");
+                const container = faqItem.closest(".faq-accordion");
                 if (container) {
                     container.querySelectorAll(".faq-item.active").forEach(item => {
                         if (item !== faqItem) item.classList.remove("active");
@@ -5367,7 +4933,7 @@ Pergunta atual: "${query}"
         }
 
         // Abrir modal de teoria técnica
-        const theoryBtn = safeClosest(e.target, ".btn-open-theory");
+        const theoryBtn = e.target.closest(".btn-open-theory");
         if (theoryBtn) {
             e.preventDefault();
             const modal = document.getElementById("theory-modal");
@@ -5376,332 +4942,9 @@ Pergunta atual: "${query}"
         }
 
         // Fechar modal de teoria técnica
-        if (e.target && (e.target.id === "btn-close-theory" || e.target.id === "theory-modal")) {
+        if (e.target.id === "btn-close-theory" || e.target.id === "theory-modal") {
             const modal = document.getElementById("theory-modal");
             if (modal) modal.style.display = "none";
         }
     });
-}
-
-    loadChallengeVideos();
-    loadTutorialVideos();
-
-window.initApp = initApp;
-
-if (document.readyState === "complete" || document.readyState === "interactive") {
-    initApp();
-} else {
-    document.addEventListener("DOMContentLoaded", initApp);
-    window.addEventListener("load", initApp);
-}
-
-
-// ==========================================================================
-// DIREITOS DO TITULAR LGPD & GESTÃO DE DADOS
-// ==========================================================================
-
-    // ==========================================================================
-    // DESAFIO DE 7 DIAS (JORNADA)
-    // ==========================================================================
-    let challengeVideos = [];
-    
-    function getEmbedUrl(url) {
-        if (!url) return "";
-        try {
-            let videoId = "";
-            if (url.includes("youtube.com/watch")) {
-                videoId = new URL(url).searchParams.get("v");
-            } else if (url.includes("youtu.be/")) {
-                videoId = url.split("youtu.be/")[1]?.split("?")[0];
-            } else if (url.includes("youtube.com/shorts/")) {
-                videoId = url.split("youtube.com/shorts/")[1]?.split("?")[0];
-            } else if (url.includes("youtube.com/embed/")) {
-                return url;
-            }
-            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
-            return url; // fallback for vimeo or others if they pasted embed directly
-        } catch (e) {
-            return url;
-        }
-    }
-
-    
-    window.openFullscreenVideo = function(url) {
-        const overlay = document.createElement('div');
-        overlay.id = 'custom-fs-overlay';
-        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;';
-        
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '✕ Fechar';
-        closeBtn.style.cssText = 'position: absolute; top: 20px; right: 20px; z-index: 1000000; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; backdrop-filter: blur(5px);';
-        closeBtn.onclick = () => {
-            if(document.body.contains(overlay)) document.body.removeChild(overlay);
-        };
-        
-        const iframe = document.createElement('iframe');
-        // Adiciona ?autoplay=1 se não tiver, para já começar tocando ao expandir
-        let autoUrl = url.includes('?') ? url + '&autoplay=1' : url + '?autoplay=1';
-        iframe.src = autoUrl;
-        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen';
-        iframe.setAttribute('allowfullscreen', 'true');
-        
-        overlay.appendChild(iframe);
-        overlay.appendChild(closeBtn);
-        document.body.appendChild(overlay);
-    };
-
-    function renderChallengeTimeline(videos) {
-        const container = document.getElementById("challenge-timeline");
-        if (!container) return;
-        
-        let html = "";
-        const days = ["Vídeo Base (Início)", "Dia 1 - VIDRO", "Dia 2", "Dia 3", "Dia 4", "Dia 5", "Dia 6", "Dia 7"];
-        
-        for (let i = 0; i < 8; i++) {
-            const videoUrl = videos[i] || "";
-            let embedUrl = getEmbedUrl(videoUrl);
-            let isDirectVideo = false;
-            
-            // Check if it's a direct video file from Supabase or .mp4
-            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm") || videoUrl.includes("firebasestorage")) {
-                embedUrl = videoUrl;
-                isDirectVideo = true;
-            }
-            
-            let videoHTML = `<div class="timeline-empty">Vídeo em breve...</div>`;
-            if (embedUrl) {
-                if (isDirectVideo) {
-                    videoHTML = `<div class="timeline-video-wrapper"><video src="${embedUrl}" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
-                } else {
-                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe></div><button onclick="window.openFullscreenVideo('${embedUrl}')" style="margin-top: 0.8rem; width: 100%; max-width: 340px; padding: 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg> Expandir Vídeo</button>`;
-                }
-            }
-            
-            html += `
-                <div class="timeline-step">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-title">
-                            <span class="day-badge" style="${i === 0 ? 'background: rgba(232, 168, 85, 0.15); color: #E8A855;' : ''}">${days[i]}</span>
-                        </div>
-                        ${videoHTML}
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html;
-    }
-
-    async function loadChallengeVideos() {
-        try {
-            if (!supabaseClient) return;
-            const { data, error } = await supabaseClient
-                .from("system_config")
-                .select("value")
-                .eq("key", "challenge_videos")
-                .single();
-                
-            if (data && data.value) {
-                challengeVideos = JSON.parse(data.value);
-            }
-            renderChallengeTimeline(challengeVideos);
-        } catch (err) {
-            console.error("Erro ao carregar videos do desafio:", err);
-            renderChallengeTimeline([]);
-        }
-    }
-
-    window.openChallengeConfigModal = function() {
-        const modal = document.getElementById("challenge-config-modal");
-        if (!modal) return;
-        
-        for (let i = 0; i < 8; i++) {
-            const input = document.getElementById(`challenge-vid-${i}`);
-            if (input) input.value = challengeVideos[i] || "";
-        }
-        
-        modal.style.display = "flex";
-    };
-
-    
-    window.uploadChallengeVideo = async function(fileInput, dayIndex) {
-        const file = fileInput.files[0];
-        if (!file) return;
-        
-        if (!supabaseClient) {
-            showToast("Supabase não configurado.");
-            return;
-        }
-        
-        const inputField = document.getElementById(`challenge-vid-${dayIndex}`);
-        if (inputField) inputField.value = "Fazendo upload... aguarde (não feche)";
-        
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `dia_${dayIndex}_${Date.now()}.${fileExt}`;
-            
-            const { data, error } = await supabaseClient.storage
-                .from('desafio_videos')
-                .upload(fileName, file, { upsert: true });
-                
-            if (error) throw error;
-            
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('desafio_videos')
-                .getPublicUrl(fileName);
-                
-            if (inputField) inputField.value = publicUrlData.publicUrl;
-            showToast(`Vídeo do Dia ${dayIndex} carregado com sucesso!`);
-        } catch (err) {
-            console.error("Erro no upload:", err);
-            if (inputField) inputField.value = "";
-            alert("ERRO: Para usar o upload, você precisa ir no painel do Supabase, clicar em 'Storage' e criar um bucket com o nome exato 'desafio_videos'. Nas opções do bucket, marque-o como Público (Public). Detalhe técnico: " + err.message);
-        }
-    };
-
-
-    window.saveChallengeConfig = async function() {
-        const btn = document.getElementById("btn-save-challenge");
-        if (btn) btn.innerHTML = "Salvando...";
-        
-        let newVideos = [];
-        for (let i = 0; i < 8; i++) {
-            const input = document.getElementById(`challenge-vid-${i}`);
-            newVideos.push(input ? input.value.trim() : "");
-        }
-        
-        try {
-            const { error } = await supabaseClient
-                .from("system_config")
-                .upsert({
-                    key: "challenge_videos",
-                    value: JSON.stringify(newVideos)
-                }, { onConflict: "key" });
-                
-            if (error) throw error;
-            
-            challengeVideos = newVideos;
-            renderChallengeTimeline(challengeVideos);
-            showToast("Jornada do desafio salva com sucesso!");
-            document.getElementById("challenge-config-modal").style.display = "none";
-        } catch (err) {
-            console.error("Erro ao salvar vídeos:", err);
-            showToast("Erro ao salvar: Verifique suas permissões.");
-        } finally {
-            if (btn) btn.innerHTML = "Salvar Jornada";
-        }
-    };
-
-    window.openAccountModal = function(e) {
-    if (e) {
-        try { if (e.preventDefault) e.preventDefault(); } catch(err){}
-        try { if (e.stopPropagation) e.stopPropagation(); } catch(err){}
-    }
-    console.log("Abrindo modal Minha Conta...");
-    const modal = document.getElementById("account-modal");
-    if (!modal) {
-        console.warn("Elemento #account-modal não encontrado no DOM.");
-        return;
-    }
-    const emailEl = document.getElementById("account-user-email");
-    const planEl = document.getElementById("account-user-plan");
-
-    if (emailEl) emailEl.textContent = (state.currentUser && state.currentUser.email) || "Não conectado";
-    if (planEl) {
-        if (state.currentUser && state.currentUser.role === "therapist") {
-            planEl.textContent = "Acesso Especial Terapeuta";
-        } else if (state.subscription) {
-            if (state.subscription.plan === "trial") {
-                planEl.innerHTML = 'Período de Teste (7 Dias) — <a href="#" onclick="document.getElementById(\'account-modal\').style.display=\'none\'; showScreen(\'paywall\'); return false;" style="color: #E8A855; font-weight: 700; text-decoration: underline;">Assinar Anual +15 Dias Bônus 🎁</a>';
-            } else if (state.subscription.plan === "yearly") {
-                const hasBonus = state.subscription.bonus_days ? ` (+ ${state.subscription.bonus_days}d bônus)` : '';
-                planEl.textContent = "Plano Anual Premium" + hasBonus;
-            } else {
-                planEl.textContent = "Plano Mensal Premium";
-            }
-        } else {
-            planEl.textContent = "Sem plano ativo";
-        }
-    }
-    modal.style.display = "flex";
-};
-
-window.openLgpdModal = function() {
-    const modal = document.getElementById("lgpd-privacy-modal");
-    if (modal) modal.style.display = "flex";
-};
-
-window.downloadUserData = function() {
-    if (!state.currentUser) {
-        showToast("Faça login para baixar seus dados.");
-        return;
-    }
-    const dataExport = {
-        usuario: {
-            email: state.currentUser.email,
-            id: state.currentUser.id || null,
-            role: state.currentUser.role || "user",
-            data_exportacao: new Date().toISOString()
-        },
-        assinatura: state.subscription || null,
-        historico_reorganizacoes: state.history || [],
-        agenda_exercicios: state.agenda || null
-    };
-
-    const jsonStr = JSON.stringify(dataExport, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `innermap_dados_${(state.currentUser.email || "user").replace(/[^a-z0-9]/gi, '_')}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast("Download dos seus dados iniciado (Formato JSON).");
-};
-
-window.revokeConsent = function() {
-    if (!state.currentUser) return;
-    const confirmRevoke = confirm("Tem certeza de que deseja revogar o consentimento para o tratamento dos seus relatos por Inteligência Artificial?\n\nAo revogar, seus relatos armazenados serão limpos e você precisará fornecer novo consentimento para realizar novas reorganizações por IA.");
-    if (!confirmRevoke) return;
-
-    if (state.currentUser) {
-        state.currentUser.consentRevoked = true;
-    }
-    state.relatoOriginal = "";
-    state.tempTheme = "";
-    state.addedFacts = [];
-    
-    showToast("Consentimento revogado com sucesso. Seus dados de relatos em memória foram limpos.");
-    const accountModal = document.getElementById("account-modal");
-    if (accountModal) accountModal.style.display = "none";
-};
-
-window.deleteUserAccount = async function() {
-    if (!state.currentUser) return;
-    const confirmDelete = confirm("ATENÇÃO: Deseja realmente excluir permanentemente sua conta e todos os seus relatos e reorganizações?\n\nEsta ação é irreversível e excluirá todo o seu histórico do InnerMap.");
-    if (!confirmDelete) return;
-
-    if (typeof supabaseClient !== "undefined" && supabaseClient && state.currentUser.id) {
-        try {
-            await supabaseClient.from("user_practices").delete().eq("user_id", state.currentUser.id);
-            await supabaseClient.from("user_subscriptions").delete().eq("user_id", state.currentUser.id);
-        } catch(err) {
-            console.warn("Erro ao deletar registros no Supabase:", err);
-        }
-    }
-
-    try {
-        localStorage.clear();
-        sessionStorage.clear();
-    } catch(e) {}
-
-    showToast("Sua conta e seus relatos foram excluídos permanentemente.");
-    
-    setTimeout(() => {
-        window.handleAppLogout();
-    }, 500);
-};
+});

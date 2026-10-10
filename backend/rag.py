@@ -71,8 +71,8 @@ def format_fact_for_sentence(fact: str) -> str:
 
 class RAGPipeline:
     def __init__(self):
-        # Chaves de API seriam carregadas do arquivo .env
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "mock_key")
+        # Chaves de API carregadas do ambiente ou .env
+        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
         self.embeddings_model = "text-embedding-3-small"
         self.chat_model = "gpt-4o-mini"
 
