@@ -585,7 +585,7 @@ class ReorganizationEngine {
 
         // MRI - Movimento de Reinterpretação
         let cleanMRI = "";
-        if (isMode3 && customFort) {
+        if (customFort) {
             cleanMRI = customFort;
         } else if (matchedKey && maxMatches > 0) {
             cleanMRI = rawMRI.replace(/^3\s*-\s*Movimento[^\n]*MRI\n?/i, "").trim();
@@ -2130,7 +2130,8 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
     }
   ],
   "ganhos_aparentes": ["lista de ganhos aparentes / falsos positivos"],
-  "microacao": "orientação comportamental prática baseada no relato",
+  "microacao": "Ação diária prática focada em superar concretamente o problema relatado no mundo real (ex: conversar e impor um limite, planejar meta financeira). Foco no avanço e enfrentamento. NÃO instrua a fazer os exercícios do app.",
+  "declaracao_fortalecimento": "Bloco criativo e profundo de fortalecimento (MRI) baseado no fato, para mudar o padrão. REGRAS OBRIGATÓRIAS: 2 frases com prefixo 'Espírito, eu escolho...' e 2 frases com prefixo 'Alma, eu já...'. Ex: 'Espírito, eu escolho agir com presença e sabedoria.\nAlma, eu já me sinto capacitado e seguro.'",
   "reflexao": "frase empática de 2-3 linhas acolhendo o que foi ouvido",
   "pergunta_aprofundamento": "uma única pergunta natural, empática e fluida em português perfeito investigando os impactos reais do fato (sem frases prontas)",
   "leitura_ajuste": "diagnóstico informacional profundo (2-3 linhas) revelando a causa raiz e por que este padrão se formou como defesa inconsciente no relato do cliente",
