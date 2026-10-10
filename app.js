@@ -1654,7 +1654,7 @@ function initApp() {
             if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
             if (inputAiRelato) {
                 inputAiRelato.style.height = "140px";
-                inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho e me senti incompetente e com raiva...)";
+                inputAiRelato.placeholder = "Exemplo: Fato: bati o carro ontem / briguei com meu marido hoje / fui demitido do meu trabalho semana passada.";;
             }
             if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
             if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
@@ -3222,7 +3222,7 @@ Retorne JSON no formato exato:
                 if (quickTopicsContainer) quickTopicsContainer.style.display = "none";
                 if (inputAiRelato) {
                     inputAiRelato.style.height = "140px";
-                    inputAiRelato.placeholder = "Escreva aqui o que aconteceu (Ex: Fiquei muito chateado(a) na reunião de ontem porque sinto que meu chefe desvalorizou meu empenho...)";
+                    inputAiRelato.placeholder = "Exemplo: Fato: bati o carro ontem / briguei com meu marido hoje / fui demitido do meu trabalho semana passada.";
                 }
                 if (step1Title) step1Title.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--color-primary);"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Descreva seu Desconforto ou Fato Recente`;
                 if (step1Desc) step1Desc.textContent = "Conte o que aconteceu recentemente e qual sentimento isso gerou em você. Nossa inteligência ajudará a construir seu processo de liberação.";
