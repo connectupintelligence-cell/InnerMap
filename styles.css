@@ -1833,6 +1833,10 @@ body.mode-therapist .main-content {
         display: none !important; /* Esconde badge no celular para economizar espaço */
     }
     
+    header.header-nav #btn-account-settings {
+        display: none !important; /* Já existe no menu inferior no mobile */
+    }
+    
     header.header-nav .btn-logout {
         font-size: 0.82rem !important;
         padding: 0.45rem 0.8rem !important;
