@@ -5169,7 +5169,23 @@ if (document.readyState === "complete" || document.readyState === "interactive")
         
         for (let i = 0; i < 7; i++) {
             const videoUrl = videos[i] || "";
-            const embedUrl = getEmbedUrl(videoUrl);
+            let embedUrl = getEmbedUrl(videoUrl);
+            let isDirectVideo = false;
+            
+            // Check if it's a direct video file from Supabase or .mp4
+            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm")) {
+                embedUrl = videoUrl;
+                isDirectVideo = true;
+            }
+            
+            let videoHTML = `<div class="timeline-empty">Vídeo em breve...</div>`;
+            if (embedUrl) {
+                if (isDirectVideo) {
+                    videoHTML = `<div class="timeline-video-wrapper"><video src="${embedUrl}" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video></div>`;
+                } else {
+                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
+                }
+            }
             
             html += `
                 <div class="timeline-step">
@@ -5178,10 +5194,7 @@ if (document.readyState === "complete" || document.readyState === "interactive")
                         <div class="timeline-title">
                             <span class="day-badge">${days[i]}</span>
                         </div>
-                        ${embedUrl 
-                            ? `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`
-                            : `<div class="timeline-empty">Vídeo em breve...</div>`
-                        }
+                        ${videoHTML}
                     </div>
                 </div>
             `;
@@ -5220,6 +5233,43 @@ if (document.readyState === "complete" || document.readyState === "interactive")
         
         modal.style.display = "flex";
     };
+
+    
+    window.uploadChallengeVideo = async function(fileInput, dayIndex) {
+        const file = fileInput.files[0];
+        if (!file) return;
+        
+        if (!supabaseClient) {
+            showToast("Supabase não configurado.");
+            return;
+        }
+        
+        const inputField = document.getElementById(`challenge-vid-${dayIndex}`);
+        if (inputField) inputField.value = "Fazendo upload... aguarde (não feche)";
+        
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `dia_${dayIndex}_${Date.now()}.${fileExt}`;
+            
+            const { data, error } = await supabaseClient.storage
+                .from('desafio_videos')
+                .upload(fileName, file, { upsert: true });
+                
+            if (error) throw error;
+            
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('desafio_videos')
+                .getPublicUrl(fileName);
+                
+            if (inputField) inputField.value = publicUrlData.publicUrl;
+            showToast(`Vídeo do Dia ${dayIndex} carregado com sucesso!`);
+        } catch (err) {
+            console.error("Erro no upload:", err);
+            if (inputField) inputField.value = "";
+            alert("ERRO: Para usar o upload, você precisa ir no painel do Supabase, clicar em 'Storage' e criar um bucket com o nome exato 'desafio_videos'. Nas opções do bucket, marque-o como Público (Public). Detalhe técnico: " + err.message);
+        }
+    };
+
 
     window.saveChallengeConfig = async function() {
         const btn = document.getElementById("btn-save-challenge");

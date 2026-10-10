@@ -210,7 +210,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=132">
+    <link rel="stylesheet" href="styles.css?v=133">
 </head>
 <body>
 
@@ -1429,7 +1429,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=132"></script>
+    <script src="app.js?v=133"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
@@ -1668,41 +1668,83 @@
             <h3 class="modal-title" style="color: var(--color-primary); margin-bottom: 0.5rem;">Configurar Vídeos da Jornada</h3>
             <p class="modal-subtitle" style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Cole os links (YouTube) para os 7 vídeos do desafio. Deixe em branco se ainda não tiver o vídeo correspondente.</p>
             
-            <div id="challenge-config-inputs" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div id="challenge-config-inputs" style="display: flex; flex-direction: column; gap: 0.5rem;">
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 1</label>
-                    <input type="url" id="challenge-vid-1" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 1</label>
+                        <input type="text" id="challenge-vid-1" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 1)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 2</label>
-                    <input type="url" id="challenge-vid-2" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 2</label>
+                        <input type="text" id="challenge-vid-2" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 2)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 3</label>
-                    <input type="url" id="challenge-vid-3" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 3</label>
+                        <input type="text" id="challenge-vid-3" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 3)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 4</label>
-                    <input type="url" id="challenge-vid-4" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 4</label>
+                        <input type="text" id="challenge-vid-4" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 4)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 5</label>
-                    <input type="url" id="challenge-vid-5" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 5</label>
+                        <input type="text" id="challenge-vid-5" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 5)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 6</label>
-                    <input type="url" id="challenge-vid-6" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 6</label>
+                        <input type="text" id="challenge-vid-6" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 6)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 7</label>
-                    <input type="url" id="challenge-vid-7" class="text-input" placeholder="Ex: https://youtube.com/watch?v=..." style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                <div class="form-group" style="display: flex; gap: 0.5rem; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.8rem; color: #E8A855; margin-bottom: 0.3rem;">Vídeo Dia 7</label>
+                        <input type="text" id="challenge-vid-7" class="text-input" placeholder="Link do YouTube ou clique no botão Upload" style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">
+                    </div>
+                    <label class="btn btn-outline" style="padding: 0.5rem 0.8rem; cursor: pointer; border-radius: 8px; margin-bottom: 0;" title="Fazer upload do seu computador">
+                        <input type="file" style="display:none" accept="video/mp4,video/webm,video/*" onchange="window.uploadChallengeVideo(this, 7)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </label>
                 </div>
                 
             </div>
