@@ -5195,7 +5195,7 @@ if (document.readyState === "complete" || document.readyState === "interactive")
                 if (isDirectVideo) {
                     videoHTML = `<div class="timeline-video-wrapper"><video src="${embedUrl}" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"></video></div>`;
                 } else {
-                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" allowfullscreen></iframe></div>`;
+                    videoHTML = `<div class="timeline-video-wrapper"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe></div>`;
                 }
             }
             
