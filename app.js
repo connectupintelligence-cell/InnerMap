@@ -1231,7 +1231,7 @@ function initApp() {
     // Abas e Workspaces
     const navApp = document.getElementById("nav-app");
     const navAgenda = document.getElementById("nav-agenda");
-    const navLib = document.getElementById("nav-lib");
+    
     const navNav = document.getElementById("nav-rag"); // matches nav-rag
     
     const navDesafio = document.getElementById("nav-desafio");
@@ -1248,7 +1248,7 @@ function initApp() {
     const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
     const sectionAgenda = document.getElementById("agenda-workspace");
-    const sectionLib = document.getElementById("library-workspace");
+    
     const sectionRag = document.getElementById("rag-workspace");
     
     // Elementos do Simulador RAG
@@ -1315,6 +1315,8 @@ function initApp() {
         navAgenda.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(navAgenda, sectionAgenda);
+            renderLibrary();
+            renderStats();
             if (window.renderAgenda) window.renderAgenda();
         });
     }
@@ -1329,15 +1331,6 @@ function initApp() {
             switchTab(navTherapist, sectionApp);
             showScreen("therapist");
             loadTherapistDashboardData();
-        });
-    }
-
-    if (navLib) {
-        navLib.addEventListener("click", (e) => {
-            e.preventDefault();
-            switchTab(navLib, sectionLib);
-            renderLibrary();
-            renderStats();
         });
     }
 
@@ -1379,18 +1372,12 @@ function initApp() {
         mAgenda.addEventListener("click", (e) => {
             e.preventDefault();
             switchTab(mAgenda, sectionAgenda);
+            renderLibrary();
+            renderStats();
             if (window.renderAgenda) window.renderAgenda();
         });
     }
 
-    if (mLib) {
-        mLib.addEventListener("click", (e) => {
-            e.preventDefault();
-            switchTab(mLib, sectionLib);
-            renderLibrary();
-            renderStats();
-        });
-    }
 
     if (mTherapist) {
         mTherapist.addEventListener("click", (e) => {
