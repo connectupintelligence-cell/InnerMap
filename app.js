@@ -1286,18 +1286,6 @@ function initApp() {
     if (navAgenda) {
         navAgenda.addEventListener("click", (e) => {
             e.preventDefault();
-            if (!state.currentUser) {
-                showToast("Acesse sua conta para ver sua agenda.");
-                switchTab(navApp, sectionApp);
-                showScreen("auth");
-                return;
-            }
-            if (!state.subscription && state.currentUser.role !== "therapist") {
-                showToast("Assine um plano para ver sua agenda.");
-                switchTab(navApp, sectionApp);
-                showScreen("paywall");
-                return;
-            }
             switchTab(navAgenda, sectionAgenda);
             if (window.renderAgenda) window.renderAgenda();
         });
@@ -1319,18 +1307,6 @@ function initApp() {
     if (navLib) {
         navLib.addEventListener("click", (e) => {
             e.preventDefault();
-            if (!state.currentUser) {
-                showToast("Acesse sua conta para ver suas Reorganizações.");
-                switchTab(navApp, sectionApp);
-                showScreen("auth");
-                return;
-            }
-            if (!state.subscription) {
-                showToast("Assine um plano para ver suas Reorganizações.");
-                switchTab(navApp, sectionApp);
-                showScreen("paywall");
-                return;
-            }
             switchTab(navLib, sectionLib);
             renderLibrary();
             renderStats();
@@ -1374,18 +1350,6 @@ function initApp() {
     if (mAgenda) {
         mAgenda.addEventListener("click", (e) => {
             e.preventDefault();
-            if (!state.currentUser) {
-                showToast("Acesse sua conta para ver sua agenda.");
-                switchTab(mApp, sectionApp);
-                showScreen("auth");
-                return;
-            }
-            if (!state.subscription && state.currentUser.role !== "therapist") {
-                showToast("Assine um plano para ver sua agenda.");
-                switchTab(mApp, sectionApp);
-                showScreen("paywall");
-                return;
-            }
             switchTab(mAgenda, sectionAgenda);
             if (window.renderAgenda) window.renderAgenda();
         });
@@ -1394,18 +1358,6 @@ function initApp() {
     if (mLib) {
         mLib.addEventListener("click", (e) => {
             e.preventDefault();
-            if (!state.currentUser) {
-                showToast("Acesse sua conta para ver suas Reorganizações.");
-                switchTab(mApp, sectionApp);
-                showScreen("auth");
-                return;
-            }
-            if (!state.subscription) {
-                showToast("Assine um plano para ver suas Reorganizações.");
-                switchTab(mApp, sectionApp);
-                showScreen("paywall");
-                return;
-            }
             switchTab(mLib, sectionLib);
             renderLibrary();
             renderStats();
