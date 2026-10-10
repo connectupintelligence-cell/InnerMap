@@ -210,7 +210,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=142">
+    <link rel="stylesheet" href="styles.css?v=143">
 </head>
 <body>
 
@@ -745,27 +745,12 @@
 <!-- TUTORIAL SCREEN -->
                 <div id="screen-tutorial" class="app-screen">
                     <h2 class="step-title">Tutorial do App</h2>
-                    <p class="step-subtitle">Aprenda a usar cada funcionalidade de forma técnica.</p>
-                    <div class="glass-card" style="padding: 2rem; border-radius: 16px; text-align: left; margin-bottom: 2rem;">
-                        <h3 style="color: var(--color-primary); margin-bottom: 1rem;">O que faz cada botão?</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            <div>
-                                <strong style="color: #FFF;">Botão Início / Nova Sessão:</strong>
-                                <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Inicia um novo processo de reorganização informacional. Aqui você escreve ou dita o seu relato (desabafo) para a Inteligência Artificial mapear.</p>
-                            </div>
-                            <div>
-                                <strong style="color: #FFF;">Ícone de Microfone:</strong>
-                                <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Permite que você dite o seu relato com a própria voz, facilitando o desabafo contínuo sem precisar digitar.</p>
-                            </div>
-                            <div>
-                                <strong style="color: #FFF;">Aba Agenda:</strong>
-                                <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Mostra as suas obrigações diárias de fortalecimento. Aqui você encontra as frases (decretos) que precisa repetir por 15 dias para ancorar sua reprogramação mental.</p>
-                            </div>
-                            <div>
-                                <strong style="color: #FFF;">Aba Biblioteca:</strong>
-                                <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Seu histórico completo. Todas as sessões anteriores, com suas respectivas leituras de padrão e microações, ficam salvas aqui para revisão futura.</p>
-                            </div>
-                        </div>
+                    <p class="step-subtitle">Aprenda a usar cada funcionalidade passo a passo.</p>
+                    
+                    <button id="btn-admin-tutorial" class="btn btn-outline" style="display:none; margin: 0 auto 1.5rem auto;" onclick="window.openTutorialConfigModal()">⚙️ Configurar Passos do Tutorial</button>
+                    
+                    <div id="tutorial-timeline" class="challenge-timeline-container">
+                        <div style="text-align:center; padding: 2rem; color: var(--color-text-muted);">Carregando tutorial...</div>
                     </div>
                 </div>
 
@@ -1430,7 +1415,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=142"></script>
+    <script src="app.js?v=143"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
