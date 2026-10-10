@@ -233,7 +233,7 @@ window.handleAppLogout = function(e) {
         
         try {
             const fileExt = file.name.split('.').pop();
-            const fileName = `tutorial_passo_${stepIndex}_${Date.now()}.${fileExt}`;
+            const fileName = `tutorial_${currentTutorialTab}_passo_${stepIndex}_${Date.now()}.${fileExt}`;
             
             // USING THE SAME BUCKET 'desafio_videos' SO THEY DON'T NEED TO CREATE ANOTHER ONE!
             const { data, error } = await supabaseClient.storage
