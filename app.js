@@ -5121,6 +5121,8 @@ Pergunta atual: "${query}"
     });
 }
 
+    loadChallengeVideos();
+
 window.initApp = initApp;
 
 if (document.readyState === "complete" || document.readyState === "interactive") {
