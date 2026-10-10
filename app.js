@@ -435,10 +435,10 @@ function buildDeclarations(phrase, isHereditary, hereditaryType, addedFacts, cat
     if (isHereditary) {
         const type = hereditaryType || "comportamento";
         if (type === "sentimento" || type === "comportamento") {
-            msi += `Alma, "${cleanConcept.toLowerCase()}" (que recebi ou recebido) do primeiro dia de minha existência até a primeira infância, acabou!\n`;
+            msi += `Alma, "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabou!\n`;
         }
         if (type === "pensamento" || type === "comportamento") {
-            msi += `Espírito, "${cleanConcept.toLowerCase()}" (que recebi ou recebido) do primeiro dia de minha existência até a primeira infância, acabou!`;
+            msi += `Espírito, "${cleanConcept.toLowerCase()}" que recebi do primeiro dia de minha existência até a primeira infância, acabou!`;
         }
         msi = msi.trim();
     }
@@ -2213,7 +2213,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.customLlmAjuste = aiData.leitura_ajuste || aiData.reflexao;
                 state.customLlmMovimento = aiData.movimento_sugerido || "Conecte-se com sua intenção consciente e direcione sua atenção para o objetivo desejado com presença e serenidade.";
                 state.customLlmDeclaracaoFortalecimento = aiData.declaracao_fortalecimento || null;
-                state.isHereditary = state.selectedMode === 3 ? false : true;
+                state.isHereditary = (state.selectedMode === 2);
                 state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
 
                 // Se for Modo 3 (Motivação Rápida), vai direto para os ajustes sem parar na pergunta!
@@ -2249,7 +2249,7 @@ Retorne um objeto JSON válido contendo exatamente as chaves abaixo:
                 state.customLlmMicroaction = null;
                 state.customLlmAjuste = null;
                 state.customLlmMovimento = null;
-                state.isHereditary = state.selectedMode === 3 ? false : true;
+                state.isHereditary = (state.selectedMode === 2);
                 state.selectedLevel = state.selectedMode === 3 ? "iniciante" : "avancado";
 
                 if (state.selectedMode === 3) {
@@ -2635,7 +2635,7 @@ Retorne JSON no formato exato:
     }
 
     function resetStep1Wizard() {
-        state.isHereditary = true;
+        state.isHereditary = (state.selectedMode === 2);
         state.hereditaryType = null;
         state.addedFacts = [];
         state.factDetail = "";
