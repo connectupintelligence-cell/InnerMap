@@ -74,11 +74,34 @@ window.handleAppLogout = function(e) {
     // ==========================================================================
     // TUTORIAL (PASSOS)
     // ==========================================================================
-    let tutorialVideos = [];
+    // Dois tutoriais independentes: APP (chave antiga, preserva vídeos já salvos) e MÉTODO
+    const TUTORIAL_KEYS = { app: "tutorial_videos", metodo: "tutorial_videos_metodo" };
+    const TUTORIAL_LABELS = {
+        app: { title: "Tutorial do App", subtitle: "Aprenda a usar cada funcionalidade passo a passo." },
+        metodo: { title: "Tutorial do Método", subtitle: "Entenda o Método InnerMap passo a passo." }
+    };
+    let tutorialData = { app: [], metodo: [] };
+    let currentTutorialTab = "app";
+    let tutorialVideos = tutorialData.app;
+
+    window.switchTutorialTab = function(tab) {
+        if (!TUTORIAL_KEYS[tab]) return;
+        currentTutorialTab = tab;
+        tutorialVideos = tutorialData[tab] || [];
+        document.querySelectorAll(".tutorial-tab-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.tab === tab);
+        });
+        const titleEl = document.getElementById("tutorial-title");
+        const subEl = document.getElementById("tutorial-subtitle");
+        if (titleEl) titleEl.textContent = TUTORIAL_LABELS[tab].title;
+        if (subEl) subEl.textContent = TUTORIAL_LABELS[tab].subtitle;
+        renderTutorialTimeline(tutorialVideos);
+    };
     
     function renderTutorialTimeline(videos) {
         const container = document.getElementById("tutorial-timeline");
         if (!container) return;
+        videos = videos || [];
         
         let html = "";
         const stepsTitles = ["Passo 1", "Passo 2", "Passo 3", "Passo 4", "Passo 5", "Passo 6", "Passo 7"];
@@ -120,16 +143,22 @@ window.handleAppLogout = function(e) {
 
     async function loadTutorialVideos() {
         try {
-            if (!supabaseClient) return;
+            if (!supabaseClient) { renderTutorialTimeline(tutorialVideos); return; }
             const { data, error } = await supabaseClient
                 .from("system_config")
-                .select("value")
-                .eq("key", "tutorial_videos")
-                .single();
+                .select("key, value")
+                .in("key", [TUTORIAL_KEYS.app, TUTORIAL_KEYS.metodo]);
                 
-            if (data && data.value) {
-                tutorialVideos = JSON.parse(data.value);
+            if (data && Array.isArray(data)) {
+                data.forEach(row => {
+                    try {
+                        const parsed = JSON.parse(row.value);
+                        if (row.key === TUTORIAL_KEYS.app) tutorialData.app = parsed;
+                        if (row.key === TUTORIAL_KEYS.metodo) tutorialData.metodo = parsed;
+                    } catch (e) {}
+                });
             }
+            tutorialVideos = tutorialData[currentTutorialTab] || [];
             renderTutorialTimeline(tutorialVideos);
         } catch (err) {
             console.error("Erro ao carregar tutorial:", err);
@@ -141,9 +170,16 @@ window.handleAppLogout = function(e) {
         const modal = document.getElementById("tutorial-config-modal");
         if (!modal) return;
         
+        const tabName = currentTutorialTab === "metodo" ? "MÉTODO" : "APP";
+        const titleEl = document.getElementById("tutorial-config-title");
+        const subEl = document.getElementById("tutorial-config-subtitle");
+        if (titleEl) titleEl.textContent = `Configurar Tutorial — ${tabName}`;
+        if (subEl) subEl.textContent = `Cole os links (YouTube) ou faça upload para os 7 passos do tutorial ${tabName}.`;
+        
+        const videos = tutorialData[currentTutorialTab] || [];
         for (let i = 0; i < 7; i++) {
             const input = document.getElementById(`tutorial-vid-${i+1}`);
-            if (input) input.value = tutorialVideos[i] || "";
+            if (input) input.value = videos[i] || "";
         }
         
         modal.style.display = "flex";
@@ -152,6 +188,7 @@ window.handleAppLogout = function(e) {
     window.saveTutorialConfig = async function() {
         const btn = document.getElementById("btn-save-tutorial");
         if (btn) btn.innerHTML = "Salvando...";
+        const tab = currentTutorialTab;
         
         let newVideos = [];
         for (let i = 0; i < 7; i++) {
@@ -163,15 +200,16 @@ window.handleAppLogout = function(e) {
             const { error } = await supabaseClient
                 .from("system_config")
                 .upsert({
-                    key: "tutorial_videos",
+                    key: TUTORIAL_KEYS[tab],
                     value: JSON.stringify(newVideos)
                 }, { onConflict: "key" });
                 
             if (error) throw error;
             
+            tutorialData[tab] = newVideos;
             tutorialVideos = newVideos;
             renderTutorialTimeline(tutorialVideos);
-            showToast("Passos do Tutorial salvos com sucesso!");
+            showToast(`Tutorial ${tab === "metodo" ? "do Método" : "do App"} salvo com sucesso!`);
             document.getElementById("tutorial-config-modal").style.display = "none";
         } catch (err) {
             console.error("Erro ao salvar tutorial:", err);
