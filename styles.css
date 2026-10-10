@@ -1756,10 +1756,17 @@ body.mode-therapist .main-content {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 9000;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
     padding: 0 1rem;
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    overflow-x: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.mobile-bottom-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .mobile-nav-item {
@@ -1770,9 +1777,11 @@ body.mode-therapist .main-content {
     color: var(--color-text-muted);
     text-decoration: none;
     font-size: 0.75rem;
+    min-width: 68px;
+    flex: 0 0 auto;
+
     font-weight: 500;
     transition: var(--transition-smooth);
-    flex: 1;
     height: 100%;
     gap: 0.25rem;
 }

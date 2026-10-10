@@ -1137,6 +1137,8 @@ function initApp() {
         step4: document.getElementById("screen-step4"),
         auth: document.getElementById("screen-auth"),
         paywall: document.getElementById("screen-paywall"),
+        desafio: document.getElementById("screen-desafio"),
+        tutorial: document.getElementById("screen-tutorial"),
         therapist: document.getElementById("screen-therapist")
     };
     
@@ -1231,6 +1233,18 @@ function initApp() {
     const navAgenda = document.getElementById("nav-agenda");
     const navLib = document.getElementById("nav-lib");
     const navNav = document.getElementById("nav-rag"); // matches nav-rag
+    
+    const navDesafio = document.getElementById("nav-desafio");
+    const mobileNavDesafio = document.getElementById("mobile-nav-desafio");
+    const navTutorial = document.getElementById("nav-tutorial");
+    const mobileNavTutorial = document.getElementById("mobile-nav-tutorial");
+
+    if (navDesafio) navDesafio.addEventListener("click", (e) => { e.preventDefault(); showScreen("desafio"); updateActiveNav("nav-desafio", "mobile-nav-desafio"); });
+    if (mobileNavDesafio) mobileNavDesafio.addEventListener("click", (e) => { e.preventDefault(); showScreen("desafio"); updateActiveNav("nav-desafio", "mobile-nav-desafio"); });
+    
+    if (navTutorial) navTutorial.addEventListener("click", (e) => { e.preventDefault(); showScreen("tutorial"); updateActiveNav("nav-tutorial", "mobile-nav-tutorial"); });
+    if (mobileNavTutorial) mobileNavTutorial.addEventListener("click", (e) => { e.preventDefault(); showScreen("tutorial"); updateActiveNav("nav-tutorial", "mobile-nav-tutorial"); });
+
     const navTherapist = document.getElementById("nav-therapist"); // matches nav-therapist
     const sectionApp = document.getElementById("app-workspace");
     const sectionAgenda = document.getElementById("agenda-workspace");
