@@ -242,7 +242,7 @@ if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
 // Caso queira usar links estáticos diretos gerados no app, preencha-os abaixo.
 const INFINITEPAY_TAG = "felipefavalli";
 const INFINITEPAY_LINK_MONTHLY = "https://pay.infinitepay.io/felipefavalli/89,90";
-const INFINITEPAY_LINK_YEARLY = "https://pay.infinitepay.io/felipefavalli/838,80";
+const INFINITEPAY_LINK_YEARLY = "https://invoice.infinitepay.io/plans/felipefavalli/EIr41GTCsc";
 
 // Banco de dados de padrões predefinidos para o motor de conteúdo
 const INFORMATIONAL_DATABASE = {
@@ -3678,7 +3678,7 @@ Retorne JSON no formato exato:
         
         console.log("Iniciando checkout instantâneo para plano:", plan);
         const targetUrl = plan === "yearly" ? 
-            (INFINITEPAY_LINK_YEARLY || "https://pay.infinitepay.io/felipefavalli/838,80") : 
+            (INFINITEPAY_LINK_YEARLY || "https://invoice.infinitepay.io/plans/felipefavalli/EIr41GTCsc") : 
             (INFINITEPAY_LINK_MONTHLY || "https://pay.infinitepay.io/felipefavalli/89,90");
             
         try {
