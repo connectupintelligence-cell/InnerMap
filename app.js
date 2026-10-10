@@ -1281,7 +1281,7 @@ function initApp() {
     if (supabaseClient) {
         // Carregar chave de API em background (não-bloqueante) para concordância funcionar em todos os fluxos
         supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single()
-            .then(({ data }) => { if (data && data.value) state.apiKey = data.value; })
+            .then(({ data }) => { if (data && data.value) { state.dbApiKey = data.value; if (!SafeStorage.getItem("innermap_gemini_key")) state.apiKey = data.value; } })
             .catch(e => console.warn("Chave de API não carregada no startup:", e));
     }
     const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
@@ -2008,7 +2008,7 @@ Retorne um objeto JSON contendo exatamente as chaves com a flexão do tema em ca
     window.handleAiAnalysis = async function() {
         if (!inputAiRelato) return;
             const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = state.apiKey || SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
+            let apiKey = SafeStorage.getItem("innermap_gemini_key") || state.apiKey || state.dbApiKey || DEFAULT_OPENAI_KEY;
 
             if (!apiKey) {
                 try {
@@ -2909,7 +2909,7 @@ Retorne JSON no formato exato:
 
             // Transcrever áudio via Whisper API (OpenAI/Groq) se houver chave configurada
             const DEFAULT_OPENAI_KEY = atob("c2stcHJvai0ydlU1M0loQWo3VFlUUmQzTHJXQVpodkc1V2JXdnNUX05lUGZhNjhyYWZmWUVTV01IcHN1T25lU2c3UktXWmxVU2lfd2tLcFdrSVQzQmxia0ZKU0RpVDYtemZnTi16ZHNUZDJFaEU0OGVITzl4RjhIZmVHZTd5TnVvMFViN213YUpOa0didUhDLXA5RGpIMFpKcTgwRmdSTGt0c0E=");
-            let apiKey = state.apiKey || SafeStorage.getItem("innermap_gemini_key") || DEFAULT_OPENAI_KEY;
+            let apiKey = SafeStorage.getItem("innermap_gemini_key") || state.apiKey || state.dbApiKey || DEFAULT_OPENAI_KEY;
             if (!apiKey && supabaseClient) {
                 try {
                     const { data } = await supabaseClient.from("system_config").select("value").eq("key", "gemini_api_key").single();
