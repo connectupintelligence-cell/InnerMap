@@ -5236,8 +5236,8 @@ if (document.readyState === "complete" || document.readyState === "interactive")
         const modal = document.getElementById("challenge-config-modal");
         if (!modal) return;
         
-        for (let i = 0; i < 7; i++) {
-            const input = document.getElementById(`challenge-vid-${i+1}`);
+        for (let i = 0; i < 8; i++) {
+            const input = document.getElementById(`challenge-vid-${i}`);
             if (input) input.value = challengeVideos[i] || "";
         }
         
@@ -5286,8 +5286,8 @@ if (document.readyState === "complete" || document.readyState === "interactive")
         if (btn) btn.innerHTML = "Salvando...";
         
         let newVideos = [];
-        for (let i = 0; i < 7; i++) {
-            const input = document.getElementById(`challenge-vid-${i+1}`);
+        for (let i = 0; i < 8; i++) {
+            const input = document.getElementById(`challenge-vid-${i}`);
             newVideos.push(input ? input.value.trim() : "");
         }
         
