@@ -3421,7 +3421,7 @@ Retorne JSON no formato exato:
             userNavContainer.style.display = "none";
             if (mobileBtnLogout) mobileBtnLogout.style.display = "none";
             const mobileAccount = document.getElementById("mobile-nav-account");
-            if (mobileAccount) mobileAccount.style.display = "none";
+            if (mobileAccount) mobileAccount.style.display = "flex"; // MANTER MINHA CONTA VISIVEL ANTES DO LOGIN
             if (btnLoginTrigger) btnLoginTrigger.style.display = "inline-flex";
             if (btnHeroLogin) btnHeroLogin.style.display = "inline-block";
             document.body.classList.remove("user-logged-in");
