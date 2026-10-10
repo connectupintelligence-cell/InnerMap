@@ -2620,7 +2620,7 @@ Retorne JSON no formato exato:
                     if (outputMicroacao) outputMicroacao.innerText = result.microacao;
                 }
                 
-                showScreen("step2");
+                showScreen("step3");
             } catch (err) {
                 console.error("Erro na geração final:", err);
                 showToast("Erro ao gerar reorganização: " + err.message);
