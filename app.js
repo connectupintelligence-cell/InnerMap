@@ -5160,6 +5160,8 @@ if (document.readyState === "complete" || document.readyState === "interactive")
                 videoId = new URL(url).searchParams.get("v");
             } else if (url.includes("youtu.be/")) {
                 videoId = url.split("youtu.be/")[1]?.split("?")[0];
+            } else if (url.includes("youtube.com/shorts/")) {
+                videoId = url.split("youtube.com/shorts/")[1]?.split("?")[0];
             } else if (url.includes("youtube.com/embed/")) {
                 return url;
             }
