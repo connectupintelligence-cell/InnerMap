@@ -210,7 +210,7 @@
     <meta name="apple-mobile-web-app-title" content="InnerMap">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css?v=144">
+    <link rel="stylesheet" href="styles.css?v=145">
 </head>
 <body>
 
@@ -1332,7 +1332,57 @@
         </div>
     </div>
 
-    </main>
+    
+                <!-- PAYMENT SUCCESS SCREEN -->
+                <div id="screen-payment-success" class="app-screen">
+                    <div class="glass-card" style="max-width: 600px; margin: 2rem auto; padding: 3rem 2rem; text-align: center; border-radius: 16px; border: 1px solid rgba(102, 252, 241, 0.4); background: rgba(10, 12, 22, 0.6); position: relative; overflow: hidden;">
+                        
+                        <!-- Confetti/Glow Background -->
+                        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(102, 252, 241, 0.1) 0%, transparent 60%); z-index: 0; pointer-events: none;"></div>
+
+                        <div style="position: relative; z-index: 1;">
+                            <div style="width: 80px; height: 80px; background: rgba(102, 252, 241, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 2px solid var(--color-primary);">
+                                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            
+                            <h2 style="font-size: 1.8rem; color: var(--color-primary); margin-bottom: 0.5rem;">Pagamento Aprovado!</h2>
+                            <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 2rem;">Sua assinatura foi processada com sucesso pela InfinitePay.</p>
+                            
+                            <!-- Demo do que comprou -->
+                            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+                                <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">O que você desbloqueou:</h3>
+                                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.8rem;">
+                                    <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                                        <span style="color: var(--color-primary);">✓</span>
+                                        <span style="font-size: 0.9rem; color: #ddd;">Acesso completo à Inteligência Artificial do InnerMap</span>
+                                    </li>
+                                    <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                                        <span style="color: var(--color-primary);">✓</span>
+                                        <span style="font-size: 0.9rem; color: #ddd;">Histórico ilimitado e acompanhamento de Progresso</span>
+                                    </li>
+                                    <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                                        <span style="color: var(--color-primary);">✓</span>
+                                        <span style="font-size: 0.9rem; color: #ddd;">Jornada de 7 Dias do Desafio & Tutoriais completos</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Dias e Renovação -->
+                            <div style="background: rgba(232, 168, 85, 0.1); border: 1px dashed #E8A855; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                                <h4 style="color: #E8A855; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Status do Plano</h4>
+                                <p style="margin: 0 0 1rem 0; font-size: 0.95rem;">Faltam <strong id="success-days-left" style="font-size: 1.2rem; color: #fff;">365</strong> dias para o seu plano expirar.</p>
+                                
+                                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #ddd;">
+                                    <strong style="color: #E8A855;">🎁 PROMOÇÃO:</strong> Se você renovar a sua assinatura <em>antes</em> desses dias acabarem, você ganha automaticamente <strong>15 dias gratuitos</strong> adicionados ao seu plano!
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);" onclick="window.showScreen('app');">Começar a Usar Agora</button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
 
     <!-- Footer -->
     <footer class="footer-quantum">
@@ -1415,7 +1465,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="app.js?v=144"></script>
+    <script src="app.js?v=145"></script>
     <script>
         // Monitoramento de inicialização do app.js
         setTimeout(() => {
