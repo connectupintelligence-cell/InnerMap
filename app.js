@@ -3897,10 +3897,10 @@ Retorne JSON no formato exato:
 
 
     // DELEGAÇÃO DE EVENTOS PARA BOTÃO DE EXCLUIR NO PROGRESSO
-    const libraryContainer = document.getElementById("library-container");
-    if (libraryContainer && !libraryContainer.dataset.deleteBound) {
-        libraryContainer.dataset.deleteBound = "true";
-        libraryContainer.addEventListener("click", async (e) => {
+    const libContEl = document.getElementById("library-container");
+    if (libContEl && !libContEl.dataset.deleteBound) {
+        libContEl.dataset.deleteBound = "true";
+        libContEl.addEventListener("click", async (e) => {
             const btnDelete = e.target.closest('.btn-delete-progresso');
             if (btnDelete) {
                 e.stopPropagation();
