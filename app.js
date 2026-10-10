@@ -5175,15 +5175,15 @@ if (document.readyState === "complete" || document.readyState === "interactive")
         if (!container) return;
         
         let html = "";
-        const days = ["Dia 1 - VIDRO", "Dia 2", "Dia 3", "Dia 4", "Dia 5", "Dia 6", "Dia 7"];
+        const days = ["Vídeo Base (Início)", "Dia 1 - VIDRO", "Dia 2", "Dia 3", "Dia 4", "Dia 5", "Dia 6", "Dia 7"];
         
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 8; i++) {
             const videoUrl = videos[i] || "";
             let embedUrl = getEmbedUrl(videoUrl);
             let isDirectVideo = false;
             
             // Check if it's a direct video file from Supabase or .mp4
-            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm")) {
+            if (videoUrl.includes("supabase.co/storage") || videoUrl.endsWith(".mp4") || videoUrl.endsWith(".webm") || videoUrl.includes("firebasestorage")) {
                 embedUrl = videoUrl;
                 isDirectVideo = true;
             }
@@ -5202,7 +5202,7 @@ if (document.readyState === "complete" || document.readyState === "interactive")
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <div class="timeline-title">
-                            <span class="day-badge">${days[i]}</span>
+                            <span class="day-badge" style="${i === 0 ? 'background: rgba(232, 168, 85, 0.15); color: #E8A855;' : ''}">${days[i]}</span>
                         </div>
                         ${videoHTML}
                     </div>
